@@ -175,6 +175,7 @@ form{display:flex;flex-direction:column;gap:14px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label,.field .lb{font-weight:700;font-size:15px}
 .field .hint{font-size:13px;color:var(--muted)}
+.idrow{display:flex;flex-direction:column;gap:6px}.idpre{font-weight:700;color:var(--sc,var(--accent));font-size:1.05rem}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .fsec{border:1px solid var(--line);border-left:5px solid var(--sc,var(--primary));border-radius:14px;padding:14px 14px 16px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px;margin:14px 0}
 .fsec-h{margin:0;font:800 14px/1.2 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--sc,var(--primary));display:flex;align-items:center;gap:10px}
@@ -1075,6 +1076,15 @@ function viewGoal(today){
     el.addEventListener('input',()=>{f[id.slice(2)]=el.value});
     return h('div',{class:'field'},h('label',{for:id,text:label,class:sr?'sr':null}),hint?h('span',{class:'hint',text:hint}):null,el);
   }
+  function idField(){
+    const el=h('input',{id:'f-identity',type:'text',autocomplete:'off',maxlength:'160',placeholder:'npr. skrbi za svoje telo','aria-label':'Sem oseba, ki'});
+    const strip=v=>v.replace(/^\s*sem\s+oseba,?\s+ki\s+/i,'');
+    el.value=strip(f.identity||'');f.identity=el.value;
+    el.addEventListener('input',()=>{f.identity=el.value});
+    el.addEventListener('blur',()=>{el.value=strip(el.value);f.identity=el.value});
+    return h('div',{class:'field'},h('span',{class:'hint',text:'Ne gre le za to, kaj narediš, ampak za to, kdo postajaš. Vsaka izvedba je glas za to osebo. Dopolni stavek, primer: skrbi za svoje telo.'}),
+      h('div',{class:'idrow'},h('span',{class:'idpre',text:'Sem oseba, ki'}),el));
+  }
   const SC=['--primary','--accent','--rest','--min'];let secN=0;
   function sec(num,title,...kids){
     const c=SC[(secN++)%SC.length];
@@ -1112,7 +1122,7 @@ function viewGoal(today){
   form.append(sec('5','Pripnem na obstoječo navado',field('f-anchor','Pripnem na obstoječo navado','npr. po kavi, po večerji, ko pridem domov',{maxlength:'160'},null,true)));
   form.append(sec('6','Če se pojavi ovira, potem …',field('f-ifthen','Če se pojavi ovira, potem …','npr. Če dežuje, potem naredim 10 minut doma.',{maxlength:'240'},'area',true)));
   form.append(sec('7','Nagrada po izvedbi (ni obvezno)',field('f-reward','Nagrada po izvedbi','npr. topel čaj, ena skladba, kratek sprehod',{maxlength:'160'},null,true)));
-  form.append(sec('8','Moja identiteta z navado',field('f-identity','Sem oseba, ki …','Ne gre le za to, kaj narediš, ampak za to, kdo postajaš. Vsaka izvedba je glas za to osebo. Primer: sem oseba, ki skrbi za svoje telo.',{maxlength:'160'},null,true)));
+  form.append(sec('8','Moja identiteta z navado',idField()));
   if(isFirst){
     const date=h('input',{id:'f-start',type:'date','aria-label':'Začetek',value:f.start});date.addEventListener('input',()=>{if(validDate(date.value))f.start=date.value});
     form.append(sec('','Začetek',h('span',{class:'hint',text:'Skupina začne '+fmtDate(GROUP_START)+'. Za preizkus nastavi današnji datum.'}),date));
