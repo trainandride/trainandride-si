@@ -745,19 +745,25 @@ function noteField(day){
   nt.addEventListener('input',()=>setNote(day,nt.value));
   return h('div',{class:'field'},h('span',{class:'lb',text:'Opomba (ni obvezno)'}),h('span',{class:'hint',text:'Kaj ti je pomagalo? Kako se počutiš po izvedbi?'}),nt);
 }
-const RIDER_SVG='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet" focusable="false"><g transform="translate(0,190)">'
+function riderG(jersey,bike,sc,delay){
+  const st=delay?' style="animation-delay:'+delay+'s;animation-fill-mode:both"':'';
+  return '<g class="rx"'+st+'><g class="ry"'+st+'><g transform="scale('+sc+')">'
+  +'<circle cx="-19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/><circle cx="19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/>'
+  +'<path d="M-19 -13 L-2 -13 L-8 -33 L13 -32 L-2 -13 M-8 -33 L-19 -13 M13 -32 L19 -13" fill="none" style="stroke:var(--'+bike+')" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>'
+  +'<path d="M13 -32 L13 -38 M10 -38 L17 -38 M-12 -34 L-4 -34" fill="none" style="stroke:var(--fg)" stroke-width="3.2" stroke-linecap="round"/>'
+  +'<path d="M-6 -38 L3 -27 L-1 -15 M-6 -38 L5 -56 M5 -55 L16 -39" fill="none" style="stroke:var(--'+jersey+')" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>'
+  +'<path d="M3 -63 Q-9 -64 -10 -52 M3 -62 Q-6 -60 -7 -50" fill="none" style="stroke:var(--fg)" stroke-width="3" stroke-linecap="round"/>'
+  +'<circle cx="9" cy="-65" r="6.5" style="fill:var(--min)"/><path d="M2 -66 Q9 -77 16 -67 Z" style="fill:var(--'+bike+')"/><path d="M10 -64 L16 -63" style="stroke:var(--fg)" stroke-width="2" stroke-linecap="round"/>'
+  +'</g></g></g>';
+}
+const RIDER_HEAD='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet" focusable="false"><g transform="translate(0,190)">'
  +'<line x1="0" y1="0" x2="340" y2="0" style="stroke:var(--line)" stroke-width="3" stroke-linecap="round"/>'
  +'<path d="M96 0 L138 -16 L138 0Z" style="fill:var(--surface-2);stroke:var(--line)" stroke-width="2" stroke-linejoin="round"/>'
  +'<g class="dust" style="fill:var(--muted)"><circle cx="248" cy="-5" r="6"/><circle cx="262" cy="-4" r="5"/><circle cx="276" cy="-5" r="4"/></g>'
- +'<g class="spark" style="fill:var(--min)"><circle cx="165" cy="-135" r="4"/><circle cx="205" cy="-150" r="3"/><circle cx="140" cy="-150" r="3"/></g>'
- +'<g class="rx"><g class="ry"><g transform="scale(1.5)">'
- +'<circle cx="-19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/><circle cx="19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/>'
- +'<path d="M-19 -13 L-2 -13 L-8 -33 L13 -32 L-2 -13 M-8 -33 L-19 -13 M13 -32 L19 -13" fill="none" style="stroke:var(--accent)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>'
- +'<path d="M13 -32 L13 -38 M10 -38 L17 -38 M-12 -34 L-4 -34" fill="none" style="stroke:var(--fg)" stroke-width="3.2" stroke-linecap="round"/>'
- +'<path d="M-6 -38 L3 -27 L-1 -15 M-6 -38 L5 -56 M5 -55 L16 -39" fill="none" style="stroke:var(--primary)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>'
- +'<circle cx="9" cy="-65" r="6.5" style="fill:var(--min)"/><path d="M10 -64 L17 -63" style="stroke:var(--fg)" stroke-width="2" stroke-linecap="round"/>'
- +'</g></g></g></g></svg>';
-function riderEl(){return h('div',{class:'rider-ov','aria-hidden':'true',html:RIDER_SVG})}
+ +'<g class="spark" style="fill:var(--min)"><circle cx="165" cy="-135" r="4"/><circle cx="205" cy="-150" r="3"/><circle cx="140" cy="-150" r="3"/></g>';
+const RIDER_SVG=RIDER_HEAD+riderG('primary','accent',1.5,0)+'</g></svg>';
+const RIDERS3_SVG=RIDER_HEAD+riderG('accent','primary',1.05,0)+riderG('primary','accent',1.05,.26)+riderG('min','rest',1.05,.52)+'</g></svg>';
+function riderEl(kind){return h('div',{class:'rider-ov','aria-hidden':'true',html:kind==='badge'?RIDERS3_SVG:RIDER_SVG})}
 function setDay(day,state){
   if(state==null) delete S.log[day]; else S.log[day]=state;
   if(state==='done'&&day===todayStr()) ui.cel=true;
@@ -814,7 +820,7 @@ function viewToday(today){
   if(ST.goals.length>1) out.push(goalChips(today));
   if(ST.fresh.length){
     const nb=ST.fresh.map(id=>BADGES.find(b=>b.id===id)).filter(Boolean);
-    out.push(h('section',{class:'card celebrate',role:'button',tabindex:'0','aria-label':'Znova predvajaj animacijo',style:'cursor:pointer',onclick:e=>{if(e.target.closest('button'))return;render()},onkeydown:e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();render()}}},riderEl(),
+    out.push(h('section',{class:'card celebrate',role:'button',tabindex:'0','aria-label':'Znova predvajaj animacijo',style:'cursor:pointer',onclick:e=>{if(e.target.closest('button'))return;render()},onkeydown:e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();render()}}},riderEl('badge'),
       h('div',{class:'medal','aria-hidden':'true',text:String(nb[nb.length-1].n)}),h('span',{class:'label',text:'Nova značka · tapni za animacijo'}),
       h('h2',{text:nb.map(b=>b.t).join(' · ')+' 🎉'}),h('p',{text:nb.map(b=>b.x).join(' ')}),
       h('button',{class:'btn',type:'button',onclick:()=>{ST.fresh=[];save();render()}},'Hvala 💚')));
