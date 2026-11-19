@@ -149,6 +149,14 @@ button.cell:hover{border-color:var(--primary)}
   .zz text{opacity:0;animation:zzf 1.6s ease-out 2.5 forwards}
   .zz text:nth-child(2){animation-delay:.35s}.zz text:nth-child(3){animation-delay:.7s}
   @keyframes zzf{0%{opacity:0;transform:translateY(6px)}30%{opacity:1}100%{opacity:0;transform:translateY(-12px)}}
+  .rxc{animation:rxc 2.4s cubic-bezier(.2,.7,.3,1) 1 forwards}
+  @keyframes rxc{0%{transform:translateX(-90px)}100%{transform:translateX(150px)}}
+  .tail{transform-box:fill-box;transform-origin:85% 100%;animation:tl 1.1s ease-in-out 1.6s 3}
+  @keyframes tl{0%,100%{transform:rotate(0)}50%{transform:rotate(-22deg)}}
+  .chd{transform-box:fill-box;transform-origin:50% 100%;animation:chd 2.2s ease-in-out 1.2s 1 forwards}
+  @keyframes chd{0%{transform:rotate(0)}40%{transform:rotate(10deg) translateY(2px)}100%{transform:rotate(10deg) translateY(2px)}}
+  .meh{opacity:0;animation:meh 1.6s ease-out 2.2s 1 forwards}
+  @keyframes meh{0%{opacity:0;transform:translateY(4px)}40%{opacity:1}100%{opacity:.85;transform:translateY(-4px)}}
   @keyframes dust{0%{opacity:.8;transform:scale(.3) translateY(0)}100%{opacity:0;transform:scale(1.8) translateY(-8px)}}
   @keyframes spark{0%{opacity:0;transform:scale(.2)}40%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(.6) translateY(-14px)}}
   .celebrate .medal{animation:pop .7s cubic-bezier(.2,1.4,.4,1) 1}
@@ -803,10 +811,28 @@ function slothG(sc){
   +'</g></g></g>';
 }
 const SLOTH_SVG='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet" focusable="false"><g transform="translate(0,190)"><line x1="0" y1="0" x2="340" y2="0" style="stroke:var(--line)" stroke-width="3" stroke-linecap="round"/>'+slothG(1.2)+'</g></svg>';
-function riderEl(kind){return h('div',{class:'rider-ov','aria-hidden':'true',html:kind==='badge'?RIDERS3_SVG:kind==='chick'?CHICK_SVG:kind==='sloth'?SLOTH_SVG:RIDER_SVG})}
+
+function catG(sc){
+  return '<g class="rxc"><g transform="scale('+sc+')">'
+  +'<circle cx="-19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/><circle cx="19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/>'
+  +'<path d="M-19 -13 L-2 -13 L-8 -33 L13 -32 L-2 -13 M-8 -33 L-19 -13 M13 -32 L19 -13" fill="none" style="stroke:var(--miss)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>'
+  +'<path d="M13 -32 L13 -38 M10 -38 L17 -38 M-12 -34 L-4 -34" fill="none" style="stroke:var(--fg)" stroke-width="3.2" stroke-linecap="round"/>'
+  +'<g class="tail"><path d="M-17 -42 Q-34 -44 -32 -60 Q-31 -66 -27 -64" fill="none" stroke="#8d8f98" stroke-width="5" stroke-linecap="round"/></g>'
+  +'<ellipse cx="-1" cy="-43" rx="21" ry="10" fill="#8d8f98"/>'
+  +'<path d="M-10 -52 L-8 -44 M-3 -53 L-1 -45 M4 -52 L6 -44" stroke="#6f717a" stroke-width="2.4" stroke-linecap="round"/>'
+  +'<ellipse cx="-7" cy="-33" rx="3.2" ry="5.5" fill="#8d8f98"/><ellipse cx="6" cy="-33" rx="3.2" ry="5.5" fill="#8d8f98"/>'
+  +'<ellipse cx="17" cy="-40" rx="6" ry="3.2" fill="#8d8f98"/>'
+  +'<g class="chd"><circle cx="19" cy="-48" r="9.5" fill="#8d8f98"/><path d="M11 -54 L12 -64 L18 -57Z M27 -54 L26 -64 L20 -57Z" fill="#8d8f98"/>'
+  +'<path d="M14 -49 L19 -49 M21 -49 L26 -49" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/><path d="M14 -52 Q16.5 -51 19 -52 M21 -52 Q23.5 -51 26 -52" fill="none" stroke="#6f717a" stroke-width="1.4"/>'
+  +'<path d="M18 -45 L21 -45 L19.5 -43Z" fill="#e58a8a"/><path d="M12 -45 L5 -46 M12 -43 L5 -42 M27 -45 L33 -46 M27 -43 L33 -42" stroke="#d0d0d6" stroke-width="1" stroke-linecap="round"/></g>'
+  +'<text class="meh" x="30" y="-70" font-size="13" style="fill:var(--muted);font-family:var(--font-head);font-weight:700">meh</text>'
+  +'</g></g>';
+}
+const CAT_SVG='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet" focusable="false"><g transform="translate(0,190)"><line x1="0" y1="0" x2="340" y2="0" style="stroke:var(--line)" stroke-width="3" stroke-linecap="round"/>'+catG(1.3)+'</g></svg>';
+function riderEl(kind){return h('div',{class:'rider-ov','aria-hidden':'true',html:kind==='badge'?RIDERS3_SVG:kind==='chick'?CHICK_SVG:kind==='sloth'?SLOTH_SVG:kind==='cat'?CAT_SVG:RIDER_SVG})}
 function setDay(day,state){
   if(state==null) delete S.log[day]; else S.log[day]=state;
-  if((state==='done'||state==='min'||state==='rest')&&day===todayStr()) ui.cel=state;
+  if((state==='done'||state==='min'||state==='rest'||state==='miss')&&day===todayStr()) ui.cel=state;
   save();ui.sheetDay=null;render();ui.cel=false;
 }
 
@@ -929,7 +955,7 @@ function viewToday(today){
   else if(!before&&p.perWeek){const w0=weekSummary(S,weekStart(today),today);vn.push(h('p',{class:'small muted',text:'Ta teden: '+w0.good+' od '+p.perWeek+'. Dan ni vnaprej določen, vnesi, ko cilj narediš.'}))}
   else if(!before&&!planned) vn.push(h('p',{class:'small muted',text:'Danes ni v tvojem načrtu. Vnos je bonus in ne vpliva negativno na tvoj odstotek.'}));
   if(!before) vn.push(noteField(today));
-  out.push(h('section',{class:'card burst'},ui.cel?riderEl(ui.cel==='min'?'chick':ui.cel==='rest'?'sloth':null):null,vn));
+  out.push(h('section',{class:'card burst'},ui.cel?riderEl(ui.cel==='min'?'chick':ui.cel==='rest'?'sloth':ui.cel==='miss'?'cat':null):null,vn));
 
   const ws=weekStart(today);const sm=weekSummary(S,ws,today);
   out.push(h('div',{class:'stats'},
