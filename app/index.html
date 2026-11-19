@@ -519,7 +519,7 @@ const TIPS=[
  {l:3,t:'Odstrani trenje',x:'Vsaka majhna ovira (iskanje opreme, preoblačenje, nejasen načrt) zmanjša možnost, da se sploh začne.',a:'Poišči eno oviro, ki te upočasnjuje, in jo danes odstrani.'},
  {l:3,t:'Minimalna različica je dovoljena',x:'Na slab dan naredi manj, ne nič. Pomembno je, da veriga ostane živa.',a:'Če ti danes ne gre, izberi minimalno različico in jo označi z delno obarvanim krogom.'},
  {l:2,t:'Poveži z nečim prijetnim',x:'Navada je lažja, če se ob njej zgodi nekaj, kar ti je všeč: glasba, podkast, topla pijača po koncu.',a:'Izberi eno prijetno stvar, ki jo dovoliš samo ob svoji navadi.'},
- {l:2,t:'Skupina te nosi',x:'Navade, ki jih delimo z drugimi, ostanejo dlje. Vidnost pred skupino je zdrava vrsta odgovornosti.',a:'V ponedeljek pošlji svoj check-in v skupino, tudi če je teden šel slabše.'},
+ {l:2,t:'Skupina te nosi',x:'Sharing is caring: samo s pomočjo skupnosti lažje rastemo. Navade, ki jih delimo z drugimi, ostanejo dlje.',a:'V ponedeljek v zavihku Napredek pošlji svoj check-in v skupino, tudi če je teden šel slabše.'},
  {l:4,t:'Označi takoj',x:'Kljukica na koncu je prva nagrada. Če jo odlašaš, izgubi učinek.',a:'Dan označi v aplikaciji takoj po izvedbi.'},
  {l:4,t:'Praznuj majhno',x:'Možgani se učijo iz občutka uspeha. Po izvedbi si reci »bravo« in občuti, da držiš besedo sebi.',a:'Po današnji izvedbi si zavestno privošči pol minute ponosa.'},
  {l:4,t:'Poglej nazaj',x:'Napredek je pogosto težko opaziti sproti. V pregledu tednov in meseca je viden.',a:'Odpri Napredek in preglej zadnja dva tedna.'},
@@ -895,15 +895,12 @@ function viewToday(today){
   if(wd(today)>=4&&!before){
     const f=fridayStatus(S,mws,today);
     if(f.target>0){
-      const go=()=>{ui.ciUser='fri';ui.tab='napredek';render();window.scrollTo({top:0})};
       if(f.need>0) out.push(h('section',{class:'card'},h('span',{class:'label',text:'Petkov pregled'}),
         h('h2',{text:f.state==='dosegljiv'?'Še imaš čas za tedenski cilj':'Ta teden je videti zahtevno'}),
-        h('p',{text:'Do zdaj '+f.good+' od '+f.target+'. Do cilja še '+f.need+' '+dni(f.need)+'. '+(f.state==='dosegljiv'?'Vikend je še pred tabo.':'Zadošča minimalna različica, vsaj enkrat do nedelje.')}),
-        h('button',{class:'btn',type:'button',onclick:go},'Pošlji petkov status')));
+        h('p',{text:'Do zdaj '+f.good+' od '+f.target+'. Do cilja še '+f.need+' '+dni(f.need)+'. '+(f.state==='dosegljiv'?'Vikend je še pred tabo.':'Zadošča minimalna različica, vsaj enkrat do nedelje.')})));
       else out.push(h('section',{class:'card'},h('span',{class:'label',text:'Petkov pregled'}),
         h('h2',{text:'Tedenski cilj je dosežen 🎉'}),
-        h('p',{text:'Bravo. Deli jo s skupino in navdihni še katero.'}),
-        h('button',{class:'btn alt',type:'button',onclick:go},'Pošlji petkov status')));
+        h('p',{text:'Bravo. Deli ta uspeh s skupino in navdihni še katero.'})));
     }
   }
   if(wd(today)===0||wd(today)===6){
@@ -999,7 +996,7 @@ function viewProgress(today){
     h('p',{class:'small muted',text:'Pika pod datumom pomeni načrtovan dan. Tapni dan, če želiš vnos popraviti.'}));
   if(pv==='week') out.push(wk);
 
-  const mode=ui.ciUser||(wd(today)>=4?'fri':'prev');
+  const mode=(ui.ciUser&&ui.ciUser!=='fri'?ui.ciUser:'prev');
   const rws=mode==='prev'?addDays(cws,-7):cws;
   const build=()=>mode==='fri'?fridayText(cws,today):checkinText(rws,today);
   if(pv==='week'&&mode!=='fri'){
@@ -1017,12 +1014,16 @@ function viewProgress(today){
   }
   const ctext=build();
   const ta=h('textarea',{id:'ci-text',readonly:true,rows:'12','aria-label':'Besedilo za skupino'});ta.value=ctext;
-  if(pv==='week') out.push(h('section',{class:'card'},h('h2',{text:'Sporočilo za skupino'}),
-    h('p',{class:'small muted',text:mode==='fri'?'Petkov status pove, ali še lahko dosežeš tedenski cilj. Kopiraj ga, dopolni zadnji dve vrstici in ga pošlji v skupino ali Teji zasebno.':'Ponedeljkov check-in: kopiraj ga, dopolni vrstice na koncu in ga pošlji v skupino.'}),
-    h('div',{class:'seg'},[['fri','Petkov status'],['prev','Prejšnji teden'],['cur','Ta teden']].map(([k,l])=>h('button',{class:'btn sm '+(mode===k?'':'alt'),type:'button',onclick:()=>{ui.ciUser=k;render()}},l))),
-    ta,h('button',{class:'btn',type:'button',onclick:async()=>{
-      try{await navigator.clipboard.writeText(ta.value);toast('Kopirano. Prilepi v skupino.')}catch(e){ta.removeAttribute('readonly');ta.focus();ta.select();toast('Označeno. Kopiraj ročno.')}
-    }},'Kopiraj besedilo')));
+  if(pv==='week'){
+    if(wd(today)===0) out.push(h('section',{class:'card',style:'border-left:4px solid var(--accent)'},h('span',{class:'label',text:'Ponedeljek je dan za check-in'}),h('h2',{text:'Ponedeljkov check-in'}),
+      h('p',{text:'Sharing is caring. Samo s pomočjo skupnosti lažje rastemo. Deli svoj napredek tudi, če ni bil popoln in je teden šel slabše. Tvoja iskrenost pomaga tebi in drugim.'}),
+      h('p',{class:'small muted',text:'Kopiraj besedilo, dopolni vrstice na koncu in ga pošlji v WhatsApp skupino.'}),
+      ta,h('button',{class:'btn',type:'button',onclick:async()=>{
+        try{await navigator.clipboard.writeText(ta.value);toast('Kopirano. Prilepi v skupino.')}catch(e){ta.removeAttribute('readonly');ta.focus();ta.select();toast('Označeno. Kopiraj ročno.')}
+      }},'Kopiraj besedilo')));
+    else out.push(h('section',{class:'card'},h('h2',{text:'Ponedeljkov check-in'}),
+      h('p',{class:'small muted',text:'Check-in se odpre vsak ponedeljek. Takrat deliš svoj teden s skupino, tudi če ni bil popoln.'})));
+  }
 
   const vm=ui.month||{y:parse(today).getFullYear(),m:parse(today).getMonth()};
   const ms=monthSummary(S,vm.y,vm.m,today);
