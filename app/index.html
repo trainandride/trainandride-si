@@ -796,6 +796,11 @@ function emptyCard(){
     h('button',{class:'btn',type:'button',onclick:()=>{ui.tab='cilj';render()}},'Postavi cilj')
   );
 }
+function helpLink(){
+  const g=(ST.goals&&ST.goals[0])||{};
+  const t='Hej, rabim pomoč pri Accountability Club.'+(ST.name?' ('+ST.name+')':'')+(g.cilj?'\nMoj cilj: '+g.cilj:'')+(g.min?'\nMinimalna različica: '+g.min:'')+'\nTežko mi gre, ker: ';
+  return 'https://wa.me/?text='+encodeURIComponent(t);
+}
 function viewToday(today){
   const out=[];
   if(!storageOk) out.push(h('div',{class:'banner warn'},h('b',{text:'Shranjevanje v tem brskalniku ne deluje'}),h('span',{text:'Podatki bodo izginili, ko zapreš stran. Odpri povezavo v običajnem oknu ali shrani varnostno kodo v razdelku Moj cilj.'})));
@@ -803,7 +808,8 @@ function viewToday(today){
   const qcard=h('section',{class:'card'},h('span',{class:'label',text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
   out.push(qcard);
   out.push(h('section',{class:'card',style:'border-left:4px solid var(--accent)'},h('span',{class:'label',text:'Obveza skupine'}),
-    h('p',{text:'Če začutiš, da zmanjkuje motivacije in zagona, to napiši v WhatsApp skupino, še preden zgrešiš. Skupina ali Teja ti pomaga poiskati najmanjši možni korak.'})));
+    h('p',{text:'Če začutiš, da zmanjkuje motivacije in zagona, to napiši v WhatsApp skupino, še preden zgrešiš. Skupina ali Teja ti pomaga poiskati najmanjši možni korak.'}),
+    h('a',{class:'btn alt',style:'margin-top:10px',target:'_blank',rel:'noopener',href:helpLink(),onclick:()=>{}},'Rabim pomoč')));
   if(!S.profile){out.push(emptyCard());return out}
   if(ST.goals.length>1) out.push(goalChips(today));
   if(ST.fresh.length){
