@@ -1099,7 +1099,7 @@ function viewGoal(today){
     }},DAYS[i]);dayBox.append(b);
   });
   const cntBox=h('div',{class:'days',role:'group','aria-label':'Število izvedb na teden'});
-  [1,2,3,4,5,6,7].forEach(n=>{
+  [1,2,3,4,5].forEach(n=>{
     const b=h('button',{class:'chip',type:'button','aria-pressed':f.perWeek===n?'true':'false',onclick:()=>{f.perWeek=n;render()}},n+'×');cntBox.append(b);
   });
   const modeBox=h('div',{class:'chips'},
