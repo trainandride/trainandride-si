@@ -1,0 +1,25 @@
+{
+ "name": "Accountability Club",
+ "short_name": "Accountability Club",
+ "description": "Train & Ride Accountability Club: dnevno sledenje navadam.",
+ "start_url": "/app/",
+ "scope": "/app/",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#0e2017",
+ "theme_color": "#0e2017",
+ "lang": "sl",
+ "icons": [
+  {
+   "src": "../icons/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "../icons/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  }
+ ]
+}

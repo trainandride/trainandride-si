@@ -1,0 +1,1304 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Accountability Club</title>
+<meta name="theme-color" content="#0e2017">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Accountability Club">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="../icons/icon-192.png">
+<link rel="apple-touch-icon" href="../icons/icon-180.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Koncept: ena kolona, zavihki zgoraj, velike tipke za dnevni vnos. Gozdno zelena + korala iz podobe skupine. */
+:root{
+  --bg:#eef3ef; --surface:#ffffff; --surface-2:#e3ebe5; --fg:#14291f; --muted:#506358; --line:#cddbd1;
+  --primary:#1d6849; --on-primary:#ffffff; --accent:#e8603a; --accent-t:#fde7df;
+  --done:#2a8a5e; --done-t:#d7efe2; --min:#b87d0e; --min-t:#f8e9c6; --rest:#5f7898; --rest-t:#dfe7f1; --miss:#cf4a3a; --miss-t:#f8dcd7;
+  --on-status:#ffffff;
+  --font-head:'Bricolage Grotesque','Avenir Next','Segoe UI',system-ui,sans-serif;
+  --font-body:'DM Sans','Segoe UI',system-ui,sans-serif;
+}
+@media all{
+  :root,:root[data-theme="light"]{
+    --bg:#0e2017; --surface:#163024; --surface-2:#1e3d2e; --fg:#e8f1ea; --muted:#9bb4a4; --line:#2b4a3a;
+    --primary:#46b886; --on-primary:#062014; --accent:#ff8a66; --accent-t:#3a2a24;
+    --done:#4cc48a; --done-t:#1c4a36; --min:#e8b04a; --min-t:#4a3b17; --rest:#8fa8c8; --rest-t:#26384d; --miss:#ef7b6c; --miss-t:#4d2723;
+    --on-status:#08150e; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e2017; --surface:#163024; --surface-2:#1e3d2e; --fg:#e8f1ea; --muted:#9bb4a4; --line:#2b4a3a;
+  --primary:#46b886; --on-primary:#062014; --accent:#ff8a66; --accent-t:#3a2a24;
+  --done:#4cc48a; --done-t:#1c4a36; --min:#e8b04a; --min-t:#4a3b17; --rest:#8fa8c8; --rest-t:#26384d; --miss:#ef7b6c; --miss-t:#4d2723;
+  --on-status:#08150e; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.5;min-height:100vh}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+.shell{max-width:560px;margin:0 auto;padding-block:20px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--font-head);line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.brand{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.top{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.top h1{font-size:clamp(28px,8vw,38px);font-weight:700}
+.pill{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;background:var(--surface-2);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700}
+.pill.hab{background:var(--accent-t);color:var(--accent)}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding-block:8px;margin-bottom:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;border-bottom:1px solid var(--line)}
+.tab{border:0;background:transparent;padding:10px 4px;border-radius:10px;font-weight:700;font-size:14px;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--primary);color:var(--on-primary)}
+.stack{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card h2{font-size:20px}
+.card h3{font-size:16px}
+.label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.quote{font-family:var(--font-head);font-size:21px;line-height:1.3;font-weight:600}
+.goal{font-size:18px;font-weight:700;line-height:1.35}
+.goal-sub{display:flex;flex-direction:column;gap:4px;font-size:15px}
+.goal-sub b{font-weight:700}
+.banner{border-radius:14px;padding:12px 14px;font-size:15px;display:flex;flex-direction:column;gap:2px}
+.banner b{font-family:var(--font-head);font-size:16px}
+.banner.warn{background:var(--min-t);color:var(--fg);border:1px solid var(--min)}
+.banner.alert{background:var(--miss-t);color:var(--fg);border:1px solid var(--miss)}
+.banner.info{background:var(--surface-2)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{display:flex;align-items:center;gap:10px;text-align:left;padding:14px 12px;border-radius:14px;border:2px solid var(--line);background:var(--surface);font-weight:700;font-size:15px;line-height:1.2;min-height:60px}
+.choice svg{width:28px;height:28px;flex:none}
+.choice.c-done{color:var(--done)} .choice.c-min{color:var(--min)} .choice.c-rest{color:var(--rest)} .choice.c-miss{color:var(--miss)}
+.choice span{color:var(--fg)}
+.choice[aria-pressed="true"]{border-color:currentColor}
+.choice.c-done[aria-pressed="true"]{background:var(--done-t)} .choice.c-min[aria-pressed="true"]{background:var(--min-t)}
+.choice.c-rest[aria-pressed="true"]{background:var(--rest-t)} .choice.c-miss[aria-pressed="true"]{background:var(--miss-t)}
+.choice:disabled{opacity:.5;cursor:not-allowed}
+.feedback{font-size:15px;font-weight:500}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat b{font-family:var(--font-head);font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted);font-weight:500}
+.tag{align-self:flex-start;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--done-t);color:var(--done)}
+.tag.t1{background:var(--accent-t);color:var(--accent)} .tag.t2{background:var(--rest-t);color:var(--rest)} .tag.t3{background:var(--min-t);color:var(--min)} .tag.t4{background:var(--done-t);color:var(--done)}
+.todo{border-left:4px solid var(--accent);padding-left:12px;font-weight:500}
+.todo b{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.strip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cell{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 6px;border-radius:12px;border:1px solid var(--line);background:var(--surface);min-width:0}
+button.cell:hover{border-color:var(--primary)}
+.cell .dn{font-size:11px;color:var(--muted);font-weight:700}
+.cell .dd{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.cell .g{width:22px;height:22px;display:grid;place-items:center}
+.cell .g svg{width:22px;height:22px}
+.cell .pl{width:5px;height:5px;border-radius:50%;background:var(--line)}
+.cell.planned .pl{background:var(--primary)}
+.cell.today{border:2px solid var(--primary)}
+.cell.s-done .g{color:var(--done)} .cell.s-min .g{color:var(--min)} .cell.s-rest .g{color:var(--rest)} .cell.s-miss .g{color:var(--miss)}
+.cell.s-missed .g{color:var(--miss);opacity:.45}
+.cell.s-pending .g::before{content:"";width:18px;height:18px;border-radius:50%;border:2px dashed var(--muted)}
+.cell.s-off .g::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--line)}
+.cell.s-future,.cell.s-pre{opacity:.55}
+.bar{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--primary);border-radius:99px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:700;background:var(--primary);color:var(--on-primary);min-height:46px}
+.btn.alt{background:var(--surface-2);color:var(--fg)}
+.btn.ghost{background:transparent;border:2px solid var(--line);color:var(--fg)}
+.btn.danger{background:var(--miss);color:var(--on-status)}
+.btn.sm{padding:8px 12px;min-height:38px;font-size:14px}
+.tag.tm{background:var(--miss-t);color:var(--miss)}
+.tabs.five .tab{font-size:12.5px;padding-inline:2px}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 8px}
+.badge{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:12px;line-height:1.25;color:var(--muted);min-width:0}
+.badge .c{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-family:var(--font-head);font-weight:700;font-size:22px;border:2px dashed var(--line);color:var(--muted)}
+.badge.on{color:var(--fg);font-weight:700}
+.badge.on .c{background:var(--accent);border:0;color:var(--on-status)}
+.burst{position:relative;overflow:hidden}
+.rider-ov{display:none}
+.celebrate{position:relative;overflow:hidden;align-items:center;text-align:center}
+.celebrate .medal{width:84px;height:84px;border-radius:50%;background:var(--accent);color:var(--on-status);display:grid;place-items:center;font-family:var(--font-head);font-weight:700;font-size:34px}
+@media (prefers-reduced-motion:no-preference){
+  .rider-ov{display:block;position:absolute;left:0;right:0;top:12%;height:200px;pointer-events:none}
+  .rider-ov svg{width:100%;height:100%;overflow:hidden;display:block}
+  .rx{animation:rx 2s linear 1 forwards}
+  .ry{animation:ry 2s linear 1 forwards;transform-origin:0 -20px}
+  .dust circle{opacity:0;transform-box:fill-box;transform-origin:center;animation:dust .55s ease-out 1.34s 1 forwards}
+  .dust circle:nth-child(2){animation-delay:1.4s}
+  .dust circle:nth-child(3){animation-delay:1.46s}
+  .spark circle{opacity:0;animation:spark .7s ease-out 1.0s 1 forwards}
+  .spark circle:nth-child(2){animation-delay:1.1s}
+  .spark circle:nth-child(3){animation-delay:1.2s}
+  @keyframes rx{0%{transform:translateX(-80px)}100%{transform:translateX(430px)}}
+  @keyframes ry{0%{transform:translateY(0) rotate(0)}38%{transform:translateY(0) rotate(0);animation-timing-function:ease-out}
+    42%{transform:translateY(-6px) rotate(-14deg);animation-timing-function:cubic-bezier(.2,.65,.4,1)}
+    54%{transform:translateY(-82px) rotate(-3deg);animation-timing-function:cubic-bezier(.6,0,.8,.4)}
+    66%{transform:translateY(-2px) rotate(12deg)}70%{transform:translateY(0) rotate(0)}100%{transform:translateY(0) rotate(0)}}
+  @keyframes dust{0%{opacity:.8;transform:scale(.3) translateY(0)}100%{opacity:0;transform:scale(1.8) translateY(-8px)}}
+  @keyframes spark{0%{opacity:0;transform:scale(.2)}40%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(.6) translateY(-14px)}}
+  .celebrate .medal{animation:pop .7s cubic-bezier(.2,1.4,.4,1) 1}
+  @keyframes pop{0%{transform:scale(.2);opacity:0}60%{transform:scale(1.18);opacity:1}100%{transform:scale(1)}}
+}
+.person{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.person .top2{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;text-decoration:none}
+.iconbtn{border:1px solid var(--line);background:var(--surface);width:40px;height:40px;border-radius:10px;font-size:18px;font-weight:700}
+.seg{display:flex;gap:6px}
+.seg .btn{flex:1}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .h{font-size:11px;text-align:center;color:var(--muted);font-weight:700;padding-bottom:2px}
+.cal .d{aspect-ratio:1;border-radius:10px;border:1px solid transparent;background:var(--surface-2);display:grid;place-items:center;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);position:relative;padding:0}
+.cal .d.blank{background:transparent}
+.cal .d.s-done{background:var(--done-t);color:var(--done);border-color:var(--done)}
+.cal .d.s-min{background:var(--min-t);color:var(--min);border-color:var(--min)}
+.cal .d.s-rest{background:var(--rest-t);color:var(--rest);border-color:var(--rest)}
+.cal .d.s-miss,.cal .d.s-missed{background:var(--miss-t);color:var(--miss);border-color:var(--miss)}
+.cal .d.s-missed{border-style:dashed}
+.cal .d.s-pending{background:var(--surface);border:2px dashed var(--muted);color:var(--fg)}
+.cal .d.s-off{background:var(--surface-2)}
+.cal .d.today{outline:2px solid var(--primary);outline-offset:1px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:4px;display:inline-block;border:1px solid currentColor}
+.weeks{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;align-items:end}
+.wk{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.wk .tr{width:100%;height:84px;background:var(--surface-2);border-radius:8px;display:flex;align-items:flex-end;overflow:hidden}
+.wk .tr i{display:block;width:100%;background:var(--primary)}
+.wk b{font-size:12px;font-variant-numeric:tabular-nums}
+.wk span{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.wk.cur .tr{outline:2px solid var(--accent);outline-offset:1px}
+form{display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lb{font-weight:700;font-size:15px}
+.field .hint{font-size:13px;color:var(--muted)}
+input[type=text],input[type=date],input[type=number],textarea{width:100%;font:inherit;color:var(--fg);background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:11px 12px;min-height:46px}
+textarea{resize:vertical;min-height:84px}
+.three{display:grid;grid-template-columns:1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.days .chip{padding:10px 0;text-align:center;border-radius:12px}
+.err{color:var(--miss);font-weight:700;font-size:14px}
+.law{display:flex;flex-direction:column;gap:4px}
+.law p{font-size:15px}
+.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.sheet-back{position:fixed;inset:0;background:rgba(5,15,10,.55);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;background:var(--surface);color:var(--fg);border-radius:20px 20px 0 0;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;z-index:60}
+.toast[hidden]{display:none}
+.empty{align-items:flex-start}
+@media (min-width:480px){.three{grid-template-columns:1fr 1fr 1fr}}
+@media (prefers-reduced-motion:no-preference){.bar i,.wk .tr i{transition:height .3s,width .3s}}
+</style>
+<style>html{-webkit-text-size-adjust:100%}body{margin:0}</style>
+</head>
+<body>
+
+<div class="shell">
+  <header class="top">
+    <span class="brand">Train &amp; Ride · Accountability Club</span>
+    <h1 id="title">Zimske navade</h1>
+    <span class="pill" id="phase" hidden></span>
+  </header>
+  <div class="tabs" role="tablist" aria-label="Razdelki" id="tabs"></div>
+  <main id="app" class="stack"></main>
+</div>
+<div id="sheet"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* LOGIC START */
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12,0,0)};
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return ymd(d)};
+const diffDays=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
+const wd=s=>(parse(s).getDay()+6)%7;
+const weekStart=s=>addDays(s,-wd(s));
+const isGood=s=>s==='done'||s==='min';
+const isBad=s=>s==='miss'||s==='missed';
+const GROUP_START='2026-10-01'; /* TESTNO: pred zagonom skupine vrni na 2026-12-01 */
+
+function dayState(S,day,today){
+  const p=S.profile;
+  if(!p||day<p.start) return 'pre';
+  const l=S.log[day];
+  if(l) return l;
+  if(day>today) return 'future';
+  if(day===today) return 'pending';
+  return p.planned.includes(wd(day))?'missed':'off';
+}
+function streak(S,today){
+  let n=0,d=today;
+  while(d>=S.profile.start){
+    const s=dayState(S,d,today);
+    if(isGood(s)) n++; else if(isBad(s)) break;
+    d=addDays(d,-1);
+  }
+  return n;
+}
+function longestStreak(S,today){
+  let run=0,best=0,d=S.profile.start;
+  while(d<=today){
+    const s=dayState(S,d,today);
+    if(isGood(s)){run++;if(run>best)best=run}else if(isBad(s))run=0;
+    d=addDays(d,1);
+  }
+  return best;
+}
+function totalDone(S,today){
+  let n=0,d=S.profile.start;
+  while(d<=today){if(isGood(dayState(S,d,today)))n++;d=addDays(d,1)}
+  return n;
+}
+function lastResult(S,today){
+  let d=addDays(today,-1);
+  while(d>=S.profile.start){
+    const s=dayState(S,d,today);
+    if(isGood(s)||isBad(s)) return s;
+    d=addDays(d,-1);
+  }
+  return null;
+}
+function consecutiveMisses(S,today){
+  let n=0,d=addDays(today,-1);
+  while(d>=S.profile.start){
+    const s=dayState(S,d,today);
+    if(isBad(s)) n++; else if(isGood(s)) break;
+    d=addDays(d,-1);
+  }
+  return n;
+}
+function weekSummary(S,ws,today){
+  const days=[];let good=0,bad=0;
+  for(let i=0;i<7;i++){
+    const day=addDays(ws,i);const state=dayState(S,day,today);
+    days.push({day,state,planned:!S.profile.perWeek&&S.profile.planned.includes(i)});
+    if(isGood(state))good++;else if(isBad(state))bad++;
+  }
+  const target=S.profile.perWeek||S.profile.planned.length;
+  const pct=target?Math.min(1,good/target):null;
+  const den=good+bad;
+  return {days,good,bad,target,pct,rate:den?good/den:null};
+}
+function monthSummary(S,y,m,today){
+  const first=y+'-'+pad(m+1)+'-01';
+  const dim=new Date(y,m+1,0).getDate();
+  let good=0,bad=0;const cells=[];
+  for(let i=1;i<=dim;i++){
+    const day=y+'-'+pad(m+1)+'-'+pad(i);const state=dayState(S,day,today);
+    cells.push({day,n:i,state});
+    if(isGood(state))good++;else if(isBad(state))bad++;
+  }
+  const den=good+bad;
+  return {cells,lead:wd(first),good,bad,pct:den?good/den:null};
+}
+
+const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const dni=n=>n===1?'dan':n===2?'dneva':'dni';
+function fridayStatus(S,ws,today){
+  const sm=weekSummary(S,ws,today);
+  const left=[];
+  for(const d of sm.days){ if(d.day>=today&&d.day>=S.profile.start&&!S.log[d.day]) left.push(d.day); }
+  const need=Math.max(0,sm.target-sm.good);
+  let state='dosezen';
+  if(need>0) state=need<=left.length?'dosegljiv':'tezko';
+  return {good:sm.good,target:sm.target,need,left,state,marks:sm.days};
+}
+function nameMatch(a,b){
+  const x=norm(a).split(/\s+/),y=norm(b).split(/\s+/);
+  if(!x[0]||x[0]!==y[0]) return false;
+  return x.length<2||y.length<2||x[1][0]===y[1][0];
+}
+function rosterIndex(name,roster){
+  const i=roster.findIndex(r=>norm(r)===norm(name));
+  return i>=0?i:roster.findIndex(r=>nameMatch(name,r));
+}
+function parseReports(text,today){
+  const out=[];
+  const re=/(Petkov status|Check-in),\s*teden\s+(\d{1,2})\.\s*(?:(\d{1,2})\.\s*)?[–-]\s*(\d{1,2})\.\s*(\d{1,2})\./g;
+  const hits=[];let m;
+  while((m=re.exec(text))) hits.push({i:m.index,end:re.lastIndex,m});
+  const t=parse(today);
+  hits.forEach((k,idx)=>{
+    const lineStart=text.lastIndexOf('\n',k.i-1)+1;
+    let head=text.slice(lineStart,k.i);
+    head=head.replace(/^\s*\[[^\]]*\]\s*/,'').replace(/^\s*\d{1,2}[./]\d{1,2}[./]\d{2,4},?\s*\d{1,2}[:.]\d{2}\s*[-–]\s*/,'');
+    let sender='';const pm=head.match(/^([^:·]{1,40}):\s*/);
+    if(pm){sender=pm[1].trim();head=head.slice(pm[0].length)}
+    const dot=head.indexOf('·');
+    const name=((dot>=0?head.slice(0,dot):head).trim())||sender;
+    const body=text.slice(k.end,idx+1<hits.length?hits[idx+1].i:text.length);
+    const dm=body.match(/Izvedeno:\s*(\d+)\s*od\s*(\d+)/);
+    if(!dm) return;
+    const sm=k.m[3]?+k.m[3]:+k.m[5];
+    let y=t.getFullYear();const cm=t.getMonth()+1;
+    if(sm-cm>6) y--; else if(cm-sm>6) y++;
+    const ws=weekStart(y+'-'+pad(sm)+'-'+pad(+k.m[2]));
+    const st=body.match(/Status:\s*([^\n]*)/);
+    let status=null;
+    if(st){const n=norm(st[1]);status=n.includes('dosegljiv')?'dosegljiv':n.includes('dosezen')?'dosezen':n.includes('tezko')?'tezko':null}
+    const nd=body.match(/Do cilja še:\s*(\d+)/);
+    out.push({name,kind:k.m[1]==='Check-in'?'checkin':'friday',ws,done:+dm[1],target:+dm[2],status,need:nd?+nd[1]:Math.max(0,+dm[2]-+dm[1])});
+  });
+  return out;
+}
+function coachRows(roster,reports,ws){
+  return roster.map(name=>{
+    const rs=reports.filter(r=>r.ws===ws&&nameMatch(r.name,name));
+    const r=rs.find(x=>x.kind==='checkin')||rs.find(x=>x.kind==='friday')||null;
+    let state='brez';
+    if(r){
+      if(r.done>=r.target) state='dosezen';
+      else if(r.kind==='friday') state=r.status==='tezko'?'tezko':'dosegljiv';
+      else state='nedosezen';
+    }
+    return {name,report:r,state};
+  });
+}
+function coachMsg(row){
+  const f=row.name.split(/\s+/)[0];
+  const need=row.report?Math.max(0,row.report.target-row.report.done):0;
+  if(row.state==='brez') return 'Hej '+f+'! 💚 Tega tedna še nisem videla tvojega statusa. Kako ti gre? Še je čas, tudi minimalna različica šteje. Če je teden težak, mi kar napiši in poiščeva najmanjši korak.';
+  if(row.state==='dosegljiv') return 'Hej '+f+'! 💚 Do tedenskega cilja ti manjka še '+need+' '+dni(need)+', vikend pa je še pred tabo. Naredi vsaj minimalno različico in ga zaključi. Zmoreš!';
+  if(row.state==='tezko') return 'Hej '+f+'! 💚 Ta teden je zdaj videti zahtevno in to je čisto v redu. Izberi minimalno različico in jo naredi vsaj enkrat do nedelje. Če potrebuješ pomoč pri načrtu, mi piši.';
+  if(row.state==='nedosezen') return 'Hej '+f+'! 💚 Prejšnji teden ni šlo čisto po načrtu in to je podatek, ne neuspeh. Ta teden začni z minimalno različico. Povej mi, kaj te je oviralo, pa poiščeva rešitev.';
+  return '';
+}
+function unlockInfo(G,today){
+  const el=diffDays(G.profile.start,today);
+  const f1=addDays(today,-28);const from=f1<G.profile.start?G.profile.start:f1;
+  let good=0,bad=0,d=from;
+  while(d<today){const s=dayState(G,d,today);if(isGood(s))good++;else if(isBad(s))bad++;d=addDays(d,1)}
+  const den=good+bad;let rate=den?good/den:null;
+  if(G.profile.perWeek){const nd=diffDays(from,today);const exp=G.profile.perWeek*nd/7;rate=nd>0&&exp>0?Math.min(1,good/exp):null}
+  return {elapsed:Math.max(0,el),rate,ok:el>=28&&rate!==null&&rate>=0.7};
+}
+const BADGES=[
+ {id:'s7',n:7,kind:'streak',t:'7 dni v seriji',x:'Cel teden zapored. Navada se začenja prijemati.'},
+ {id:'s14',n:14,kind:'streak',t:'14 dni v seriji',x:'Dva tedna zapored. Prva faza navade je za tabo.'},
+ {id:'s30',n:30,kind:'streak',t:'30 dni v seriji',x:'Mesec zapored. To ni več volja, to je ritem.'},
+ {id:'t10',n:10,kind:'total',t:'10 izvedenih dni',x:'Deset glasov za osebo, ki jo gradiš.'},
+ {id:'t25',n:25,kind:'total',t:'25 izvedenih dni',x:'Petindvajset dni. Napredek je že viden.'},
+ {id:'t50',n:50,kind:'total',t:'50 izvedenih dni',x:'Petdeset dni. Zima ti dela za sezono.'}
+];
+function badgeStats(views,today){
+  let streak=0,total=0;
+  views.forEach(G=>{streak=Math.max(streak,longestStreak(G,today));total+=totalDone(G,today)});
+  return {streak,total};
+}
+function groupTotal(reports){
+  const best={};
+  reports.forEach(r=>{
+    const k=r.ws+'|'+norm(r.name);const e=best[k];
+    if(!e||(r.kind==='checkin'&&e.kind==='friday')||(r.kind===e.kind)) best[k]=r;
+  });
+  return Object.values(best).reduce((a,r)=>a+(r.done||0),0);
+}
+function fundCalc(reports,today){
+  const seen={};
+  reports.filter(r=>r.kind==='checkin'&&r.target>0&&addDays(r.ws,6)<today).forEach(r=>{seen[r.ws+'|'+norm(r.name)]=r});
+  const per={};let weeks=0;
+  Object.values(seen).forEach(r=>{if(r.done<r.target){per[r.name]=(per[r.name]||0)+1;weeks++}});
+  return {weeks,per};
+}
+const THEMES=[
+ [/jutr|zjutraj|zgodaj/,'jutro'],
+ [/vecer|pred spanjem/,'večer'],
+ [/po sluzbi|po delu|popold/,'čas po službi'],
+ [/glasb|podkast|skladb/,'glasbo ali podkast'],
+ [/pripravi|pripravljen|oprem|torb|obleka/,'vnaprej pripravljeno opremo'],
+ [/skupaj|prijatelj|partner|ekip|skupin|druzb/,'družbo'],
+ [/kratk|\b5 min|\b10 min|hitr/,'kratko različico'],
+ [/zunaj|narav|sprehod|gozd|\btek\b|kolo/,'gibanje zunaj']
+];
+const OBST=[
+ [/utrujen|brez energ|izcrpan/,'utrujenost','Ko te zmanjkuje energije, naredi samo minimalno različico. Pomembno je, da se pokažeš.'],
+ [/\bdez|mraz|sneg|vreme\b/,'vreme','Ko je vreme slabo, imej pripravljeno različico za doma: »Če dežuje, potem naredim 10 minut doma.«'],
+ [/\bcas|zmanjk|nabito|natrp|hitim/,'pomanjkanje časa','Ko zmanjka časa, uporabi pravilo dveh minut: naredi samo začetek.'],
+ [/bolec|bolan|bolezen|prehlad|\bboli/,'bolečina ali bolezen','Če te kaj boli ali te je ujela bolezen, izberi počitek brez krivde in se jutri vrni.'],
+ [/\bdelo\b|\bdela\b|sluzb|sestanek/,'delo','Ko je delo natrpano, vnaprej določi uro in kraj, da ti ni treba odločati.'],
+ [/motivac|se mi ne da|brez volje/,'motivacija','Ne čakaj na motivacijo. Naredi samo prvi korak: obleci opremo.']
+];
+function noteInsight(G,today){
+  const wins=[],obs=[];
+  Object.keys(G.notes||{}).sort().forEach(d=>{
+    if(d>today) return;
+    const t=norm(G.notes[d]);if(!t) return;
+    const st=dayState(G,d,today);
+    if(st==='done') wins.push({d,t,raw:G.notes[d]});
+    else if(st==='min'||st==='miss'||st==='missed'||st==='rest') obs.push({d,t,raw:G.notes[d]});
+  });
+  let win=null;
+  if(wins.length){
+    let best=null;
+    THEMES.forEach(([re,label])=>{const n=wins.filter(w=>re.test(w.t)).length;if(n>=2&&(!best||n>best.count))best={label,count:n,total:wins.length}});
+    win=best||{echo:wins[wins.length-1].raw};
+  }
+  let ob=null;
+  for(let i=obs.length-1;i>=0&&!ob;i--){OBST.forEach(([re,label,tip])=>{if(!ob&&re.test(obs[i].t))ob={label,tip}})}
+  return {win,obstacle:ob,wins:wins.map(w=>w.raw)};
+}
+/* LOGIC END */
+
+(function(){
+'use strict';
+const KEY='train-ride-zimske-navade-v1';
+const DAYS=['P','T','S','Č','P','S','N'];
+const DAYS_LONG=['ponedeljek','torek','sreda','četrtek','petek','sobota','nedelja'];
+const MONTHS=['januar','februar','marec','april','maj','junij','julij','avgust','september','oktober','november','december'];
+const STATE_LABEL={done:'cilj dosežen',min:'minimalna različica',rest:'počitek',miss:'ni izvedeno',missed:'brez vnosa',pending:'čaka na vnos',off:'prost dan',future:'',pre:''};
+const MARK={done:'✅',min:'🟡',rest:'⏸',miss:'❌',missed:'❌'};
+const ICON={
+  done:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="currentColor"/><path d="M7.4 12.6l3.1 3.1 6.1-6.6" fill="none" stroke="var(--on-status)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  min:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 2.6a9.4 9.4 0 0 1 0 18.8z" fill="currentColor"/></svg>',
+  rest:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M9.6 8.6v6.8M14.4 8.6v6.8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  miss:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M8.6 8.6l6.8 6.8M15.4 8.6l-6.8 6.8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'
+};
+ICON.missed=ICON.miss;
+
+const QUOTES=[
+ 'Ni nujno, da je popolno. Dovolj je, da se danes pokažeš.',
+ 'Majhen korak danes šteje več kot velik načrt jutri.',
+ 'Navada nastane iz ponavljanja, ne iz volje.',
+ 'Zgrešen dan je podatek, ne neuspeh.',
+ 'Tudi pavza je del poti.',
+ 'Vsaka izvedba je glas za osebo, ki jo gradiš.',
+ 'Minimalna različica je še vedno cilj.',
+ 'Začni tako majhno, da ne moreš reči ne.',
+ 'Pomembno ni, kako hitro greš, ampak da ostaneš na poti.',
+ 'Ne zgreši dvakrat zaporedoma.',
+ 'Tvoj prihodnji jaz ti bo hvaležen za današnjih deset minut.',
+ 'Ne čakaj na motivacijo. Pripravi okolje, motivacija pride za njim.',
+ 'Napredek je tih. Opaziš ga šele, ko pogledaš nazaj.',
+ 'Danes je dovolj, da narediš eno stvar, iz svoje obljube sebi.',
+ 'Vztrajnost ni intenzivnost. Je ritem.',
+ 'Vsak korak te premakne naprej, tudi majhen.',
+ 'Pot navzgor se začne z enim obratom pedala.',
+ 'Telo se uči s ponavljanjem. Glava tudi.',
+ 'Praznuj majhne zmage, da bo navada prijetna.',
+ 'Ni slabih dni, so samo dnevi za minimalno različico.',
+ 'Ko ti zmanjka moči, zmanjšaj cilj, ne opusti ga.',
+ 'Zima je čas, ko se gradi sezona.',
+ 'Ne računaj na motivacijo, računaj na doslednost.',
+ 'Najtežji del je slabo misel spremeniti v dobro.',
+ 'Skupina te nosi, ko je tebi težko. Ko se ne počutiš, da bi ti uspelo, napiši v skupino.',
+ 'Pomisli, kdo boš čez tri mesece, če se pokažeš vsak teden.',
+ 'Če je prelahko, je prav. Težavnost povečaš kasneje.',
+ 'Ni pomembno, kako je bilo včeraj. Pomembno je, kaj narediš zdaj.',
+ 'Samozavest raste iz izpolnjenih obljub sebi.',
+ 'Dober dan je dan, ko se vrneš.'
+];
+const TIPS=[
+ {l:1,t:'Določi čas in kraj',x:'Navada potrebuje naslov. Namesto »bom vadila« zapiši »ob 18.00 v dnevni sobi«. Takrat ne odločaš več, samo narediš.',a:'Preveri, ali je tvoj cilj zapisan z uro in krajem. Če ni, ga popravi v razdelku Moj cilj.'},
+ {l:1,t:'Pripni na obstoječo navado',x:'Novo navado najlažje zgradiš tako, da jo pripneš na nekaj, kar že delaš vsak dan: po kavi, po umivanju zob, po večerji.',a:'Izberi eno vsakdanjo stvar in dopolni stavek: »Po … naredim …«.'},
+ {l:1,t:'Pripravi pripomočke vnaprej',x:'Kar je na očeh, se zgodi. Opremo, ki jo potrebuješ, pripravi vnaprej na vidno mesto.',a:'Še danes zvečer pripravi opremo za jutri.'},
+ {l:3,t:'Pravilo dveh minut',x:'Vsaka navada se začne z različico, ki traja manj kot dve minuti. Ne gre za rezultat, ampak za to, da se pokažeš.',a:'Zapiši dvominutno različico svojega cilja in jo naredi.'},
+ {l:3,t:'Odstrani trenje',x:'Vsaka majhna ovira (iskanje opreme, preoblačenje, nejasen načrt) zmanjša možnost, da se sploh začne.',a:'Poišči eno oviro, ki te upočasnjuje, in jo danes odstrani.'},
+ {l:3,t:'Minimalna različica je dovoljena',x:'Na slab dan naredi manj, ne nič. Pomembno je, da veriga ostane živa.',a:'Če ti danes ne gre, izberi minimalno različico in jo označi z delno obarvanim krogom.'},
+ {l:2,t:'Poveži z nečim prijetnim',x:'Navada je lažja, če se ob njej zgodi nekaj, kar ti je všeč: glasba, podkast, topla pijača po koncu.',a:'Izberi eno prijetno stvar, ki jo dovoliš samo ob svoji navadi.'},
+ {l:2,t:'Skupina te nosi',x:'Navade, ki jih delimo z drugimi, ostanejo dlje. Vidnost pred skupino je zdrava vrsta odgovornosti.',a:'V ponedeljek pošlji svoj check-in v skupino, tudi če je teden šel slabše.'},
+ {l:4,t:'Označi takoj',x:'Kljukica na koncu je prva nagrada. Če jo odlašaš, izgubi učinek.',a:'Dan označi v aplikaciji takoj po izvedbi.'},
+ {l:4,t:'Praznuj majhno',x:'Možgani se učijo iz občutka uspeha. Po izvedbi si reci »bravo« in občuti, da držiš besedo sebi.',a:'Po današnji izvedbi si zavestno privošči pol minute ponosa.'},
+ {l:4,t:'Poglej nazaj',x:'Napredek je pogosto težko opaziti sproti. V pregledu tednov in meseca je viden.',a:'Odpri Napredek in preglej zadnja dva tedna.'},
+ {l:0,t:'Glasuj za identiteto',x:'Vsaka izvedba je glas za osebo, ki jo gradiš. Pomembneje od cilja je, kdo postajaš.',a:'Dopolni stavek: »Sem oseba, ki …« in ga vpiši v Moj cilj.'},
+ {l:0,t:'Nikoli dvakrat zapored',x:'Enkrat zgrešiti je človeško. Dvakrat zapored je začetek nove navade. Po zgrešenem dnevu je naslednji dan najpomembnejši.',a:'Če je včeraj zmanjkalo, naredi danes vsaj minimalno različico.'},
+ {l:1,t:'Če–potem načrt',x:'Vnaprej odloči, kaj narediš, ko se pojavi ovira: »Če dežuje, potem naredim deset minut doma.«',a:'Zapiši eno pogosto oviro in rešitev v Moj cilj.'},
+ {l:1,t:'Prostor odloča',x:'Okolje je močnejše od volje. Majhna sprememba v prostoru pogosto naredi več kot nova odločnost.',a:'Spremeni eno stvar v prostoru, da bo tvoja navada lažja.'},
+ {l:3,t:'Ne povečuj prehitro',x:'Ko gre navada lahkotno, jo počasi povečaj. Če je težko, jo zmanjšaj.',a:'Če je teden potekal brez težav, ostani še en teden pri istem obsegu.'},
+ {l:4,t:'Kaj mi je pomagalo?',x:'Vsak uspešen dan vsebuje namig: ura, kraj, oseba, razpoloženje. Ponovi tisto, kar deluje.',a:'Opazi, kaj ti je danes olajšalo izvedbo, in to ponovi jutri.'},
+ {l:0,t:'Zgrešiš? Ni panike',x:'Zgrešen dan ne uniči navade. Pomembno je, kako hitro se vrneš.',a:'Če ti je včeraj ušlo, danes brez krivde naredi minimalno različico.'},
+ {l:1,t:'Načrtuj teden',x:'Na začetku tedna določi, kateri dnevi so tvoji. S tem se ne spraševaš vsak dan znova.',a:'Preveri izbrane dni v Moj cilj in jih po potrebi popravi.'},
+ {l:0,t:'Pavza ni neuspeh',x:'Bolezen, potovanje ali utrujenost se zgodijo. Dan označi kot počitek, da ostane jasno, da gre za pavzo.',a:'Če te danes ni, izberi počitek in se jutri vrni.'},
+ {l:2,t:'Naredi si seznam skladb',x:'Glasba samo za tvojo navado ustvari povezavo: zasliši se prva skladba in telo že ve, kaj sledi.',a:'Sestavi kratek seznam skladb samo za svojo navado.'}
+];
+const LAWS=[
+ {n:'Naj bo očitno',x:'Določi, kdaj in kje. Pripni navado na nekaj, kar že delaš.',p:'»Po večerji, v dnevni sobi, 10 minut vaj.«'},
+ {n:'Naj bo privlačno',x:'Poveži jo z nečim, kar ti je všeč, in z ljudmi, ki te podpirajo.',p:'Glasba, podkast ali ponedeljkov check-in v skupini.'},
+ {n:'Naj bo enostavno',x:'Začni majhno in odstrani ovire. Minimalna različica je vedno dovoljena.',p:'Pet minut je več kot nič.'},
+ {n:'Naj bo zadovoljivo',x:'Označi uspeh takoj in praznuj majhne zmage.',p:'Vnos v aplikaciji, pogled na zadnje tedne.'}
+];
+const EXAMPLES=[
+ {k:'Gibanje po občutku',cilj:'Postati močnejši za kolesarsko sezono',perWeek:2,planned:[],kdaj:'2-krat na teden, dan izberem sproti',kje:'doma ali v fitnesu',kaj:'30 minut vaj za moč',min:'10 minut vaj z lastno težo',identity:'krepi moč za kolo',anchor:'po delu, preden se uležem na kavč',ifthen:'Če do srede še nisem vadil, potem vadim v četrtek ali petek.',reward:'topel čaj in ena skladba po izbiri'},
+ {k:'Gibanje fiksni dnevi',cilj:'Postati močnejši za kolesarsko sezono',perWeek:0,planned:[0,2,4],kdaj:'ob ponedeljkih, sredah in petkih po službi',kje:'doma v dnevni sobi',kaj:'30 minut vaj za moč',min:'10 minut vaj z lastno težo',identity:'krepi moč za kolo',anchor:'po prihodu domov in preoblačenju',ifthen:'Če me zmanjkuje energije, potem naredim samo 10 minut.',reward:'topel čaj in ena skladba po izbiri'},
+ {k:'Prehrana',cilj:'Jesti več zelenjave',perWeek:0,planned:[0,1,2,3,4,5,6],kdaj:'vsak dan pri kosilu',kje:'doma ali v službi',kaj:'poleg obroka pojem porcijo zelenjave',min:'pol porcije zelenjave ali sadje',identity:'skrbi za svoje telo',anchor:'ko sedem k mizi',ifthen:'Če nimam zelenjave, potem vzamem sadje.',reward:'ob koncu tedna si izberem nov recept'},
+ {k:'Trenutek zase',cilj:'Imeti vsak dan malo miru',perWeek:0,planned:[0,1,2,3,4,5,6],kdaj:'vsak večer po večerji',kje:'na kavču brez telefona',kaj:'15 minut miru brez hitenja',min:'5 minut tišine',identity:'si vzame čas zase',anchor:'po pomivanju posode',ifthen:'Če je dan natrpan, potem naredim 5 minut.',reward:'topla pijača'}
+];
+
+/* ---------- stanje ---------- */
+let storageOk=true;
+function emptyState(){return {v:2,name:'',unlocked:false,goals:[],reviews:{},earned:[],fresh:[],groupTotal:0,backupAt:''}}
+function cleanIds(a){return Array.isArray(a)?a.filter(x=>BADGES.some(b=>b.id===x)):[]}
+function cleanReviews(r){
+  const o={};
+  if(r&&typeof r==='object') for(const k in r){
+    if(!validDate(k)||!r[k]||typeof r[k]!=='object') continue;
+    o[k]={w:String(r[k].w||'').slice(0,300),o:String(r[k].o||'').slice(0,300),c:String(r[k].c||'').slice(0,300)};
+  }
+  return o;
+}
+function validDate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)}
+function cleanGoal(g,log){
+  if(!g||typeof g!=='object'||!validDate(g.start)||!Array.isArray(g.planned)) return null;
+  const L={};
+  if(log&&typeof log==='object') for(const k in log){const v=log[k];if(validDate(k)&&['done','min','rest','miss'].includes(v))L[k]=v}
+  const N={};
+  if(g.notes&&typeof g.notes==='object') for(const k in g.notes){if(validDate(k)&&typeof g.notes[k]==='string'&&g.notes[k].trim()) N[k]=g.notes[k].slice(0,140)}
+  return {
+    id:String(g.id||('g'+Math.random().toString(36).slice(2,8))).slice(0,20),
+    cilj:String(g.cilj||'').slice(0,200),perWeek:Math.max(0,Math.min(7,Math.round(+g.perWeek||0))),kdaj:String(g.kdaj||'').slice(0,160),kje:String(g.kje||'').slice(0,160),kaj:String(g.kaj||'').slice(0,200),
+    min:String(g.min||'').slice(0,200),identity:String(g.identity||'').slice(0,160),anchor:String(g.anchor||'').slice(0,160),
+    ifthen:String(g.ifthen||'').slice(0,240),reward:String(g.reward||'').slice(0,160),
+    planned:[...new Set(g.planned.map(Number).filter(n=>n>=0&&n<=6))].sort(),start:g.start,log:L,notes:N
+  };
+}
+function normalize(raw){
+  const T=emptyState();
+  if(!raw||typeof raw!=='object') return T;
+  if(Array.isArray(raw.goals)){
+    T.name=String(raw.name||'').slice(0,60);T.unlocked=!!raw.unlocked;T.reviews=cleanReviews(raw.reviews);T.earned=cleanIds(raw.earned);T.fresh=cleanIds(raw.fresh);T.backupAt=validDate(raw.backupAt)?raw.backupAt:'';T.groupTotal=Math.max(0,Math.min(9999,Math.round(+raw.groupTotal||0)));
+    raw.goals.slice(0,3).forEach(g=>{const c=cleanGoal(g,g&&g.log);if(c)T.goals.push(c)});
+  }else if(raw.profile){
+    const c=cleanGoal(raw.profile,raw.log);
+    if(c){T.goals.push(c);T.name=String(raw.profile.name||'').slice(0,60)}
+  }
+  return T;
+}
+function load(){
+  try{const r=localStorage.getItem(KEY);if(r)return normalize(JSON.parse(r))}catch(e){storageOk=false}
+  return emptyState();
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){storageOk=false}
+}
+let ST=load();
+try{if(navigator.storage&&navigator.storage.persist) navigator.storage.persist()}catch(e){}
+let S={profile:null,log:{}};
+const ui={tab:'danes',weekOff:0,month:null,ci:'prev',sheetDay:null,code:'',form:null,gi:0,adding:false};
+function gv(i){
+  const g=ST.goals[i];
+  return {profile:{name:ST.name,cilj:g.cilj||'',perWeek:g.perWeek||0,kdaj:g.kdaj,kje:g.kje,kaj:g.kaj,min:g.min,identity:g.identity,anchor:g.anchor,ifthen:g.ifthen,reward:g.reward,planned:g.planned,start:g.start},log:g.log,notes:g.notes||(g.notes={})};
+}
+function canAdd(today){return ST.goals.length>0&&(ST.unlocked||unlockInfo(gv(0),today).ok)}
+function useGoal(){
+  const n=ST.goals.length;
+  if(!n){S={profile:null,log:{}};return}
+  if(ui.gi==null||ui.gi<0||ui.gi>=n) ui.gi=0;
+  if(!ST.unlocked&&unlockInfo(gv(0),todayStr()).ok){ST.unlocked=true;save()}
+  checkBadges(todayStr());
+  S=gv(ui.gi);
+}
+const GROUP_TARGET=200,GROUP_END='2027-03-31';
+function checkBadges(today){
+  if(!ST.goals.length) return;
+  const st=badgeStats(ST.goals.map((g,i)=>gv(i)),today);let ch=false;
+  BADGES.forEach(b=>{
+    const v=b.kind==='streak'?st.streak:st.total;
+    if(v>=b.n&&!ST.earned.includes(b.id)){ST.earned.push(b.id);ST.fresh.push(b.id);ch=true}
+  });
+  if(ch) save();
+}
+function goalChips(today){
+  const box=h('div',{class:'chips',role:'group','aria-label':'Izberi cilj'});
+  ST.goals.forEach((g,i)=>{
+    const st=dayState(gv(i),today,today);
+    box.append(h('button',{class:'chip',type:'button','aria-pressed':(!ui.adding&&ui.gi===i)?'true':'false',onclick:()=>{ui.gi=i;ui.adding=false;ui.form=null;ui.weekOff=0;render()}},'Cilj '+(i+1)+(MARK[st]?' '+MARK[st]:'')));
+  });
+  return box;
+}
+
+/* ---------- pomožno ---------- */
+function h(tag,props,...kids){
+  const e=document.createElement(tag);
+  for(const k in (props||{})){
+    const v=props[k];if(v==null||v===false)continue;
+    if(k==='class')e.className=v;else if(k==='text')e.textContent=v;else if(k==='html')e.innerHTML=v;
+    else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v===true?'':v);
+  }
+  for(const c of kids.flat()) if(c!=null&&c!==false) e.append(c.nodeType?c:document.createTextNode(c));
+  return e;
+}
+const todayStr=()=>ymd(new Date());
+const fmtDate=s=>{const d=parse(s);return d.getDate()+'. '+(d.getMonth()+1)+'.'};
+function fmtRange(ws){
+  const a=parse(ws),b=parse(addDays(ws,6));
+  return a.getMonth()===b.getMonth()?a.getDate()+'.–'+b.getDate()+'. '+(b.getMonth()+1)+'.':a.getDate()+'. '+(a.getMonth()+1)+'.–'+b.getDate()+'. '+(b.getMonth()+1)+'.';
+}
+function pct(x){return x==null?'–':Math.round(x*100)+' %'}
+let toastTimer=null;
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.hidden=false;
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>{t.hidden=true},2400);
+}
+function goalSentence(p){const k=String(p.kaj||'');return k.charAt(0).toUpperCase()+k.slice(1)+', '+p.kdaj+', '+p.kje+'.'}
+function cleanFund(f){return {on:!!(f&&f.on),eur:Math.max(1,Math.min(50,Math.round(+(f&&f.eur)||2))),charity:String((f&&f.charity)||'').slice(0,80)}}
+const CKEY='train-ride-zimske-navade-coach';
+function loadC(){
+  try{
+    const r=JSON.parse(localStorage.getItem(CKEY));
+    if(r&&Array.isArray(r.roster)&&Array.isArray(r.reports)){
+      return {fund:cleanFund(r.fund),on:!!r.on,roster:r.roster.map(x=>String(x).slice(0,60)).slice(0,60),
+        reports:r.reports.filter(x=>x&&validDate(x.ws)).map(x=>({name:String(x.name||'').slice(0,60),kind:x.kind==='friday'?'friday':'checkin',ws:x.ws,done:+x.done||0,target:+x.target||0,status:['dosezen','dosegljiv','tezko'].includes(x.status)?x.status:null,need:+x.need||0})).slice(-600)};
+    }
+  }catch(e){}
+  return {fund:cleanFund(null),on:false,roster:[],reports:[]};
+}
+let C=loadC();
+function saveC(){try{localStorage.setItem(CKEY,JSON.stringify(C))}catch(e){}}
+function mergeReports(list){
+  let n=0,skipped=0;
+  list.forEach(r=>{
+    if(!r.name){skipped++;return}
+    let i=rosterIndex(r.name,C.roster);
+    if(i<0){C.roster.push(r.name);i=C.roster.length-1}
+    r.name=C.roster[i];
+    C.reports=C.reports.filter(x=>!(x.ws===r.ws&&x.kind===r.kind&&nameMatch(x.name,r.name)));
+    C.reports.push(r);n++;
+  });
+  C.reports=C.reports.slice(-600);saveC();
+  return {n,skipped};
+}
+function extraGoalLines(ws,today){
+  const lines=[];
+  for(let i=1;i<ST.goals.length;i++){
+    const G=gv(i);const sm=weekSummary(G,ws,today);
+    lines.push('','Dodatni cilj '+(i+1)+': '+goalSentence(G.profile),'Pon–Ned: '+sm.days.map(d=>MARK[d.state]||'·').join(' '),'Dodatni cilj '+(i+1)+' · izvedeno: '+sm.good+' od '+sm.target+' dni');
+  }
+  return lines;
+}
+function fridayText(ws,today){
+  const G=gv(0);const p=G.profile;const f=fridayStatus(G,ws,today);
+  const stTxt=f.state==='dosezen'?'dosežen':f.state==='dosegljiv'?'še dosegljiv':'težko';
+  const lines=[(p.name?p.name+' · ':'')+'Petkov status, teden '+fmtRange(ws),'Cilj: '+goalSentence(p),'Pon–Ned: '+f.marks.map(d=>MARK[d.state]||'·').join(' '),'Izvedeno: '+f.good+' od '+f.target+' načrtovanih dni'];
+  if(f.need>0) lines.push('Do cilja še: '+f.need+' ('+f.left.map(d=>DAYS_LONG[wd(d)]).join(', ')+')');
+  lines.push('Status: '+stTxt);
+  lines.push(...extraGoalLines(ws,today));
+  lines.push('','Kako gre: ','Potrebujem podporo: ');
+  return lines.join('\n');
+}
+const MKEY='train-ride-zimske-navade-mon';
+function monDone(ws){try{return localStorage.getItem(MKEY)===ws}catch(e){return ui.monSeen===ws}}
+function monSet(ws){ui.monSeen=ws;try{localStorage.setItem(MKEY,ws)}catch(e){}}
+const REM_TITLE='Je v tvojem tednu že načrtovan čas za Accountability Club? 💚';
+function reminderUrl(today,hour){
+  const p=gv(0).profile;let d=today>p.start?today:p.start;d=addDays(d,(7-wd(d))%7);
+  const c=d.replace(/-/g,'');const hh=pad(hour);
+  const text=REM_TITLE;
+  const det='Train & Ride · Accountability Club: izberi dneve in uro za svoj cilj in ne pozabi na minimalno različico. Cilj: '+goalSentence(p);
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(text)+'&details='+encodeURIComponent(det)+'&dates='+c+'T'+hh+'0000/'+c+'T'+hh+'1500&ctz=Europe/Ljubljana&recur='+encodeURIComponent('RRULE:FREQ=WEEKLY;BYDAY=MO');
+}
+const FEEDBACK={
+  done:'Bravo. Glas za osebo, ki jo gradiš.',
+  min:'Minimalna različica šteje. Pokazati se je dovolj.',
+  rest:'Počitek je del načrta. Jutri se vrni.',
+  miss:'Zgrešen dan je podatek, ne neuspeh. Jutri naredi vsaj minimalno različico.'
+};
+
+const A2KEY='train-ride-zimske-navade-a2';
+function a2Hidden(){try{return localStorage.getItem(A2KEY)==='1'}catch(e){return !!ui.a2Hide}}
+function isStandalone(){try{return (window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true}catch(e){return false}}
+const A2BR=[
+ {id:'is',t:'iPhone · Safari',ios:true,steps:['Povezavo odpri v Safariju (modra ikona kompasa).','Tapni gumb Deli: kvadrat s puščico navzgor, spodaj na sredini. Če ga ne vidiš, najprej tapni tri pike.','Povleci seznam navzgor in tapni »Dodaj na začetni zaslon«.','Tapni »Dodaj« zgoraj desno. Ikona se pokaže na začetnem zaslonu.']},
+ {id:'ic',t:'iPhone · Chrome',ios:true,steps:['Povezavo odpri v Chromu.','Tapni gumb Deli (kvadrat s puščico) v naslovni vrstici ali tri pike spodaj desno.','Izberi »Dodaj na začetni zaslon«.','Tapni »Dodaj«.']},
+ {id:'ac',t:'Android · Chrome',steps:['Povezavo odpri v Chromu.','Tapni tri pike zgoraj desno.','Izberi »Dodaj na začetni zaslon« ali »Namesti aplikacijo«.','Potrdi z »Dodaj« ali »Namesti«.']},
+ {id:'as',t:'Android · Samsung Internet',steps:['Povezavo odpri v Samsung Internetu.','Tapni meni s tremi črtami spodaj desno.','Izberi »Dodaj stran na« in nato »Začetni zaslon«.','Potrdi z »Dodaj«.']},
+ {id:'af',t:'Android · Firefox',steps:['Povezavo odpri v Firefoxu.','Tapni tri pike zgoraj desno.','Izberi »Namesti« ali »Dodaj na začetni zaslon«.','Potrdi z »Dodaj«.']}
+];
+function a2hsCard(dismiss){
+  const ua=navigator.userAgent||'';
+  const ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const droid=/Android/.test(ua);
+  if(!ui.a2Br) ui.a2Br=ios?(/CriOS/.test(ua)?'ic':'is'):droid?(/SamsungBrowser/.test(ua)?'as':/Firefox/.test(ua)?'af':'ac'):'is';
+  const br=A2BR.find(b=>b.id===ui.a2Br)||A2BR[0];
+  const kids=[h('span',{class:'label',text:'Bližnjica'}),h('img',{src:'data:image/png;base64,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',alt:'Ikona aplikacije',width:'64',height:'64',style:'border-radius:15px;display:block;margin:6px 0'}),h('h2',{text:'Dodaj aplikacijo na začetni zaslon'}),
+    h('p',{class:'small',text:'Ikona na telefonu odpre aplikacijo z enim tapom. Izberi svoj telefon in brskalnik.'})];
+  if(ui.a2Open){
+    kids.push(h('div',{class:'chips',role:'group','aria-label':'Brskalnik'},A2BR.map(b=>h('button',{class:'chip',type:'button','aria-pressed':b.id===br.id?'true':'false',onclick:()=>{ui.a2Br=b.id;render()}},b.t))));
+    kids.push(h('ol',{class:'steps'},br.steps.map(x=>h('li',{text:x}))));
+    kids.push(h('p',{class:'small muted',text:'Se je povezava odprla v WhatsAppu? Tapni ikono kompasa ali tri pike in izberi »Odpri v brskalniku«, nato sledi korakom zgoraj.'}));
+    if(br.ios) kids.push(h('div',{class:'banner warn'},h('b',{text:'Pomembno za iPhone'}),h('span',{text:'Imaš že vnose? Najprej v Moj cilj ustvari varnostno kodo, dodaj ikono in kodo v aplikaciji obnovi (Obnovi iz kode). Ikona ima lahko ločen prostor za podatke od brskalnika. Če šele začenjaš, najprej dodaj ikono in šele nato vnašaj dneve.'})));
+    else kids.push(h('p',{class:'small muted',text:'Na računalniku povezavo shrani med zaznamke (Ctrl+D ali ⌘+D).'}));
+  }
+  const row=h('div',{class:'row'},h('button',{class:'btn',type:'button',onclick:()=>{ui.a2Open=!ui.a2Open;render()}},ui.a2Open?'Skrij navodila':'Pokaži kako'));
+  if(dismiss) row.append(h('button',{class:'btn alt',type:'button',onclick:()=>{ui.a2Hide=true;try{localStorage.setItem(A2KEY,'1')}catch(e){}render()}},'Ne zdaj'));
+  kids.push(row);
+  return h('section',{class:'card'},kids);
+}
+function setNote(day,text){
+  if(text.trim()) S.notes[day]=text.slice(0,140); else delete S.notes[day];
+  save();
+}
+function noteField(day){
+  const nt=h('textarea',{rows:'2',maxlength:'140','aria-label':'Opomba (ni obvezno)'});
+  nt.value=S.notes[day]||'';
+  nt.addEventListener('input',()=>setNote(day,nt.value));
+  return h('div',{class:'field'},h('span',{class:'lb',text:'Opomba (ni obvezno)'}),h('span',{class:'hint',text:'Kaj ti je pomagalo? Kako se počutiš po izvedbi?'}),nt);
+}
+const RIDER_SVG='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet" focusable="false"><g transform="translate(0,190)">'
+ +'<line x1="0" y1="0" x2="340" y2="0" style="stroke:var(--line)" stroke-width="3" stroke-linecap="round"/>'
+ +'<path d="M96 0 L138 -16 L138 0Z" style="fill:var(--surface-2);stroke:var(--line)" stroke-width="2" stroke-linejoin="round"/>'
+ +'<g class="dust" style="fill:var(--muted)"><circle cx="248" cy="-5" r="6"/><circle cx="262" cy="-4" r="5"/><circle cx="276" cy="-5" r="4"/></g>'
+ +'<g class="spark" style="fill:var(--min)"><circle cx="165" cy="-135" r="4"/><circle cx="205" cy="-150" r="3"/><circle cx="140" cy="-150" r="3"/></g>'
+ +'<g class="rx"><g class="ry"><g transform="scale(1.5)">'
+ +'<circle cx="-19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/><circle cx="19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/>'
+ +'<path d="M-19 -13 L-2 -13 L-8 -33 L13 -32 L-2 -13 M-8 -33 L-19 -13 M13 -32 L19 -13" fill="none" style="stroke:var(--accent)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>'
+ +'<path d="M13 -32 L13 -38 M10 -38 L17 -38 M-12 -34 L-4 -34" fill="none" style="stroke:var(--fg)" stroke-width="3.2" stroke-linecap="round"/>'
+ +'<path d="M-6 -38 L3 -27 L-1 -15 M-6 -38 L5 -56 M5 -55 L16 -39" fill="none" style="stroke:var(--primary)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>'
+ +'<circle cx="9" cy="-65" r="6.5" style="fill:var(--min)"/><path d="M10 -64 L17 -63" style="stroke:var(--fg)" stroke-width="2" stroke-linecap="round"/>'
+ +'</g></g></g></g></svg>';
+function riderEl(){return h('div',{class:'rider-ov','aria-hidden':'true',html:RIDER_SVG})}
+function setDay(day,state){
+  if(state==null) delete S.log[day]; else S.log[day]=state;
+  if(state==='done'&&day===todayStr()) ui.cel=true;
+  save();ui.sheetDay=null;render();ui.cel=false;
+}
+
+/* ---------- zgornji del in zavihki ---------- */
+function renderHead(today){
+  const ph=document.getElementById('phase');
+  const t=parse(today);
+  document.getElementById('title').textContent=DAYS_LONG[wd(today)].charAt(0).toUpperCase()+DAYS_LONG[wd(today)].slice(1)+', '+t.getDate()+'. '+MONTHS[t.getMonth()];
+  if(!ST.goals.length){ph.hidden=true;return}
+  const st0=ST.goals[0].start;
+  ph.hidden=false;ph.className='pill';
+  const n=diffDays(st0,today)+1;
+  if(n<1){ph.textContent='Začetek čez '+(1-n)+(1-n===1?' dan':' dni')+' ('+fmtDate(st0)+')'}
+  else if(n<=14){ph.className='pill hab';ph.textContent='Faza navade · dan '+n+' od 14'}
+  else{ph.textContent='Faza cilja · teden '+(Math.floor((n-1)/7)+1)}
+}
+function renderTabs(){
+  const box=document.getElementById('tabs');box.replaceChildren();
+  const list=[['danes','Danes'],['napredek','Napredek'],['cilj','Moj cilj'],['znanje','Znanje']];
+  if(C.on) list.splice(3,0,['trener','Trener']);
+  box.className='tabs'+(C.on?' five':'');box.style.gridTemplateColumns='repeat('+list.length+',1fr)';
+  list.forEach(([id,label])=>{
+    box.append(h('button',{class:'tab',role:'tab',type:'button','aria-selected':ui.tab===id?'true':'false',onclick:()=>{ui.tab=id;ui.sheetDay=null;render();window.scrollTo({top:0})}},label));
+  });
+}
+
+/* ---------- Danes ---------- */
+function emptyCard(){
+  return h('section',{class:'card empty'},
+    h('h2',{text:'Začni s svojim ciljem'}),
+    h('p',{class:'muted',text:'V razdelku Moj cilj zapiši en cilj, njegovo minimalno različico in dneve, ko ga želiš delati. Cilj je lahko karkoli: gibanje, prehrana ali trenutek zase.'}),
+    h('p',{class:'small muted',text:'Aplikacijo uporabljaš že dlje in so podatki izginili? V razdelku Moj cilj jih obnoviš z varnostno kodo.'}),
+    h('button',{class:'btn',type:'button',onclick:()=>{ui.tab='cilj';render()}},'Postavi cilj')
+  );
+}
+function viewToday(today){
+  const out=[];
+  if(!storageOk) out.push(h('div',{class:'banner warn'},h('b',{text:'Shranjevanje v tem brskalniku ne deluje'}),h('span',{text:'Podatki bodo izginili, ko zapreš stran. Odpri povezavo v običajnem oknu ali shrani varnostno kodo v razdelku Moj cilj.'})));
+  const qi=((diffDays('2026-01-01',today)%QUOTES.length)+QUOTES.length)%QUOTES.length;
+  const qcard=h('section',{class:'card'},h('span',{class:'label',text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
+  out.push(qcard);
+  out.push(h('section',{class:'card',style:'border-left:4px solid var(--accent)'},h('span',{class:'label',text:'Obveza skupine'}),
+    h('p',{text:'Če začutiš, da zmanjkuje motivacije in zagona, to napiši v WhatsApp skupino, še preden zgrešiš. Skupina ali Teja ti pomaga poiskati najmanjši možni korak.'})));
+  if(!S.profile){out.push(emptyCard());return out}
+  if(ST.goals.length>1) out.push(goalChips(today));
+  if(ST.fresh.length){
+    const nb=ST.fresh.map(id=>BADGES.find(b=>b.id===id)).filter(Boolean);
+    out.push(h('section',{class:'card celebrate'},riderEl(),
+      h('div',{class:'medal','aria-hidden':'true',text:String(nb[nb.length-1].n)}),h('span',{class:'label',text:'Nova značka'}),
+      h('h2',{text:nb.map(b=>b.t).join(' · ')+' 🎉'}),h('p',{text:nb.map(b=>b.x).join(' ')}),
+      h('button',{class:'btn',type:'button',onclick:()=>{ST.fresh=[];save();render()}},'Hvala 💚')));
+  }
+  const marked=Object.keys(S.log).length;
+  if(marked>=1&&!isStandalone()&&!a2Hidden()&&!ui.a2Hide) out.push(a2hsCard(true));
+  if(!ui.nudgeHide&&marked>=2&&(!ST.backupAt||diffDays(ST.backupAt,today)>=7)){
+    out.push(h('section',{class:'card'},h('span',{class:'label',text:'Varnostna kopija'}),
+      h('h2',{text:'Shrani kodo, da ne izgubiš napredka'}),
+      h('p',{class:'small',text:'Podatki so shranjeni samo v tem brskalniku. Če zamenjaš telefon, brskalnik ali počistiš podatke, jih lahko obnoviš s kodo. Kopiraj jo in prilepi v svoje zapiske ali v pogovor s sabo v WhatsAppu.'}),
+      h('div',{class:'row'},
+        h('button',{class:'btn',type:'button',onclick:async()=>{
+          const c=btoa(unescape(encodeURIComponent(JSON.stringify(ST))));
+          try{await navigator.clipboard.writeText(c);ST.backupAt=today;save();render();toast('Koda je kopirana. Prilepi jo v zapiske.')}
+          catch(e){ui.tab='cilj';render();toast('Kopiranje ni uspelo. Tapni Ustvari kodo.')}
+        }},'Kopiraj kodo'),
+        h('button',{class:'btn alt',type:'button',onclick:()=>{ui.nudgeHide=true;render()}},'Pozneje'))));
+  }
+  const ins=noteInsight(S,today);
+  if(ins.wins.length) qcard.append(h('p',{class:'small muted',text:'Tvoje besede: »'+ins.wins[((diffDays('2026-01-01',today)%ins.wins.length)+ins.wins.length)%ins.wins.length]+'«'}));
+  if(ins.win||ins.obstacle){
+    const ik=[h('span',{class:'label',text:'Iz tvojih opomb'})];
+    if(ins.win&&ins.win.count) ik.push(h('p',{text:'Ko ti uspe, pogosto omenjaš '+ins.win.label+' ('+ins.win.count+' od '+ins.win.total+' opomb). Ponovi to danes.'}));
+    else if(ins.win) ik.push(h('p',{text:'V zadnji opombi piše, da ti je pomagalo: »'+ins.win.echo+'«. Ponovi to danes.'}));
+    if(ins.obstacle) ik.push(h('div',{class:'todo'},h('b',{text:'Ovira: '+ins.obstacle.label}),ins.obstacle.tip));
+    out.push(h('section',{class:'card'},ik));
+  }
+  const p=S.profile;
+  const before=today<p.start;
+  const st=dayState(S,today,today);
+  const cur=S.log[today]||null;
+  const lr=lastResult(S,today);
+  const cm=consecutiveMisses(S,today);
+  if(cm>=2) out.push(h('div',{class:'banner alert'},h('b',{text:'Dvakrat zapored je zmanjkalo'}),h('span',{text:'To je znak, da je cilj trenutno prevelik. Danes naredi minimalno različico ali piši Teji in skupaj poiščeta najmanjši korak.'})));
+  else if(lr&&isBad(lr)&&st==='pending') out.push(h('div',{class:'banner warn'},h('b',{text:'Nikoli dvakrat zapored'}),h('span',{text:'Zadnjič ni šlo. Danes je dovolj minimalna različica: '+p.min+'.'})));
+  const mws=weekStart(today);
+  if(wd(today)===0&&!before&&!monDone(mws)){
+    out.push(h('section',{class:'card'},h('span',{class:'label',text:'Ponedeljkov opomnik'}),
+      h('h2',{text:'Dobro jutro! Je v tvojem tednu že načrtovan čas za Accountability Club?'}),
+      h('p',{text:'Izberi, kdaj in kje bo ta teden tvoj čas za cilj. '+(p.perWeek?'Tvoj cilj: '+p.perWeek+'× na teden, dan izbereš sproti.':'Tvoji dnevi: '+(p.planned.map(i=>DAYS_LONG[i]).join(', ')||'še ni izbranih')+'.')}),
+      h('div',{class:'row'},
+        h('button',{class:'btn',type:'button',onclick:()=>{monSet(mws);render();toast('Odlično. Uspešen teden!')}},'Da, imam načrt'),
+        h('button',{class:'btn alt',type:'button',onclick:()=>{ui.tab='cilj';render();window.scrollTo({top:0})}},'Še ne, uredim načrt'))));
+  }
+  if(wd(today)>=4&&!before){
+    const f=fridayStatus(S,mws,today);
+    if(f.target>0){
+      const go=()=>{ui.ciUser='fri';ui.tab='napredek';render();window.scrollTo({top:0})};
+      if(f.need>0) out.push(h('section',{class:'card'},h('span',{class:'label',text:'Petkov pregled'}),
+        h('h2',{text:f.state==='dosegljiv'?'Še imaš čas za tedenski cilj':'Ta teden je videti zahtevno'}),
+        h('p',{text:'Do zdaj '+f.good+' od '+f.target+'. Do cilja še '+f.need+' '+dni(f.need)+'. '+(f.state==='dosegljiv'?'Vikend je še pred tabo.':'Zadošča minimalna različica, vsaj enkrat do nedelje.')}),
+        h('button',{class:'btn',type:'button',onclick:go},'Pošlji petkov status')));
+      else out.push(h('section',{class:'card'},h('span',{class:'label',text:'Petkov pregled'}),
+        h('h2',{text:'Tedenski cilj je dosežen 🎉'}),
+        h('p',{text:'Bravo. Deli jo s skupino in navdihni še katero.'}),
+        h('button',{class:'btn alt',type:'button',onclick:go},'Pošlji petkov status')));
+    }
+  }
+  if(wd(today)===0||wd(today)===6){
+    const rws=wd(today)===0?addDays(mws,-7):mws;const rv=ST.reviews[rws];
+    if(!before&&!(rv&&(rv.w||rv.o||rv.c))) out.push(h('section',{class:'card'},h('span',{class:'label',text:'Tedenski razmislek'}),
+      h('h2',{text:'Dve minuti za razmislek o tednu'}),
+      h('p',{text:'Kaj je delovalo, kaj te je oviralo in kaj spremeniš? Odgovori se samodejno vpišejo v tvoj check-in.'}),
+      h('button',{class:'btn alt',type:'button',onclick:()=>{ui.ciUser=wd(today)===0?'prev':'cur';ui.tab='napredek';render();window.scrollTo({top:0})}},'Odgovori')));
+  }
+  if(before) out.push(h('div',{class:'banner info'},h('b',{text:'Skupina začne '+fmtDate(p.start)}),h('span',{text:'Do takrat vnos še ni mogoč. Če želiš aplikacijo preizkusiti, v razdelku Moj cilj nastavi začetek na današnji datum.'})));
+
+  const goalKids=[h('span',{class:'label',text:ST.goals.length>1?'Cilj '+(ui.gi+1):'Moj cilj'}),p.cilj?h('h2',{text:p.cilj}):null,h('p',{class:'goal',text:goalSentence(p)}),
+    h('div',{class:'goal-sub'},h('span',{},h('b',{text:'Minimalna različica: '}),p.min))];
+  if(p.identity) goalKids[3].append(h('span',{},h('b',{text:'Sem oseba, ki '}),p.identity+'.'));
+  if(p.anchor) goalKids[3].append(h('span',{},h('b',{text:'Pripeto na: '}),p.anchor));
+  if(p.ifthen) goalKids[3].append(h('span',{},h('b',{text:'Ovira: '}),p.ifthen));
+  out.push(h('section',{class:'card'},goalKids));
+
+  const planned=!p.perWeek&&p.planned.includes(wd(today));
+  const choices=h('div',{class:'choices'});
+  [['done','Cilj dosežen'],['min','Minimalna različica'],['rest','Počitek ali pavza'],['miss','Danes ne']].forEach(([k,label])=>{
+    choices.append(h('button',{class:'choice c-'+k,type:'button',disabled:before,'aria-pressed':cur===k?'true':'false',onclick:()=>setDay(today,cur===k?null:k)},h('i',{html:ICON[k],style:'display:contents'}),h('span',{text:label})));
+  });
+  const vn=[h('h2',{text:'Kako je šlo danes?'}),choices];
+  if(cur) vn.push(h('p',{class:'feedback',text:FEEDBACK[cur]}));
+  else if(!before&&p.perWeek){const w0=weekSummary(S,weekStart(today),today);vn.push(h('p',{class:'small muted',text:'Ta teden: '+w0.good+' od '+p.perWeek+'. Dan ni vnaprej določen, vnesi, ko cilj narediš.'}))}
+  else if(!before&&!planned) vn.push(h('p',{class:'small muted',text:'Danes ni v tvojem načrtu. Vnos je bonus in ne vpliva negativno na tvoj odstotek.'}));
+  if(!before) vn.push(noteField(today));
+  out.push(h('section',{class:'card burst'},ui.cel?riderEl():null,vn));
+
+  const ws=weekStart(today);const sm=weekSummary(S,ws,today);
+  out.push(h('div',{class:'stats'},
+    h('div',{class:'stat'},h('b',{text:String(streak(S,today))}),h('span',{text:'dni v seriji'})),
+    h('div',{class:'stat'},h('b',{text:sm.good+'/'+sm.target}),h('span',{text:'ta teden'})),
+    h('div',{class:'stat'},h('b',{text:String(longestStreak(S,today))}),h('span',{text:'najdaljša serija'}))
+  ));
+
+  const di=Math.max(0,diffDays(ST.goals[0].start,today));const tip=TIPS[di%TIPS.length];
+  out.push(h('section',{class:'card'},h('span',{class:'label',text:'Navodilo dneva'}),
+    h('span',{class:'tag t'+(tip.l||1),text:tip.l?['','Naj bo očitno','Naj bo privlačno','Naj bo enostavno','Naj bo zadovoljivo'][tip.l]:'Pravilo skupine'}),
+    h('h2',{text:tip.t}),h('p',{text:tip.x}),h('div',{class:'todo'},h('b',{text:'Naredi danes'}),tip.a)));
+  return out;
+}
+
+/* ---------- Napredek ---------- */
+function weekStrip(ws,today){
+  const strip=h('div',{class:'strip',role:'list'});
+  for(let i=0;i<7;i++){
+    const day=addDays(ws,i);const state=dayState(S,day,today);
+    const can=day>=S.profile.start&&day<=today;
+    const d=parse(day);
+    const label=DAYS_LONG[i]+', '+d.getDate()+'. '+(d.getMonth()+1)+'.'+(STATE_LABEL[state]?', '+STATE_LABEL[state]:'');
+    const cls='cell s-'+state+(day===today?' today':'')+(S.profile.planned.includes(i)?' planned':'');
+    const inner=[h('span',{class:'dn',text:DAYS[i]}),h('span',{class:'dd',text:String(d.getDate())}),h('span',{class:'g',html:ICON[state]||''}),h('span',{class:'pl'})];
+    strip.append(can?h('button',{class:cls,type:'button','aria-label':label,onclick:()=>{ui.sheetDay=day;renderSheet()}},inner):h('div',{class:cls,role:'listitem','aria-label':label},inner));
+  }
+  return strip;
+}
+function checkinText(ws,today){
+  const G=gv(0);const p=G.profile;const sm=weekSummary(G,ws,today);
+  const marks=sm.days.map(d=>MARK[d.state]||'·').join(' ');
+  const lines=[(p.name?p.name+' · ':'')+'Check-in, teden '+fmtRange(ws),'Cilj: '+goalSentence(p),'Minimalna različica: '+p.min,
+    'Pon–Ned: '+marks,'Izvedeno: '+sm.good+' od '+sm.target+' načrtovanih dni'];
+  lines.push(...extraGoalLines(ws,today));
+  const rv=ST.reviews[ws]||{};
+  lines.push('','Kaj je delovalo: '+(rv.w||''),'Kaj me je oviralo: '+(rv.o||''),'Kaj spremenim: '+(rv.c||''),'Potrebujem podporo: ');
+  return lines.join('\n');
+}
+function viewProgress(today){
+  if(!S.profile) return [emptyCard()];
+  const p=S.profile;const out=[];
+  if(ST.goals.length>1) out.push(goalChips(today));
+  const cm=consecutiveMisses(S,today);
+  if(cm>=2) out.push(h('div',{class:'banner alert'},h('b',{text:'Dvakrat zapored je zmanjkalo'}),h('span',{text:'Pomanjšaj cilj na minimalno različico in piši Teji. Skupaj poiščeta najmanjši korak.'})));
+  const cws=weekStart(today);const ws=addDays(cws,ui.weekOff*7);const sm=weekSummary(S,ws,today);
+  const wk=h('section',{class:'card'},
+    h('div',{class:'row'},h('h2',{text:ui.weekOff===0?'Ta teden':ui.weekOff===-1?'Prejšnji teden':'Teden '+fmtRange(ws)}),
+      h('div',{class:'row'},h('button',{class:'iconbtn',type:'button','aria-label':'Prejšnji teden',onclick:()=>{ui.weekOff--;render()}},'‹'),
+        h('button',{class:'iconbtn',type:'button','aria-label':'Naslednji teden',disabled:ui.weekOff>=0,onclick:()=>{ui.weekOff++;render()}},'›'))),
+    h('p',{class:'small muted',text:fmtRange(ws)}),weekStrip(ws,today),
+    h('div',{class:'bar',role:'img','aria-label':'Tedenski cilj '+pct(sm.pct)},h('i',{style:'width:'+Math.round((sm.pct||0)*100)+'%'})),
+    h('p',{text:sm.target?sm.good+' od '+sm.target+' načrtovanih dni · '+pct(sm.pct):sm.good+' dni izvedenih. V razdelku Moj cilj izberi dneve.'}),
+    h('p',{class:'small muted',text:'Pika pod datumom pomeni načrtovan dan. Tapni dan, če želiš vnos popraviti.'}));
+  out.push(wk);
+
+  const mode=ui.ciUser||(wd(today)>=4?'fri':'prev');
+  const rws=mode==='prev'?addDays(cws,-7):cws;
+  const build=()=>mode==='fri'?fridayText(cws,today):checkinText(rws,today);
+  if(mode!=='fri'){
+    const rv=ST.reviews[rws]||{};
+    const rvField=(key,label,hint)=>{
+      const el=h('textarea',{rows:'2',maxlength:'300','aria-label':label});el.value=rv[key]||'';
+      el.addEventListener('input',()=>{const r=ST.reviews[rws]||(ST.reviews[rws]={});r[key]=el.value;save();ta.value=build()});
+      return h('div',{class:'field'},h('span',{class:'lb',text:label}),h('span',{class:'hint',text:hint}),el);
+    };
+    out.push(h('section',{class:'card'},h('h2',{text:'Tedenski razmislek'}),
+      h('p',{class:'small muted',text:'Teden '+fmtRange(rws)+'. Tri kratka vprašanja. Odgovori se vpišejo v sporočilo spodaj.'}),
+      rvField('w','Kaj je delovalo?','Ob kateri uri, kje, s kom ti je šlo lažje?'),
+      rvField('o','Kaj te je oviralo?','Katera ovira se je ponovila?'),
+      rvField('c','Kaj spremenim naslednji teden?','Ena majhna sprememba v času, prostoru ali velikosti cilja.')));
+  }
+  const ctext=build();
+  const ta=h('textarea',{id:'ci-text',readonly:true,rows:'12','aria-label':'Besedilo za skupino'});ta.value=ctext;
+  out.push(h('section',{class:'card'},h('h2',{text:'Sporočilo za skupino'}),
+    h('p',{class:'small muted',text:mode==='fri'?'Petkov status pove, ali še lahko dosežeš tedenski cilj. Kopiraj ga, dopolni zadnji dve vrstici in ga pošlji v skupino ali Teji zasebno.':'Ponedeljkov check-in: kopiraj ga, dopolni vrstice na koncu in ga pošlji v skupino.'}),
+    h('div',{class:'seg'},[['fri','Petkov status'],['prev','Prejšnji teden'],['cur','Ta teden']].map(([k,l])=>h('button',{class:'btn sm '+(mode===k?'':'alt'),type:'button',onclick:()=>{ui.ciUser=k;render()}},l))),
+    ta,h('button',{class:'btn',type:'button',onclick:async()=>{
+      try{await navigator.clipboard.writeText(ta.value);toast('Kopirano. Prilepi v skupino.')}catch(e){ta.removeAttribute('readonly');ta.focus();ta.select();toast('Označeno. Kopiraj ročno.')}
+    }},'Kopiraj besedilo')));
+
+  const vm=ui.month||{y:parse(today).getFullYear(),m:parse(today).getMonth()};
+  const ms=monthSummary(S,vm.y,vm.m,today);
+  const cal=h('div',{class:'cal'});
+  DAYS.forEach(d=>cal.append(h('span',{class:'h',text:d})));
+  for(let i=0;i<ms.lead;i++) cal.append(h('span',{class:'d blank'}));
+  ms.cells.forEach(c=>{
+    const can=c.day>=p.start&&c.day<=today;
+    const cls='d s-'+c.state+(c.day===today?' today':'');
+    const lab=c.n+'. '+MONTHS[vm.m]+(STATE_LABEL[c.state]?', '+STATE_LABEL[c.state]:'');
+    cal.append(can?h('button',{class:cls,type:'button','aria-label':lab,onclick:()=>{ui.sheetDay=c.day;renderSheet()}},String(c.n)):h('span',{class:cls,'aria-label':lab},String(c.n)));
+  });
+  const legend=h('div',{class:'legend'},
+    h('span',{style:'color:var(--done)'},h('i',{style:'background:var(--done-t)'}),'dosežen'),
+    h('span',{style:'color:var(--min)'},h('i',{style:'background:var(--min-t)'}),'minimalna'),
+    h('span',{style:'color:var(--rest)'},h('i',{style:'background:var(--rest-t)'}),'počitek'),
+    h('span',{style:'color:var(--miss)'},h('i',{style:'background:var(--miss-t)'}),'ni izvedeno'));
+  out.push(h('section',{class:'card'},
+    h('div',{class:'row'},h('h2',{text:MONTHS[vm.m].charAt(0).toUpperCase()+MONTHS[vm.m].slice(1)+' '+vm.y}),
+      h('div',{class:'row'},h('button',{class:'iconbtn',type:'button','aria-label':'Prejšnji mesec',onclick:()=>{ui.month=vm.m===0?{y:vm.y-1,m:11}:{y:vm.y,m:vm.m-1};render()}},'‹'),
+        h('button',{class:'iconbtn',type:'button','aria-label':'Naslednji mesec',onclick:()=>{ui.month=vm.m===11?{y:vm.y+1,m:0}:{y:vm.y,m:vm.m+1};render()}},'›'))),
+    cal,legend,h('p',{text:'Uspešnost meseca: '+pct(ms.pct)+(ms.good+ms.bad?' ('+ms.good+' od '+(ms.good+ms.bad)+' dni)':'')})));
+
+  out.push(h('div',{class:'stats'},
+    h('div',{class:'stat'},h('b',{text:String(totalDone(S,today))}),h('span',{text:'izvedenih dni skupaj'})),
+    h('div',{class:'stat'},h('b',{text:String(longestStreak(S,today))}),h('span',{text:'najdaljša serija'})),
+    h('div',{class:'stat'},h('b',{text:pct(ms.pct)}),h('span',{text:'uspešnost meseca'}))));
+
+  const weeks=h('div',{class:'weeks'});
+  for(let i=7;i>=0;i--){
+    const w=addDays(cws,-7*i);const s=weekSummary(S,w,today);
+    const r=addDays(w,6)<p.start?null:s.rate;
+    weeks.append(h('div',{class:'wk'+(i===0?' cur':''),role:'img','aria-label':'Teden '+fmtRange(w)+', '+pct(r)},
+      h('b',{text:r==null?'–':Math.round(r*100)+''}),h('div',{class:'tr'},h('i',{style:'height:'+Math.round((r||0)*100)+'%'})),h('span',{text:fmtDate(w)})));
+  }
+  out.push(h('section',{class:'card'},h('h2',{text:'Zadnjih 8 tednov'}),weeks,h('p',{class:'small muted',text:'Odstotek izvedenih dni od vseh, ki so šteli (počitek se ne šteje).'})));
+
+  const nkeys=Object.keys(S.notes).sort().reverse().slice(0,5);
+  if(nkeys.length) out.push(h('section',{class:'card'},h('h2',{text:'Moje opombe'}),nkeys.map(k=>h('p',{class:'small'},h('b',{text:fmtDate(k)+' · '}),S.notes[k]))));
+  const views=ST.goals.map((g,i)=>gv(i));const bs=badgeStats(views,today);
+  const tiles=BADGES.map(b=>{
+    const v=b.kind==='streak'?bs.streak:bs.total;const on=ST.earned.includes(b.id);
+    return h('div',{class:'badge'+(on?' on':''),role:'img','aria-label':b.t+(on?', pridobljena':', '+Math.min(v,b.n)+' od '+b.n)},
+      h('span',{class:'c',text:String(b.n)}),h('span',{text:b.t}),h('span',{text:on?'pridobljena':Math.min(v,b.n)+'/'+b.n}));
+  });
+  out.push(h('section',{class:'card'},h('h2',{text:'Značke'}),
+    h('p',{class:'small muted',text:'Mali prazniki za zadovoljivo navado. Serija šteje dneve zapored brez zgrešenega dne, počitek serije ne prekine.'}),
+    h('div',{class:'badges'},tiles)));
+
+  return out;
+}
+
+/* ---------- Moj cilj ---------- */
+function viewGoal(today){
+  const out=[];
+  const n=ST.goals.length;
+  const can=n>0&&n<3&&canAdd(today);
+  const adding=!!ui.adding&&can;
+  const idx=adding?n:ui.gi;
+  const p=(adding||!n)?null:S.profile;
+  const isFirst=n===0||(!adding&&idx===0);
+  if(n>0){
+    const chips=goalChips(today);
+    if(can) chips.append(h('button',{class:'chip',type:'button','aria-pressed':adding?'true':'false',onclick:()=>{ui.adding=true;ui.form=null;render()}},'+ Dodaj cilj'));
+    out.push(chips);
+  }
+  if(can&&!adding&&n<3) out.push(h('div',{class:'banner info'},h('b',{text:'Dodatni cilji so odprti'}),h('span',{text:'Prvi mesec ti je uspel. Dodaš lahko še 1–2 cilja, najbolje po enega naenkrat.'})));
+  if(n===1&&!can){
+    const u=unlockInfo(gv(0),today);const el=Math.min(u.elapsed,28);
+    out.push(h('section',{class:'card'},h('h2',{text:'Dodatni cilji'}),
+      h('p',{text:'Prvi mesec gradiš eno navado. Ena navada naenkrat ima največ možnosti, da se res prime. Ko ti bo prvi cilj konsistentno uspeval, lahko dodaš še 1–2.'}),
+      h('div',{class:'bar',role:'img','aria-label':'Dan '+el+' od 28'},h('i',{style:'width:'+Math.round(el/28*100)+'%'})),
+      h('p',{class:'small',text:'Dan '+el+' od 28 · uspešnost: '+pct(u.rate)+' (potrebuješ vsaj 70 %)'}),
+      h('p',{class:'small muted',text:u.elapsed<28?'Odpre se po 28 dneh, če je uspešnost vsaj 70 %.':'Mesec je mimo, a uspešnost je pod 70 %. Prvi cilj še utrdi (po potrebi ga pomanjšaj na minimalno različico). Dodatni cilji se odprejo, ko boš nad 70 %.'})));
+  }
+  const f=ui.form||(ui.form={
+    name:ST.name||'',cilj:p?p.cilj||'':'',perWeek:p?p.perWeek||0:0,kdaj:p?p.kdaj:'',kje:p?p.kje:'',kaj:p?p.kaj:'',min:p?p.min:'',identity:p?p.identity:'',anchor:p?p.anchor:'',ifthen:p?p.ifthen:'',reward:p?p.reward:'',
+    planned:p?p.planned.slice():[0,2,4],start:p?p.start:(adding?today:GROUP_START)
+  });
+  const msg=h('p',{class:'err',id:'form-err',role:'alert'});
+  const form=h('form',{novalidate:true,onsubmit:e=>e.preventDefault()});
+  function field(id,label,hint,props,kind){
+    const el=kind==='area'?h('textarea',{id,rows:'2',...props}):h('input',{id,type:'text',autocomplete:'off',...props});
+    el.value=f[id.slice(2)]||'';
+    el.addEventListener('input',()=>{f[id.slice(2)]=el.value});
+    return h('div',{class:'field'},h('label',{for:id,text:label}),hint?h('span',{class:'hint',text:hint}):null,el);
+  }
+  if(isFirst) form.append(field('f-name','Tvoje ime','Obvezno. Pojavi se v besedilu za ponedeljkov check-in.',{maxlength:'60'}));
+  form.append(h('div',{class:'field'},h('span',{class:'lb',text:'Poskusi s primerom'}),h('span',{class:'hint',text:'Če klikneš primer, se vsa polja napolnijo, da lažje razumeš, kako izgleda dober cilj. Nato jih poljubno spremeniš.'}),
+    h('div',{class:'chips'},EXAMPLES.map(ex=>h('button',{class:'chip',type:'button',onclick:()=>{
+      Object.assign(f,{cilj:ex.cilj,perWeek:ex.perWeek,planned:ex.planned.slice(),kdaj:ex.kdaj,kje:ex.kje,kaj:ex.kaj,min:ex.min,identity:ex.identity,anchor:ex.anchor,ifthen:ex.ifthen,reward:ex.reward});render();
+    }},ex.k)))));
+  form.append(field('f-cilj','1. Cilj','Kaj želiš doseči? npr. postati močnejši za kolesarsko sezono',{maxlength:'200'}));
+  form.append(h('div',{class:'field'},h('span',{class:'lb',text:'2. Kako ga izvajam: kaj, kdaj, kje'}),
+    h('div',{class:'three'},
+      field('f-kaj','Kaj naredim','npr. 30 minut vaj za moč',{maxlength:'200'}),
+      field('f-kdaj','Kdaj','npr. ob ponedeljkih in sredah zvečer',{maxlength:'160'}),
+      field('f-kje','Kje','npr. doma v dnevni sobi',{maxlength:'160'}))));
+  const dayBox=h('div',{class:'days',role:'group','aria-label':'Dnevi v tednu'});
+  DAYS_LONG.forEach((nm,i)=>{
+    const b=h('button',{class:'chip',type:'button','aria-pressed':f.planned.includes(i)?'true':'false','aria-label':nm,onclick:()=>{
+      f.planned=f.planned.includes(i)?f.planned.filter(x=>x!==i):f.planned.concat(i).sort();
+      b.setAttribute('aria-pressed',f.planned.includes(i)?'true':'false');
+    }},DAYS[i]);dayBox.append(b);
+  });
+  const cntBox=h('div',{class:'days',role:'group','aria-label':'Število izvedb na teden'});
+  [1,2,3,4,5,6,7].forEach(n=>{
+    const b=h('button',{class:'chip',type:'button','aria-pressed':f.perWeek===n?'true':'false',onclick:()=>{f.perWeek=n;render()}},n+'×');cntBox.append(b);
+  });
+  const modeBox=h('div',{class:'chips'},
+    h('button',{class:'chip',type:'button','aria-pressed':f.perWeek?'false':'true',onclick:()=>{f.perWeek=0;if(!f.planned.length)f.planned=[0,2,4];render()}},'Točni dnevi'),
+    h('button',{class:'chip',type:'button','aria-pressed':f.perWeek?'true':'false',onclick:()=>{if(!f.perWeek)f.perWeek=2;render()}},'Dan izberem sproti'));
+  form.append(h('div',{class:'field'},h('span',{class:'lb',text:'3. Kdaj v tednu'}),
+    h('span',{class:'hint',text:f.perWeek?'Ne veš vnaprej, kateri dan, veš pa, koliko izvedb ta teden: izberi število. Dan vpišeš sproti, ko cilj narediš, aplikacija pa šteje izvedbe v tednu.':'Na teh dneh šteje vnos v tvoj odstotek in serijo. Ostali dnevi so prosti.'}),
+    modeBox,f.perWeek?cntBox:dayBox));
+  form.append(field('f-min','4. Minimalna različica','Če veš, da glavnega cilja ne moreš izpolniti, pomisli na manjšo različico, ki te še vedno vodi k cilju. Primer: namesto 1 ure treninga narediš 10 minut.',{maxlength:'200'}));
+  form.append(field('f-anchor','5. Pripnem na obstoječo navado','npr. po kavi, po večerji, ko pridem domov',{maxlength:'160'}));
+  form.append(field('f-ifthen','6. Če se pojavi ovira, potem …','npr. Če dežuje, potem naredim 10 minut doma.',{maxlength:'240'},'area'));
+  form.append(field('f-reward','7. Nagrada po izvedbi (ni obvezno)','',{maxlength:'160'}));
+  form.append(field('f-identity','8. Moja identiteta z navado: sem oseba, ki …','Ne gre le za to, kaj narediš, ampak za to, kdo postajaš. Vsaka izvedba je glas za to osebo. Primer: sem oseba, ki skrbi za svoje telo.',{maxlength:'160'}));
+  if(isFirst){
+    const date=h('input',{id:'f-start',type:'date',value:f.start});date.addEventListener('input',()=>{if(validDate(date.value))f.start=date.value});
+    form.append(h('div',{class:'field'},h('label',{for:'f-start',text:'Začetek'}),h('span',{class:'hint',text:'Skupina začne '+fmtDate(GROUP_START)+'. Za preizkus nastavi današnji datum.'}),date));
+  }
+  form.append(msg,h('button',{class:'btn',type:'button',onclick:()=>{
+    const need=[...(isFirst?[['name','Ime']]:[]),['cilj','Cilj'],['kaj','Kaj naredim'],['kdaj','Kdaj'],['kje','Kje'],['min','Minimalna različica']].filter(([k])=>!(f[k]||'').trim());
+    if(need.length){msg.textContent='Dopolni: '+need.map(x=>x[1]).join(', ')+'.';return}
+    if(!f.perWeek&&!f.planned.length){msg.textContent='Izberi vsaj en dan v tednu ali število izvedb na teden.';return}
+    if(!validDate(f.start)){msg.textContent='Izberi veljaven datum začetka.';return}
+    const fields={cilj:f.cilj.trim(),perWeek:f.perWeek||0,kdaj:f.kdaj.trim(),kje:f.kje.trim(),kaj:f.kaj.trim(),min:f.min.trim(),identity:f.identity.trim(),anchor:f.anchor.trim(),ifthen:f.ifthen.trim(),reward:f.reward.trim(),planned:f.perWeek?[]:f.planned.slice().sort()};
+    if(adding){
+      ST.goals.push({id:'g'+Date.now().toString(36),...fields,start:today,log:{}});
+      ui.gi=ST.goals.length-1;ui.adding=false;
+    }else if(!n){
+      ST.name=(f.name||'').trim();
+      ST.goals.push({id:'g1',...fields,start:f.start,log:{}});ui.gi=0;
+    }else{
+      Object.assign(ST.goals[idx],fields);
+      if(idx===0){ST.name=(f.name||'').trim();ST.goals[0].start=f.start}
+    }
+    save();ui.form=null;ui.tab='danes';render();toast('Cilj je shranjen');window.scrollTo({top:0});
+  }},adding?'Dodaj cilj':p?'Shrani spremembe':'Shrani cilj'));
+  if(!isFirst&&!adding){
+    const rb=h('button',{class:'btn ghost sm',type:'button',onclick:()=>{
+      if(rb.dataset.armed!=='1'){rb.dataset.armed='1';rb.textContent='Res odstranim ta cilj? Tapni še enkrat.';rb.className='btn danger sm';return}
+      ST.goals.splice(idx,1);ui.gi=0;ui.form=null;save();render();toast('Cilj je odstranjen');
+    }},'Odstrani ta cilj');
+    form.append(rb);
+  }
+  const title=adding?'Dodatni cilj':!n?'Postavi svoj cilj':(n>1?'Cilj '+(idx+1):'Moj cilj');
+  const sub=!n?'Prvi mesec gradiš eno navado. Ena navada naenkrat ima največ možnosti, da se res prime. Cilj je lahko karkoli: gibanje, prehrana ali trenutek zase brez hitenja.':adding?'Dodatni cilj naj bo majhen in jasen. Začne se danes.':'Tapni cilj zgoraj, če jih imaš več.';
+  out.push(h('section',{class:'card'},h('h2',{text:title}),h('p',{class:'muted small',text:sub}),form));
+
+  if(n>0){
+    const hr=ui.remHour||8;
+    out.push(h('section',{class:'card'},h('h2',{text:'Ponedeljkov opomnik v koledarju'}),
+      h('p',{class:'small muted',text:'Vsak ponedeljek te telefon vpraša: Je v tvojem tednu že načrtovan čas za Accountability Club? Izberi uro in dodaj opomnik v koledar.'}),
+      h('div',{class:'chips',role:'group','aria-label':'Ura opomnika'},[6,7,8,9,10,12,18,19,20].map(x=>h('button',{class:'chip',type:'button','aria-pressed':hr===x?'true':'false',onclick:()=>{ui.remHour=x;render()}},x+':00'))),
+      h('a',{class:'btn',href:reminderUrl(todayStr(),hr),target:'_blank',rel:'noopener noreferrer'},'Dodaj v Google Koledar'),
+      h('p',{class:'small muted',text:'Imaš iPhone ali drug koledar? Ustvari dogodek ob ponedeljkih, ki se ponavlja vsak teden, z naslovom spodaj.'}),
+      h('button',{class:'btn alt sm',type:'button',onclick:async()=>{try{await navigator.clipboard.writeText(REM_TITLE);toast('Naslov je kopiran')}catch(e){toast('Kopiranje ni uspelo')}}},'Kopiraj naslov opomnika')));
+  }
+  out.push(a2hsCard(false));
+  const ta=h('textarea',{id:'code',rows:'4','aria-label':'Varnostna koda',placeholder:'Tukaj se prikaže koda ali jo prilepi za obnovo.'});ta.value=ui.code;
+  ta.addEventListener('input',()=>{ui.code=ta.value});
+  const info=h('p',{class:'small muted',id:'code-msg'});
+  out.push(h('section',{class:'card'},h('h2',{text:'Varnostna koda'}),
+    h('p',{class:'small muted',text:'Podatki so shranjeni samo v tem brskalniku na tej napravi. Če zamenjaš telefon ali počistiš podatke brskalnika, jih lahko obnoviš s kodo. Kodo shrani v svoje zapiske.'}),
+    ta,info,
+    h('div',{class:'row'},
+      h('button',{class:'btn alt sm',type:'button',onclick:async()=>{
+        const c=btoa(unescape(encodeURIComponent(JSON.stringify(ST))));ta.value=c;ui.code=c;ST.backupAt=todayStr();save();
+        try{await navigator.clipboard.writeText(c);info.textContent='Koda je ustvarjena in kopirana.'}catch(e){ta.focus();ta.select();info.textContent='Koda je ustvarjena. Kopiraj jo ročno.'}
+      }},'Ustvari kodo'),
+      h('button',{class:'btn alt sm',type:'button',onclick:()=>{
+        try{
+          const raw=JSON.parse(decodeURIComponent(escape(atob(ta.value.trim()))));const nn=normalize(raw);
+          if(!nn.goals.length){info.textContent='Koda ne vsebuje cilja.';return}
+          ST=nn;save();ui.gi=0;ui.adding=false;ui.form=null;ui.code='';ui.tab='danes';render();toast('Podatki so obnovljeni');
+        }catch(e){info.textContent='Kode ni mogoče prebrati. Preveri, ali je prilepljena v celoti.'}
+      }},'Obnovi iz kode'))));
+
+  if(n>0){
+    const b=h('button',{class:'btn ghost sm',type:'button',onclick:()=>{
+      if(b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='Res izbrišem vse podatke? Tapni še enkrat.';b.className='btn danger sm';return}
+      ST=emptyState();save();ui.gi=0;ui.adding=false;ui.form=null;ui.tab='cilj';render();toast('Podatki so izbrisani');
+    }},'Izbriši vse podatke');
+    out.push(h('section',{class:'card'},h('h3',{text:'Začni znova'}),h('p',{class:'small muted',text:'Izbriše vse cilje in vnose na tej napravi.'}),b));
+  }
+  return out;
+}
+
+function viewCoach(today){
+  const out=[];
+  const off=ui.cOff||0;const ws=addDays(weekStart(today),off*7);
+  const rows=coachRows(C.roster,C.reports,ws);
+  const cnt={dosezen:0,dosegljiv:0,tezko:0,brez:0,nedosezen:0};rows.forEach(r=>cnt[r.state]++);
+  const TAG={dosezen:['','Cilj dosežen'],dosegljiv:['t3','Še dosegljiv'],tezko:['tm','Težko'],brez:['tm','Brez poročila'],nedosezen:['tm','Ni dosegla']};
+  const list=[];
+  if(!rows.length) list.push(h('p',{class:'muted',text:'Seznam je prazen. Dodaj imena spodaj ali prilepi prva sporočila, imena se dodajo sama.'}));
+  rows.forEach(r=>{
+    const [cls,label]=TAG[r.state];
+    const kids=[h('div',{class:'top2'},h('b',{text:r.name}),h('span',{class:'tag '+cls,text:label}))];
+    if(r.report) kids.push(h('p',{class:'small muted',text:(r.report.kind==='friday'?'Petkov status':'Check-in')+': '+r.report.done+' od '+r.report.target+' dni'}));
+    const msg=coachMsg(r);
+    if(msg){
+      kids.push(h('p',{class:'small',text:msg}),h('button',{class:'btn alt sm',type:'button',onclick:async()=>{try{await navigator.clipboard.writeText(msg);toast('Sporočilo kopirano')}catch(e){toast('Kopiranje ni uspelo')}}},'Kopiraj sporočilo'));
+    }
+    list.push(h('div',{class:'person'},kids));
+  });
+  out.push(h('section',{class:'card'},
+    h('div',{class:'row'},h('h2',{text:off===0?'Ta teden':off===-1?'Prejšnji teden':'Teden '+fmtRange(ws)}),
+      h('div',{class:'row'},h('button',{class:'iconbtn',type:'button','aria-label':'Prejšnji teden',onclick:()=>{ui.cOff=off-1;render()}},'‹'),
+        h('button',{class:'iconbtn',type:'button','aria-label':'Naslednji teden',disabled:off>=0,onclick:()=>{ui.cOff=off+1;render()}},'›'))),
+    h('p',{class:'small muted',text:fmtRange(ws)}),
+    h('p',{text:'Dosegle: '+cnt.dosezen+' · Še dosegljivo: '+cnt.dosegljiv+' · Težko: '+cnt.tezko+' · Brez poročila: '+cnt.brez+(cnt.nedosezen?' · Ni dosegla: '+cnt.nedosezen:'')}),
+    list));
+
+  const pt=h('textarea',{id:'coach-paste',rows:'6','aria-label':'Prilepi sporočila',placeholder:'Prilepi sem sporočila iz WhatsAppa …'});
+  pt.value=ui.cPaste||'';pt.addEventListener('input',()=>{ui.cPaste=pt.value});
+  const pmsg=h('p',{class:'small muted',role:'status'});
+  out.push(h('section',{class:'card'},h('h2',{text:'Prilepi sporočila'}),
+    h('p',{class:'small muted',text:'Označi in kopiraj sporočila z naslovom Check-in ali Petkov status iz skupine ali zasebnih pogovorov in jih prilepi sem. Poročilo se uvrsti v teden, ki piše v naslovu.'}),
+    pt,pmsg,
+    h('button',{class:'btn',type:'button',onclick:()=>{
+      const found=parseReports(pt.value,today);
+      if(!found.length){pmsg.textContent='Ni najdenih sporočil. Prilepi sporočila, ki jih ustvari aplikacija (Check-in ali Petkov status).';return}
+      const r=mergeReports(found);ui.cPaste='';render();
+      toast('Prebrano: '+r.n+(r.skipped?' · brez imena: '+r.skipped:''));
+    }},'Preberi sporočila')));
+
+  const fd=C.fund;const fc=fundCalc(C.reports,today);const ftot=fc.weeks*fd.eur;
+  const fk=[h('h2',{text:'Skupni sklad (neobvezno)'}),
+    h('p',{class:'small muted',text:'Vklopi šele, ko se z idejo strinjajo vse udeleženke. Če katera ni prepričana, ga pusti izklopljenega.'}),
+    h('button',{class:'btn '+(fd.on?'ghost':'alt')+' sm',type:'button',onclick:()=>{fd.on=!fd.on;saveC();render()}},fd.on?'Izklopi sklad':'Vklopi sklad')];
+  if(fd.on){
+    const ei=h('input',{type:'number',id:'fund-eur',min:'1',max:'50',step:'1','aria-label':'Znesek na nedosežen teden v evrih'});ei.value=String(fd.eur);
+    ei.addEventListener('change',()=>{fd.eur=Math.max(1,Math.min(50,Math.round(+ei.value||2)));saveC();render()});
+    const ci=h('input',{type:'text',id:'fund-ch','aria-label':'Dobrodelna organizacija',maxlength:'80',placeholder:'Dobrodelna organizacija'});ci.value=fd.charity;
+    ci.addEventListener('change',()=>{fd.charity=ci.value.trim();saveC()});
+    const per=Object.keys(fc.per).map(n=>h('p',{class:'small',text:n+': '+fc.per[n]+' × '+fd.eur+' € = '+fc.per[n]*fd.eur+' €'}));
+    fk.push(h('div',{class:'field'},h('label',{for:'fund-eur',text:'Znesek na nedosežen teden (€)'}),ei),
+      h('div',{class:'field'},h('label',{for:'fund-ch',text:'Namen'}),ci),
+      h('p',{text:'Nedoseženih tednov: '+fc.weeks+' · v skladu: '+ftot+' €'}),
+      per.length?h('div',{class:'stack'},per):h('p',{class:'small muted',text:'Zaenkrat ni nedoseženih tednov.'}),
+      h('p',{class:'small muted',text:'Šteje samo check-in za zaključen teden. Imena so samo zate, v skupino pošlji le skupni znesek.'}),
+      h('button',{class:'btn alt sm',type:'button',onclick:async()=>{
+        const m=fc.weeks?'Sklad za dobrodelni namen'+(C.fund.charity?' ('+C.fund.charity+')':'')+': do zdaj je '+fc.weeks+' nedoseženih tednov po '+C.fund.eur+' €, skupaj '+fc.weeks*C.fund.eur+' €. Vsaka donira svoj znesek neposredno in mi pošlje potrdilo. Hvala, da štejemo skupaj. 💚':'Sklad za dobrodelni namen je zaenkrat prazen: ni nedoseženih tednov. Bravo, ekipa! 💚';
+        try{await navigator.clipboard.writeText(m);toast('Sporočilo kopirano')}catch(e){toast('Kopiranje ni uspelo')}
+      }},'Kopiraj sporočilo za skupino'));
+  }
+  out.push(h('section',{class:'card'},fk));
+
+  const inp=h('input',{type:'text',id:'coach-add','aria-label':'Ime udeleženke',placeholder:'Ime in začetnica priimka',maxlength:'60',autocomplete:'off'});
+  const addForm=h('form',{novalidate:true,onsubmit:e=>{
+    e.preventDefault();const v=inp.value.trim();if(!v)return;
+    if(rosterIndex(v,C.roster)<0){C.roster.push(v);saveC()}
+    render();
+  }},inp,h('button',{class:'btn alt',type:'submit'},'Dodaj'));
+  const chips=h('div',{class:'chips'},C.roster.map((n,i)=>h('button',{class:'chip',type:'button','aria-label':'Odstrani '+n,onclick:()=>{C.roster.splice(i,1);saveC();render()}},n+' ×')));
+  const clr=h('button',{class:'btn ghost sm',type:'button',onclick:()=>{
+    if(clr.dataset.armed!=='1'){clr.dataset.armed='1';clr.textContent='Res izbrišem vsa poročila? Tapni še enkrat.';clr.className='btn danger sm';return}
+    C.reports=[];saveC();render();toast('Poročila so izbrisana');
+  }},'Izbriši vsa poročila');
+  out.push(h('section',{class:'card'},h('h2',{text:'Udeleženke'}),
+    h('p',{class:'small muted',text:'Seznam je shranjen samo na tej napravi. Tapni ime, če ga želiš odstraniti.'}),
+    addForm,C.roster.length?chips:null,clr));
+  return out;
+}
+
+/* ---------- Znanje ---------- */
+function viewKnowledge(){
+  const out=[];
+  out.push(h('section',{class:'card'},h('h2',{text:'Štirje zakoni navade'}),h('p',{class:'small muted',text:'Povzeto po načelih knjige Atomic Habits (James Clear), prilagojeno za zimsko skupino.'}),
+    LAWS.map((l,i)=>h('div',{class:'law'},h('span',{class:'tag t'+(i+1),text:(i+1)+'. zakon'}),h('h3',{text:l.n}),h('p',{text:l.x}),h('p',{class:'small muted',text:'Primer: '+l.p})))));
+  out.push(h('section',{class:'card'},h('h2',{text:'Pravila skupine'}),
+    h('ol',{class:'steps'},
+      h('li',{text:'Prvi mesec en cilj in ena minimalna različica. Cilj je lahko karkoli.'}),
+      h('li',{text:'Ko ti prvi cilj uspeva vsaj 70 % načrtovanih dni, se po 28 dneh odprejo še do 2 dodatna cilja.'}),
+      h('li',{text:'Prva dva tedna je cilj samo pokazati se, ne doseči rezultata.'}),
+      h('li',{text:'Enkrat zgrešiš, ni panike. Dvakrat zapored ne: takrat se zavežemo, da naslednjič uspe.'}),
+      h('li',{text:'Obveza: če začutiš, da zmanjkuje motivacije in zagona, to napiši v WhatsApp skupino, še preden zgrešiš. Skupina ali Teja ti pomaga poiskati najmanjši možni korak.'}),
+      h('li',{text:'Bolezen, potovanje ali utrujenost označiš kot počitek.'}),
+      h('li',{text:'Podpiramo, ne sodimo.'}))));
+  out.push(h('section',{class:'card'},h('h2',{text:'Kako uporabljam aplikacijo'}),
+    h('ol',{class:'steps'},
+      h('li',{text:'V razdelku Moj cilj zapiši cilj, minimalno različico in dneve.'}),
+      h('li',{text:'Vsak dan označi, kako je šlo. Traja deset sekund.'}),
+      h('li',{text:'V petek v razdelku Napredek kopiraj petkov status in ga pošlji, če želiš, da te Teja podpre pred koncem tedna.'}),
+      h('li',{text:'V ponedeljek v razdelku Napredek kopiraj check-in in ga pošlji v skupino.'}),
+      h('li',{text:'Shrani varnostno kodo, če ne želiš izgubiti podatkov ob menjavi telefona.'}))));
+  out.push(h('section',{class:'card'},h('h3',{text:'Zasebnost'}),h('p',{class:'small',text:'Podatki ostanejo samo v tvojem brskalniku. Teja in skupina vidita samo to, kar sama pošlješ v check-inu.'})));
+  out.push(h('section',{class:'card'},h('h3',{text:'Za trenerko'}),h('p',{class:'small muted',text:'Pogled za Tejo: pregled poročil skupine. Deluje samo na tej napravi in je prazen, dokler ne prilepiš sporočil.'}),
+    h('button',{class:'btn alt sm',type:'button',onclick:()=>{C.on=!C.on;saveC();if(!C.on&&ui.tab==='trener')ui.tab='danes';render()}},C.on?'Izklopi pogled za trenerko':'Vklopi pogled za trenerko')));
+  return out;
+}
+
+/* ---------- list za vnos preteklega dne ---------- */
+function renderSheet(){
+  const box=document.getElementById('sheet');box.replaceChildren();
+  const day=ui.sheetDay;if(!day||!S.profile) return;
+  const today=todayStr();const cur=S.log[day]||null;const d=parse(day);
+  const close=()=>{ui.sheetDay=null;renderSheet()};
+  const back=h('div',{class:'sheet-back',onclick:e=>{if(e.target===back)close()}});
+  const choices=h('div',{class:'choices'});
+  [['done','Cilj dosežen'],['min','Minimalna različica'],['rest','Počitek ali pavza'],['miss','Ni izvedeno']].forEach(([k,label])=>{
+    choices.append(h('button',{class:'choice c-'+k,type:'button','aria-pressed':cur===k?'true':'false',onclick:()=>setDay(day,k)},h('i',{html:ICON[k],style:'display:contents'}),h('span',{text:label})));
+  });
+  const nf=noteField(day);
+  const sheet=h('div',{class:'sheet',role:'dialog','aria-modal':'true','aria-label':'Vnos za dan'},
+    h('h2',{text:DAYS_LONG[wd(day)].charAt(0).toUpperCase()+DAYS_LONG[wd(day)].slice(1)+', '+d.getDate()+'. '+(d.getMonth()+1)+'.'}),
+    choices,nf,
+    h('div',{class:'row'},cur?h('button',{class:'btn ghost sm',type:'button',onclick:()=>setDay(day,null)},'Počisti vnos'):h('span'),h('button',{class:'btn alt sm',type:'button',id:'sheet-close',onclick:close},'Zapri')));
+  back.append(sheet);box.append(back);
+  const first=sheet.querySelector('button');if(first)first.focus();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ui.sheetDay){ui.sheetDay=null;renderSheet()}});
+
+/* ---------- glavni izris ---------- */
+function render(){
+  const today=todayStr();
+  useGoal();
+  renderHead(today);renderTabs();
+  const app=document.getElementById('app');app.replaceChildren();
+  const views={danes:viewToday,napredek:viewProgress,cilj:viewGoal,znanje:viewKnowledge,trener:viewCoach};
+  (views[ui.tab]||viewToday)(today).forEach(n=>app.append(n));
+  renderSheet();
+}
+render();
+})();
+</script>
+
+</body>
+</html>
