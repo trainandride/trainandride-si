@@ -877,10 +877,10 @@ function viewToday(today){
 
   const goalKids=[h('span',{class:'label',text:ST.goals.length>1?'Cilj '+(ui.gi+1):'Moj cilj'}),p.cilj?h('h2',{text:p.cilj}):null,h('p',{class:'goal',text:goalSentence(p)}),
     h('div',{class:'goal-sub'},h('span',{},h('b',{text:'Minimalna različica: '}),p.min))];
-  if(p.identity) goalKids[3].append(h('span',{},h('b',{text:'Sem oseba, ki '}),p.identity+'.'));
+  if(p.identity) goalKids[3].append(h('span',{},h('b',{text:'Sem oseba, ki '}),p.identity.replace(/^\s*sem\s+oseba,?\s+ki\s+/i,'').replace(/\.+\s*$/,'')+'.'));
   if(p.anchor) goalKids[3].append(h('span',{},h('b',{text:'Pripeto na: '}),p.anchor));
   if(p.ifthen) goalKids[3].append(h('span',{},h('b',{text:'Ovira: '}),p.ifthen));
-  out.push(h('section',{class:'card'},goalKids));
+  out.push(h('section',{class:'card',style:'border-left:4px solid var(--primary)'},goalKids));
 
   const planned=!p.perWeek&&p.planned.includes(wd(today));
   const choices=h('div',{class:'choices'});
