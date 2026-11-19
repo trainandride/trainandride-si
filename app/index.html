@@ -138,6 +138,9 @@ button.cell:hover{border-color:var(--primary)}
     42%{transform:translateY(-6px) rotate(-14deg);animation-timing-function:cubic-bezier(.2,.65,.4,1)}
     54%{transform:translateY(-82px) rotate(-3deg);animation-timing-function:cubic-bezier(.6,0,.8,.4)}
     66%{transform:translateY(-2px) rotate(12deg)}70%{transform:translateY(0) rotate(0)}100%{transform:translateY(0) rotate(0)}}
+  .rxs{animation:rx 1.7s linear 1 forwards}
+  .rys{animation:rys 1.7s linear 1 forwards;transform-origin:0 -20px}
+  @keyframes rys{0%{transform:translateY(0)}35%{transform:translateY(0);animation-timing-function:ease-out}50%{transform:translateY(-34px) rotate(-6deg);animation-timing-function:ease-in}64%{transform:translateY(0) rotate(4deg)}72%{transform:translateY(-8px)}80%{transform:translateY(0)}100%{transform:translateY(0)}}
   @keyframes dust{0%{opacity:.8;transform:scale(.3) translateY(0)}100%{opacity:0;transform:scale(1.8) translateY(-8px)}}
   @keyframes spark{0%{opacity:0;transform:scale(.2)}40%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(.6) translateY(-14px)}}
   .celebrate .medal{animation:pop .7s cubic-bezier(.2,1.4,.4,1) 1}
@@ -763,10 +766,24 @@ const RIDER_HEAD='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet"
  +'<g class="spark" style="fill:var(--min)"><circle cx="165" cy="-135" r="4"/><circle cx="205" cy="-150" r="3"/><circle cx="140" cy="-150" r="3"/></g>';
 const RIDER_SVG=RIDER_HEAD+riderG('primary','accent',1.5,0)+'</g></svg>';
 const RIDERS3_SVG=RIDER_HEAD+riderG('accent','primary',1.05,0)+riderG('primary','accent',1.05,.26)+riderG('min','rest',1.05,.52)+'</g></svg>';
-function riderEl(kind){return h('div',{class:'rider-ov','aria-hidden':'true',html:kind==='badge'?RIDERS3_SVG:RIDER_SVG})}
+function chickG(sc){
+  return '<g class="rx rxs"><g class="ry rys"><g transform="scale('+sc+')">'
+  +'<circle cx="-19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/><circle cx="19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/>'
+  +'<path d="M-19 -13 L-2 -13 L-8 -33 L13 -32 L-2 -13 M-8 -33 L-19 -13 M13 -32 L19 -13" fill="none" style="stroke:var(--accent)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>'
+  +'<path d="M13 -32 L13 -38 M10 -38 L17 -38 M-12 -34 L-4 -34" fill="none" style="stroke:var(--fg)" stroke-width="3.2" stroke-linecap="round"/>'
+  +'<path d="M-2 -38 L2 -26 L-1 -15" fill="none" stroke="#e58a2b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
+  +'<circle cx="-4" cy="-48" r="14" fill="#f6cf45"/><circle cx="8" cy="-60" r="9" fill="#f6cf45"/>'
+  +'<path d="M7 -69 Q4 -76 9 -73 Q10 -78 12 -72" fill="none" stroke="#f6cf45" stroke-width="2.4" stroke-linecap="round"/>'
+  +'<path d="M16 -62 L25 -59 L16 -56Z" fill="#e58a2b"/><circle cx="11" cy="-62" r="1.8" fill="#1a1a1a"/>'
+  +'<path d="M-12 -48 Q-4 -40 4 -48" fill="none" stroke="#d9a92c" stroke-width="3" stroke-linecap="round"/>'
+  +'<path d="M2 -52 L13 -41 L14 -38" fill="none" stroke="#d9a92c" stroke-width="3" stroke-linecap="round"/>'
+  +'</g></g></g>';
+}
+const CHICK_SVG=RIDER_HEAD+chickG(1.2)+'</g></svg>';
+function riderEl(kind){return h('div',{class:'rider-ov','aria-hidden':'true',html:kind==='badge'?RIDERS3_SVG:kind==='chick'?CHICK_SVG:RIDER_SVG})}
 function setDay(day,state){
   if(state==null) delete S.log[day]; else S.log[day]=state;
-  if(state==='done'&&day===todayStr()) ui.cel=true;
+  if((state==='done'||state==='min')&&day===todayStr()) ui.cel=state;
   save();ui.sheetDay=null;render();ui.cel=false;
 }
 
@@ -892,7 +909,7 @@ function viewToday(today){
   else if(!before&&p.perWeek){const w0=weekSummary(S,weekStart(today),today);vn.push(h('p',{class:'small muted',text:'Ta teden: '+w0.good+' od '+p.perWeek+'. Dan ni vnaprej določen, vnesi, ko cilj narediš.'}))}
   else if(!before&&!planned) vn.push(h('p',{class:'small muted',text:'Danes ni v tvojem načrtu. Vnos je bonus in ne vpliva negativno na tvoj odstotek.'}));
   if(!before) vn.push(noteField(today));
-  out.push(h('section',{class:'card burst'},ui.cel?riderEl():null,vn));
+  out.push(h('section',{class:'card burst'},ui.cel?riderEl(ui.cel==='min'?'chick':null):null,vn));
 
   const ws=weekStart(today);const sm=weekSummary(S,ws,today);
   out.push(h('div',{class:'stats'},
