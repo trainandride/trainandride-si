@@ -141,6 +141,14 @@ button.cell:hover{border-color:var(--primary)}
   .rxs{animation:rx 1.7s linear 1 forwards}
   .rys{animation:rys 1.7s linear 1 forwards;transform-origin:0 -20px}
   @keyframes rys{0%{transform:translateY(0)}35%{transform:translateY(0);animation-timing-function:ease-out}50%{transform:translateY(-34px) rotate(-6deg);animation-timing-function:ease-in}64%{transform:translateY(0) rotate(4deg)}72%{transform:translateY(-8px)}80%{transform:translateY(0)}100%{transform:translateY(0)}}
+  .rxl{animation:rx 4s linear 1 forwards}
+  .ryl{animation:ryl 4s ease-in-out 1 forwards;transform-origin:0 -20px}
+  @keyframes ryl{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-3px) rotate(-1.5deg)}50%{transform:translateY(0) rotate(1deg)}75%{transform:translateY(-3px) rotate(-1.5deg)}}
+  .sh{transform-box:fill-box;transform-origin:50% 100%;animation:nod 1.6s ease-in-out 2.5 forwards}
+  @keyframes nod{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg)}}
+  .zz text{opacity:0;animation:zzf 1.6s ease-out 2.5 forwards}
+  .zz text:nth-child(2){animation-delay:.35s}.zz text:nth-child(3){animation-delay:.7s}
+  @keyframes zzf{0%{opacity:0;transform:translateY(6px)}30%{opacity:1}100%{opacity:0;transform:translateY(-12px)}}
   @keyframes dust{0%{opacity:.8;transform:scale(.3) translateY(0)}100%{opacity:0;transform:scale(1.8) translateY(-8px)}}
   @keyframes spark{0%{opacity:0;transform:scale(.2)}40%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(.6) translateY(-14px)}}
   .celebrate .medal{animation:pop .7s cubic-bezier(.2,1.4,.4,1) 1}
@@ -780,10 +788,25 @@ function chickG(sc){
   +'</g></g></g>';
 }
 const CHICK_SVG=RIDER_HEAD+chickG(1.2)+'</g></svg>';
-function riderEl(kind){return h('div',{class:'rider-ov','aria-hidden':'true',html:kind==='badge'?RIDERS3_SVG:kind==='chick'?CHICK_SVG:RIDER_SVG})}
+function slothG(sc){
+  return '<g class="rx rxl"><g class="ryl"><g transform="scale('+sc+')">'
+  +'<circle cx="-19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/><circle cx="19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/>'
+  +'<path d="M-19 -13 L-2 -13 L-8 -33 L13 -32 L-2 -13 M-8 -33 L-19 -13 M13 -32 L19 -13" fill="none" style="stroke:var(--rest)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>'
+  +'<path d="M13 -32 L13 -38 M10 -38 L17 -38 M-12 -34 L-4 -34" fill="none" style="stroke:var(--fg)" stroke-width="3.2" stroke-linecap="round"/>'
+  +'<path d="M-3 -36 L3 -26 L0 -15" fill="none" stroke="#8a6a49" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>'
+  +'<ellipse cx="-5" cy="-47" rx="12" ry="16" transform="rotate(18 -5 -47)" fill="#9b7b5a"/>'
+  +'<path d="M0 -55 Q12 -50 15 -39" fill="none" stroke="#8a6a49" stroke-width="4.5" stroke-linecap="round"/><path d="M14 -39 L16 -35 M17 -40 L19 -36" stroke="#5e472f" stroke-width="2" stroke-linecap="round"/>'
+  +'<g class="sh"><circle cx="6" cy="-62" r="9.5" fill="#b89a78"/><ellipse cx="8" cy="-61" rx="6.5" ry="5.5" fill="#ecdcc0"/>'
+  +'<path d="M4 -63 Q6.5 -60.5 9 -63 M10 -63 Q12.5 -60.5 15 -63" fill="none" stroke="#3b2c1c" stroke-width="1.6" stroke-linecap="round"/>'
+  +'<ellipse cx="13.5" cy="-59.5" rx="2" ry="1.4" fill="#3b2c1c"/><path d="M8 -57 Q10 -56 12 -57" fill="none" stroke="#3b2c1c" stroke-width="1.2" stroke-linecap="round"/></g>'
+  +'<g class="zz" style="fill:var(--rest);font-family:var(--font-head);font-weight:700"><text x="12" y="-74" font-size="11">z</text><text x="18" y="-83" font-size="14">Z</text><text x="25" y="-94" font-size="17">Z</text></g>'
+  +'</g></g></g>';
+}
+const SLOTH_SVG='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet" focusable="false"><g transform="translate(0,190)"><line x1="0" y1="0" x2="340" y2="0" style="stroke:var(--line)" stroke-width="3" stroke-linecap="round"/>'+slothG(1.2)+'</g></svg>';
+function riderEl(kind){return h('div',{class:'rider-ov','aria-hidden':'true',html:kind==='badge'?RIDERS3_SVG:kind==='chick'?CHICK_SVG:kind==='sloth'?SLOTH_SVG:RIDER_SVG})}
 function setDay(day,state){
   if(state==null) delete S.log[day]; else S.log[day]=state;
-  if((state==='done'||state==='min')&&day===todayStr()) ui.cel=state;
+  if((state==='done'||state==='min'||state==='rest')&&day===todayStr()) ui.cel=state;
   save();ui.sheetDay=null;render();ui.cel=false;
 }
 
@@ -909,7 +932,7 @@ function viewToday(today){
   else if(!before&&p.perWeek){const w0=weekSummary(S,weekStart(today),today);vn.push(h('p',{class:'small muted',text:'Ta teden: '+w0.good+' od '+p.perWeek+'. Dan ni vnaprej določen, vnesi, ko cilj narediš.'}))}
   else if(!before&&!planned) vn.push(h('p',{class:'small muted',text:'Danes ni v tvojem načrtu. Vnos je bonus in ne vpliva negativno na tvoj odstotek.'}));
   if(!before) vn.push(noteField(today));
-  out.push(h('section',{class:'card burst'},ui.cel?riderEl(ui.cel==='min'?'chick':null):null,vn));
+  out.push(h('section',{class:'card burst'},ui.cel?riderEl(ui.cel==='min'?'chick':ui.cel==='rest'?'sloth':null):null,vn));
 
   const ws=weekStart(today);const sm=weekSummary(S,ws,today);
   out.push(h('div',{class:'stats'},
