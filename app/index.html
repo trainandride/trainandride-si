@@ -820,18 +820,6 @@ function viewToday(today){
       h('button',{class:'btn',type:'button',onclick:()=>{ST.fresh=[];save();render()}},'Hvala 💚')));
   }
   const marked=Object.keys(S.log).length;
-  if(!ui.nudgeHide&&marked>=2&&(!ST.backupAt||diffDays(ST.backupAt,today)>=7)){
-    out.push(h('section',{class:'card'},h('span',{class:'label',text:'Varnostna kopija'}),
-      h('h2',{text:'Shrani kodo, da ne izgubiš napredka'}),
-      h('p',{class:'small',text:'Podatki so shranjeni samo v tem brskalniku. Če zamenjaš telefon, brskalnik ali počistiš podatke, jih lahko obnoviš s kodo. Kopiraj jo in prilepi v svoje zapiske ali v pogovor s sabo v WhatsAppu.'}),
-      h('div',{class:'row'},
-        h('button',{class:'btn',type:'button',onclick:async()=>{
-          const c=btoa(unescape(encodeURIComponent(JSON.stringify(ST))));
-          try{await navigator.clipboard.writeText(c);ST.backupAt=today;save();render();toast('Koda je kopirana. Prilepi jo v zapiske.')}
-          catch(e){ui.tab='cilj';render();toast('Kopiranje ni uspelo. Tapni Ustvari kodo.')}
-        }},'Kopiraj kodo'),
-        h('button',{class:'btn alt',type:'button',onclick:()=>{ui.nudgeHide=true;render()}},'Pozneje'))));
-  }
   const ins=noteInsight(S,today);
   if(ins.wins.length) qcard.append(h('p',{class:'small muted',text:'Tvoje besede: »'+ins.wins[((diffDays('2026-01-01',today)%ins.wins.length)+ins.wins.length)%ins.wins.length]+'«'}));
   if(ins.win||ins.obstacle){
@@ -911,6 +899,14 @@ function viewToday(today){
   out.push(h('section',{class:'card'},h('span',{class:'label',text:'Navodilo dneva'}),
     h('span',{class:'tag t'+(tip.l||1),text:tip.l?['','Naj bo očitno','Naj bo privlačno','Naj bo enostavno','Naj bo zadovoljivo'][tip.l]:'Pravilo skupine'}),
     h('h2',{text:tip.t}),h('p',{text:tip.x}),h('div',{class:'todo'},h('b',{text:'Naredi danes'}),tip.a)));
+  if(marked>=2&&(!ST.backupAt||diffDays(ST.backupAt,today)>=7)){
+    out.push(h('p',{class:'small muted',style:'text-align:center;margin:18px 0 4px'},'Podatki so samo v tem brskalniku. ',
+      h('button',{class:'btn ghost sm',type:'button',onclick:async()=>{
+        const c=btoa(unescape(encodeURIComponent(JSON.stringify(ST))));
+        try{await navigator.clipboard.writeText(c);ST.backupAt=today;save();render();toast('Koda je kopirana. Prilepi jo v zapiske.')}
+        catch(e){ui.tab='cilj';render();toast('Kopiranje ni uspelo. Tapni Ustvari kodo.')}
+      }},'Kopiraj varnostno kodo')));
+  }
   return out;
 }
 
