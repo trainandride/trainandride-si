@@ -832,7 +832,7 @@ function viewToday(today){
   out.push(qcard);
   out.push(h('section',{class:'card',style:'border-left:4px solid var(--accent)'},h('span',{class:'label',text:'Obveza skupine'}),
     h('p',{text:'Če začutiš, da zmanjkuje motivacije in zagona, to napiši v WhatsApp skupino, še preden zgrešiš. Skupina ali Teja ti pomaga poiskati najmanjši možni korak.'}),
-    h('a',{class:'btn alt',style:'margin-top:10px',target:'_blank',rel:'noopener',href:helpLink(),onclick:()=>{}},'Rabim pomoč')));
+    h('a',{class:'btn',style:'margin-top:10px',target:'_blank',rel:'noopener',href:helpLink(),onclick:()=>{}},'Rabim pomoč')));
   if(!S.profile){out.push(emptyCard());return out}
   if(ST.goals.length>1) out.push(goalChips(today));
   if(ST.fresh.length){
