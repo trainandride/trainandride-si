@@ -938,6 +938,11 @@ function viewToday(today){
     h('div',{class:'stat'},h('b',{text:String(longestStreak(S,today))}),h('span',{text:'najdaljša serija'}))
   ));
 
+  { // Kako je šlo danes takoj pod mislijo dneva
+    const mv=[];
+    ['chips','burst'].forEach(c=>{const i=out.findIndex((e,ix)=>ix>0&&e&&e.classList&&e.classList.contains(c)&&(c!=='chips'||e.getAttribute('aria-label')==='Izberi cilj'));if(i>0)mv.push(out.splice(i,1)[0])});
+    out.splice(1,0,...mv);
+  }
   const di=Math.max(0,diffDays(ST.goals[0].start,today));const tip=TIPS[di%TIPS.length];
   out.push(h('section',{class:'card'},h('span',{class:'label',text:'Navodilo dneva'}),
     h('span',{class:'tag t'+(tip.l||1),text:tip.l?['','Naj bo očitno','Naj bo privlačno','Naj bo enostavno','Naj bo zadovoljivo'][tip.l]:'Pravilo skupine'}),
