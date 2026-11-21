@@ -294,6 +294,11 @@ textarea{resize:vertical;min-height:84px}
 .ov-cat .ri-meh{left:48%;top:10px;font-size:22px;animation:riz3 4.6s ease-out 1.2s 1 both}
 @keyframes riz3{0%{opacity:0;transform:translateY(10px)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
 
+.ov-trio{display:flex!important;align-items:flex-end;justify-content:center}
+.trio-row{display:flex;align-items:flex-end;justify-content:center;gap:2px;width:100%;padding-bottom:4px}
+.rider-ov .ri.tri{position:static;height:74px;width:auto;margin:0;animation:ri-tri 2.2s cubic-bezier(.3,.6,.3,1) both}
+@keyframes ri-tri{0%{transform:translate(-420px,20px)}40%{transform:translate(-90px,-50px)}58%{transform:translate(-30px,-20px)}72%{transform:translate(0,-44px)}86%{transform:translate(0,0)}93%{transform:translate(0,-8px)}100%{transform:none}}
+
 .toast[hidden]{display:none}
 .empty{align-items:flex-start}
 @media (prefers-reduced-motion:no-preference){.bar i,.wk .tr i{transition:height .3s,width .3s}}
@@ -917,8 +922,9 @@ function catG(sc){
 }
 const CAT_SVG='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet" focusable="false"><g transform="translate(0,190)"><line x1="0" y1="0" x2="340" y2="0" style="stroke:var(--line)" stroke-width="3" stroke-linecap="round"/>'+catG(1.3)+'</g></svg>';
 function riderEl(kind){
-  const k=kind==='badge'?'three':kind==='chick'?'chick':kind==='sloth'?'sloth':kind==='cat'?'cat':'ring';
+  const k=kind==='badge'?'trio':kind==='chick'?'chick':kind==='sloth'?'sloth':kind==='cat'?'cat':'ring';
   if(k==='ring') return h('div',{class:'rider-ov ov-ring','aria-hidden':'true'},h('div',{class:'hf-ring-w',html:RING_SVG}));
+  if(k==='trio') return h('div',{class:'rider-ov ov-trio','aria-hidden':'true'},h('div',{class:'trio-row'},['sloth','cat','chick'].map((n,i)=>h('img',{class:'ri tri',style:'animation-delay:'+(i*.14)+'s',src:'img/'+n+'.png?v=4',alt:'',draggable:'false'}))));
   const kids=[h('img',{class:'ri',src:'img/'+k+'.png?v=4',alt:'',draggable:'false'})];
   if(k==='sloth') for(let n=0;n<4;n++) kids.push(h('span',{class:'ri-z',style:'animation-delay:'+(.3+n*.6)+'s',text:'z'+(n%2?' z':' z z')}));
   if(k==='cat') kids.push(h('span',{class:'ri-z ri-meh',text:'meh…'}));
