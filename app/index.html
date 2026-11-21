@@ -1409,7 +1409,33 @@ function render(){
   (views[ui.tab]||viewToday)(today).forEach(n=>app.append(n));
   renderSheet();
 }
-render();
+/* ---------- dostop s kodo skupine ---------- */
+/* Koda se zamenja tako: izracunaj SHA-256 nove kode (velike crke, brez presledkov in vezajev) in ga vpisi v ACCESS_HASH. */
+const ACCESS_HASH='72d2778e8277b18c2a2d334ccdd114d240f61ed55979a533eecc39aa6e54babf';
+async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+function normCode(v){return String(v||'').toUpperCase().replace(/[\s\-_]/g,'')}
+function hasAccess(){try{return localStorage.getItem('tr-access')===ACCESS_HASH}catch(e){return false}}
+function showGate(){
+  const shell=document.querySelector('.shell');if(shell)shell.style.display='none';
+  const msg=h('p',{class:'small',style:'color:var(--miss);min-height:1.4em;margin:8px 0 0',role:'alert'});
+  const inp=h('input',{type:'text',autocomplete:'off',autocapitalize:'characters',spellcheck:'false','aria-label':'Koda skupine',placeholder:'Koda skupine',style:'text-align:center;font-size:1.1rem;letter-spacing:.08em'});
+  const go=async()=>{
+    msg.textContent='';
+    let ok=false;
+    try{ok=(await sha(normCode(inp.value)))===ACCESS_HASH}catch(e){msg.textContent='Brskalnik ne podpira preverjanja. Poskusi z drugim brskalnikom.';return}
+    if(!ok){msg.textContent='Koda ni pravilna. Preveri sporočilo od Teje.';return}
+    try{localStorage.setItem('tr-access',ACCESS_HASH)}catch(e){}
+    gate.remove();if(shell)shell.style.display='';render();
+  };
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')go()});
+  const gate=h('div',{style:'min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)'},
+    h('div',{class:'card',style:'max-width:380px;width:100%;text-align:center'},
+      h('span',{class:'label',text:'Train & Ride'}),h('h1',{text:'Accountability Club',style:'margin:6px 0 10px'}),
+      h('p',{text:'Aplikacija je namenjena članom skupine. Vpiši kodo, ki jo je poslala Teja.'}),
+      inp,msg,h('button',{class:'btn',type:'button',style:'margin-top:12px;width:100%',onclick:go},'Vstopi')));
+  document.body.append(gate);inp.focus();
+}
+if(hasAccess())render();else showGate();
 })();
 </script>
 
