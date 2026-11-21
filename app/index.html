@@ -245,6 +245,31 @@ textarea{resize:vertical;min-height:84px}
 @keyframes hft{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes hfh{0%{opacity:0;transform:scale(.2) rotate(-20deg)}60%{opacity:1;transform:scale(1.25) rotate(12deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
 
+.rider-ov{display:block!important;position:absolute;left:0;right:0;top:8%;height:200px;pointer-events:none;overflow:hidden}
+.rider-ov .ri{position:absolute;bottom:0;left:50%;height:170px;width:auto;margin-left:-110px;filter:drop-shadow(0 8px 8px rgba(0,0,0,.18));user-select:none}
+.ov-three .ri{height:140px;margin-left:-110px}
+.ri-z,.ri-hand{position:absolute;opacity:0;font-weight:800}
+.ri-hand{font-size:34px;left:62%;top:6px;animation:rih .5s cubic-bezier(.2,1.4,.4,1) 1.1s forwards}
+@keyframes rih{0%{opacity:0;transform:scale(.2) rotate(-20deg)}100%{opacity:1;transform:scale(1) rotate(8deg)}}
+.ri-z{left:56%;top:14px;font-size:20px;color:var(--muted);animation:riz 1.6s ease-out 1s 2 forwards}
+.ri-meh{left:44%;font-size:18px;font-style:italic;animation:riz 1.4s ease-out 1.2s 1 forwards}
+@keyframes riz{0%{opacity:0;transform:translateY(10px)}30%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+.ov-five .ri{animation:ri-in 1.1s cubic-bezier(.15,.7,.25,1) both}
+@keyframes ri-in{0%{transform:translateX(-340px)}100%{transform:none}}
+.ov-three .ri{animation:ri-jump 1.9s cubic-bezier(.3,.6,.3,1) both}
+@keyframes ri-jump{0%{transform:translate(-340px,30px)}45%{transform:translate(-30px,-26px)}70%{transform:translate(0,-12px)}100%{transform:none}}
+.ov-chick .ri{animation:ri-hop 1.6s ease-out both}
+@keyframes ri-hop{0%{transform:translate(-340px,0)}25%{transform:translate(-220px,-14px)}40%{transform:translate(-140px,0)}60%{transform:translate(-70px,-10px)}80%{transform:translate(-20px,0)}100%{transform:none}}
+.ov-sloth .ri{animation:ri-fade 1.2s ease-out both,ri-sway 3s ease-in-out 1.2s infinite;transform-origin:50% 100%}
+@keyframes ri-fade{from{opacity:0}to{opacity:1}}
+@keyframes ri-sway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+.ov-cat .ri{animation:ri-slow 2.4s ease-out both}
+@keyframes ri-slow{0%{transform:translateX(-340px)}100%{transform:none}}
+.hf-svg{position:relative;height:210px}
+.hf-img{position:absolute;bottom:0;left:50%;height:200px;margin-left:-100px;animation:ri-in 1.1s cubic-bezier(.15,.7,.25,1) both}
+.hf-hand2{left:60%;top:0;font-size:40px;animation:rih .5s cubic-bezier(.2,1.4,.4,1) 1.1s forwards}
+@media (prefers-reduced-motion:reduce){.rider-ov .ri,.hf-img{animation:none!important}.ri-hand,.ri-z{opacity:1!important;animation:none!important}}
+
 .toast[hidden]{display:none}
 .empty{align-items:flex-start}
 @media (prefers-reduced-motion:no-preference){.bar i,.wk .tr i{transition:height .3s,width .3s}}
@@ -867,7 +892,14 @@ function catG(sc){
   +'</g></g>';
 }
 const CAT_SVG='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet" focusable="false"><g transform="translate(0,190)"><line x1="0" y1="0" x2="340" y2="0" style="stroke:var(--line)" stroke-width="3" stroke-linecap="round"/>'+catG(1.3)+'</g></svg>';
-function riderEl(kind){return h('div',{class:'rider-ov','aria-hidden':'true',html:kind==='badge'?RIDERS3_SVG:kind==='chick'?CHICK_SVG:kind==='sloth'?SLOTH_SVG:kind==='cat'?CAT_SVG:RIDER_SVG})}
+function riderEl(kind){
+  const k=kind==='badge'?'three':kind==='chick'?'chick':kind==='sloth'?'sloth':kind==='cat'?'cat':'five';
+  const kids=[h('img',{class:'ri',src:'img/'+k+'.png',alt:'',draggable:'false'})];
+  if(k==='sloth') kids.push(h('span',{class:'ri-z',text:'z z z'}));
+  if(k==='cat') kids.push(h('span',{class:'ri-z ri-meh',text:'meh…'}));
+  if(k==='five') kids.push(h('span',{class:'ri-hand',text:'🙌'}));
+  return h('div',{class:'rider-ov ov-'+k,'aria-hidden':'true'},kids);
+}
 function setDay(day,state){
   if(state==null) delete S.log[day]; else S.log[day]=state;
   if((state==='done'||state==='min'||state==='rest'||state==='miss')&&day===todayStr()) ui.cel=state;
@@ -944,7 +976,7 @@ function startGoalAnim(){
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches){go();return}
   if(document.querySelector('.hf-ov'))return;
   const ov=h('div',{class:'hf-ov',role:'presentation',onclick:go},
-    h('div',{class:'hf-in'},h('div',{class:'hf-svg',html:HF_SVG}),h('h2',{class:'hf-t',text:'High five – Maš to! \u{1FAF5}'}),h('p',{class:'hf-s',text:'Gremo postaviti tvoj cilj.'})));
+    h('div',{class:'hf-in'},h('div',{class:'hf-svg'},h('img',{class:'ri hf-img',src:'img/five.png',alt:'',draggable:'false'}),h('span',{class:'ri-hand hf-hand2',text:'🙌'})),h('h2',{class:'hf-t',text:'High five – Maš to! \u{1FAF5}'}),h('p',{class:'hf-s',text:'Gremo postaviti tvoj cilj.'})));
   document.body.append(ov);
   setTimeout(go,2500);
 }
