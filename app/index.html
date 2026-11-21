@@ -35,7 +35,7 @@
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.5;min-height:100vh}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
-.shell{max-width:560px;margin:0 auto;padding-block:20px calc(96px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.shell{max-width:560px;margin:0 auto;padding-block:calc(20px + env(safe-area-inset-top,0px)) calc(96px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 h1,h2,h3{font-family:var(--font-head);line-height:1.15;margin:0;text-wrap:balance}
 p{margin:0}
 button{font:inherit;color:inherit;cursor:pointer}
