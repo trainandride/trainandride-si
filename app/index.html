@@ -909,7 +909,7 @@ function renderTabs(){
 function emptyCard(){
   return h('section',{class:'card empty'},
     h('h2',{text:'Začni s ciljem'}),
-    h('p',{class:'muted',text:'Zapiši en cilj, njegovo minimalno različico in dneve, ko ga želiš delati. Cilj je lahko karkoli: gibanje, prehrana ali trenutek zase.'}),
+    h('p',{class:'muted',text:'Zapiši en cilj, njegovo minimalno različico in dneve, ko ga želiš izvajati. Cilj je lahko karkoli: gibanje, prehrana ali trenutek zase.'}),
     h('p',{class:'small muted',text:'Aplikacijo uporabljaš že dlje in so podatki izginili? V razdelku Moj cilj jih obnoviš z varnostno kodo.'}),
     h('button',{class:'btn',type:'button',onclick:()=>{ui.tab='cilj';render();window.scrollTo(0,0)}},'Postavi cilj')
   );
