@@ -282,7 +282,8 @@ textarea{resize:vertical;min-height:84px}
 @keyframes hfglow{0%{opacity:.35;transform:scale(.8)}100%{opacity:0;transform:scale(1.9)}}
 @keyframes hfsp{0%{opacity:0;transform:translateY(0) scaleY(.4)}30%{opacity:1}100%{opacity:0;transform:translateY(-34px) scaleY(1)}}
 
-.ov-ring{display:grid!important;place-items:center}
+.ov-ring{display:grid!important;place-items:center;animation:ringout .5s ease-in 2.6s both}
+@keyframes ringout{to{opacity:0;transform:scale(.9)}}
 .ov-ring .hf-ring-w{width:150px;height:150px}.ov-ring .hf-ring-w svg{width:150px;height:150px}
 .ov-chick .ri{animation:ri-chick 3.6s ease-in-out both;transform-origin:50% 62%}
 @keyframes ri-chick{0%{transform:translate(-340px,0) rotate(0)}28%{transform:translate(0,0) rotate(0)}34%{transform:translate(0,0) rotate(0);animation-timing-function:ease-out}46%{transform:translate(0,-64px) rotate(180deg);animation-timing-function:ease-in}58%{transform:translate(0,0) rotate(360deg)}66%{transform:translate(0,0) rotate(360deg)}100%{transform:translate(460px,0) rotate(360deg)}}
@@ -290,8 +291,9 @@ textarea{resize:vertical;min-height:84px}
 @keyframes ri-sloth{0%{transform:translate(-300px,-190px)}22%{transform:translate(0,0)}78%{transform:translate(0,0)}100%{transform:translate(460px,0)}}
 .ov-sloth .ri-z{left:54%;top:30px;font-size:20px;animation:riz2 1.5s ease-out 1 both}
 @keyframes riz2{0%{opacity:0;transform:translateY(24px) scale(.7)}25%{opacity:1}100%{opacity:0;transform:translateY(-70px) scale(1.3)}}
-.ov-cat .ri{animation:ri-slow 2.4s ease-out both}
-.ov-cat .ri-meh{left:48%;top:10px;font-size:22px;animation:riz3 4.6s ease-out 1.2s 1 both}
+.ov-cat .ri{animation:ri-cat 6.4s ease-out both}
+@keyframes ri-cat{0%{transform:translateX(-340px)}22%{transform:none}78%{transform:none}100%{transform:translateX(460px)}}
+.ov-cat .ri-meh{left:50%;margin-left:-26px;top:4px;font-size:20px;animation:riz3 3.8s ease-out 1.2s 1 both}
 @keyframes riz3{0%{opacity:0;transform:translateY(10px)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
 
 .ov-trio{display:flex!important;align-items:flex-end;justify-content:center}
