@@ -1004,10 +1004,12 @@ function viewToday(today){
   if(!before) vn.push(noteField(today));
   out.push(h('section',{class:'card burst'},ui.cel?riderEl(ui.cel==='min'?'chick':ui.cel==='rest'?'sloth':ui.cel==='miss'?'cat':null):null,vn));
 
-  { // Kako je šlo danes takoj pod mislijo dneva
-    const mv=[];
-    ['chips','burst'].forEach(c=>{const i=out.findIndex((e,ix)=>ix>0&&e&&e.classList&&e.classList.contains(c)&&(c!=='chips'||e.getAttribute('aria-label')==='Izberi cilj'));if(i>0)mv.push(out.splice(i,1)[0])});
-    out.splice(1,0,...mv);
+  { // vrstni red: izbira cilja, kartica z obročem, misel dneva, Kako je šlo danes, nato ostalo
+    const pick=f=>{const i=out.findIndex(f);return i>=0?out.splice(i,1)[0]:null};
+    const has=c=>e=>e&&e.classList&&e.classList.contains(c);
+    const mv=[pick(e=>has('chips')(e)&&e.getAttribute('aria-label')==='Izberi cilj'),pick(has('goalcard')),pick(has('plain')),pick(has('burst'))].filter(Boolean);
+    let at=0;while(at<out.length&&out[at]&&out[at].classList&&out[at].classList.contains('banner'))at++;
+    out.splice(at,0,...mv);
   }
   const di=Math.max(0,diffDays(ST.goals[0].start,today));const tip=TIPS[di%TIPS.length];
   out.push(h('section',{class:'card'},h('span',{class:'label',text:'Navodilo dneva'}),
