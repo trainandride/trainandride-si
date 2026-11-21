@@ -305,6 +305,7 @@ textarea{resize:vertical;min-height:84px}
 
 .card.fp{background:var(--surface-2);border:1px solid var(--line);border-left:5px solid var(--sc,var(--primary));border-radius:14px;padding:14px 14px 16px;gap:10px}
 .card.fp>h2,.card.fp .row>h2{font:800 14px/1.2 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--sc,var(--primary))}
+.card.fp>h3{font:800 14px/1.2 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--sc,var(--primary))}
 .card.fp .label{color:var(--sc,var(--primary))}
 .card.fp .bar,.card.fp .wk .tr,.card.fp textarea{background:var(--surface)}
 .card.fp .iconbtn{background:var(--surface)}
@@ -1296,6 +1297,9 @@ function viewProgress(today){
     h('p',{class:'small muted',text:'Mali prazniki za zadovoljivo navado. Serija šteje dneve zapored brez zgrešenega dne, počitek serije ne prekine. Tapni pridobljeno značko za animacijo.'}),
     h('div',{class:'badges'},tiles)));
 
+  return fpStyle(out);
+}
+function fpStyle(out){
   let fi=0;const FC=['--primary','--accent','--rest','--min'];
   out.forEach(el=>{if(el&&el.tagName==='SECTION'&&el.classList.contains('card')){el.classList.add('fp');el.style.setProperty('--sc','var('+FC[fi++%4]+')')}});
   return out;
@@ -1556,7 +1560,7 @@ function viewKnowledge(){
   out.push(h('section',{class:'card'},h('h3',{text:'Zasebnost'}),h('p',{class:'small',text:'Podatki ostanejo samo v tvojem brskalniku. Teja in skupina vidita samo to, kar sama pošlješ v check-inu.'})));
   out.push(h('section',{class:'card'},h('h3',{text:'Za trenerko'}),h('p',{class:'small muted',text:'Pogled za Tejo: pregled poročil skupine. Deluje samo na tej napravi in je prazen, dokler ne prilepiš sporočil.'}),
     h('button',{class:'btn alt sm',type:'button',onclick:()=>{C.on=!C.on;saveC();if(!C.on&&ui.tab==='trener')ui.tab='danes';render()}},C.on?'Izklopi pogled za trenerko':'Vklopi pogled za trenerko')));
-  return out;
+  return fpStyle(out);
 }
 
 /* ---------- list za vnos preteklega dne ---------- */
