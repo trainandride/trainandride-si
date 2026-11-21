@@ -246,8 +246,8 @@ textarea{resize:vertical;min-height:84px}
 @keyframes hfh{0%{opacity:0;transform:scale(.2) rotate(-20deg)}60%{opacity:1;transform:scale(1.25) rotate(12deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
 
 .rider-ov{display:block!important;position:absolute;left:0;right:0;top:8%;height:200px;pointer-events:none;overflow:hidden}
-.rider-ov .ri{position:absolute;bottom:0;left:50%;height:170px;width:auto;margin-left:-110px;filter:drop-shadow(0 8px 8px rgba(0,0,0,.18));user-select:none}
-.ov-three .ri{height:140px;margin-left:-110px}
+.rider-ov .ri{position:absolute;bottom:0;left:50%;height:140px;width:auto;margin-left:-100px;filter:drop-shadow(0 8px 8px rgba(0,0,0,.18));user-select:none}
+.ov-three .ri{height:115px;margin-left:-90px}
 .ri-z,.ri-hand{position:absolute;opacity:0;font-weight:800}
 .ri-hand{font-size:34px;left:62%;top:6px;animation:rih .5s cubic-bezier(.2,1.4,.4,1) 1.1s forwards}
 @keyframes rih{0%{opacity:0;transform:scale(.2) rotate(-20deg)}100%{opacity:1;transform:scale(1) rotate(8deg)}}
@@ -284,11 +284,11 @@ textarea{resize:vertical;min-height:84px}
 
 .ov-ring{display:grid!important;place-items:center}
 .ov-ring .hf-ring-w{width:150px;height:150px}.ov-ring .hf-ring-w svg{width:150px;height:150px}
-.ov-chick .ri{animation:ri-chick 4.2s ease-in-out both}
-@keyframes ri-chick{0%{transform:translate(-340px,0)}10%{transform:translate(-250px,-34px)}18%{transform:translate(-190px,0)}28%{transform:translate(-110px,-38px)}36%{transform:translate(-50px,0)}46%{transform:translate(0,-42px)}54%{transform:translate(0,0)}64%{transform:translate(0,-30px)}72%{transform:translate(0,0)}78%{transform:translate(0,0)}100%{transform:translate(460px,0)}}
-.ov-sloth .ri{animation:ri-sloth 6.6s cubic-bezier(.2,.7,.3,1) both;transform-origin:50% 100%}
-@keyframes ri-sloth{0%{transform:translate(-300px,-190px)}22%{transform:translate(0,0)}80%{transform:translate(0,0)}100%{transform:translate(460px,0)}}
-.ov-sloth .ri-z{left:54%;top:30px;font-size:20px;animation:riz2 2.4s ease-out 1 both}
+.ov-chick .ri{animation:ri-chick 3.6s ease-in-out both;transform-origin:50% 62%}
+@keyframes ri-chick{0%{transform:translate(-340px,0) rotate(0)}28%{transform:translate(0,0) rotate(0)}34%{transform:translate(0,0) rotate(0);animation-timing-function:ease-out}46%{transform:translate(0,-64px) rotate(180deg);animation-timing-function:ease-in}58%{transform:translate(0,0) rotate(360deg)}66%{transform:translate(0,0) rotate(360deg)}100%{transform:translate(460px,0) rotate(360deg)}}
+.ov-sloth .ri{animation:ri-sloth 4s cubic-bezier(.2,.7,.3,1) both;transform-origin:50% 100%}
+@keyframes ri-sloth{0%{transform:translate(-300px,-190px)}22%{transform:translate(0,0)}78%{transform:translate(0,0)}100%{transform:translate(460px,0)}}
+.ov-sloth .ri-z{left:54%;top:30px;font-size:20px;animation:riz2 1.5s ease-out 1 both}
 @keyframes riz2{0%{opacity:0;transform:translateY(24px) scale(.7)}25%{opacity:1}100%{opacity:0;transform:translateY(-70px) scale(1.3)}}
 .ov-cat .ri{animation:ri-slow 2.4s ease-out both}
 .ov-cat .ri-meh{left:48%;top:10px;font-size:22px;animation:riz3 4.6s ease-out 1.2s 1 both}
@@ -919,8 +919,8 @@ const CAT_SVG='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet" fo
 function riderEl(kind){
   const k=kind==='badge'?'three':kind==='chick'?'chick':kind==='sloth'?'sloth':kind==='cat'?'cat':'ring';
   if(k==='ring') return h('div',{class:'rider-ov ov-ring','aria-hidden':'true'},h('div',{class:'hf-ring-w',html:RING_SVG}));
-  const kids=[h('img',{class:'ri',src:'img/'+k+'.png?v=3',alt:'',draggable:'false'})];
-  if(k==='sloth') for(let n=0;n<5;n++) kids.push(h('span',{class:'ri-z',style:'animation-delay:'+(1.3+n*.85)+'s',text:'z'+(n%2?' z':' z z')}));
+  const kids=[h('img',{class:'ri',src:'img/'+k+'.png?v=4',alt:'',draggable:'false'})];
+  if(k==='sloth') for(let n=0;n<4;n++) kids.push(h('span',{class:'ri-z',style:'animation-delay:'+(.3+n*.6)+'s',text:'z'+(n%2?' z':' z z')}));
   if(k==='cat') kids.push(h('span',{class:'ri-z ri-meh',text:'meh…'}));
   return h('div',{class:'rider-ov ov-'+k,'aria-hidden':'true'},kids);
 }
