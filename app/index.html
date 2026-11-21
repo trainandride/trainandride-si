@@ -919,7 +919,7 @@ const CAT_SVG='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet" fo
 function riderEl(kind){
   const k=kind==='badge'?'three':kind==='chick'?'chick':kind==='sloth'?'sloth':kind==='cat'?'cat':'ring';
   if(k==='ring') return h('div',{class:'rider-ov ov-ring','aria-hidden':'true'},h('div',{class:'hf-ring-w',html:RING_SVG}));
-  const kids=[h('img',{class:'ri',src:'img/'+k+'.png',alt:'',draggable:'false'})];
+  const kids=[h('img',{class:'ri',src:'img/'+k+'.png?v=3',alt:'',draggable:'false'})];
   if(k==='sloth') for(let n=0;n<5;n++) kids.push(h('span',{class:'ri-z',style:'animation-delay:'+(1.3+n*.85)+'s',text:'z'+(n%2?' z':' z z')}));
   if(k==='cat') kids.push(h('span',{class:'ri-z ri-meh',text:'meh…'}));
   return h('div',{class:'rider-ov ov-'+k,'aria-hidden':'true'},kids);
