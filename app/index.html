@@ -907,10 +907,10 @@ function renderTabs(){
 /* ---------- Danes ---------- */
 function emptyCard(){
   return h('section',{class:'card empty'},
-    h('h2',{text:'Začni s svojim ciljem'}),
+    h('h2',{text:'Začni s ciljem'}),
     h('p',{class:'muted',text:'V razdelku Moj cilj zapiši en cilj, njegovo minimalno različico in dneve, ko ga želiš delati. Cilj je lahko karkoli: gibanje, prehrana ali trenutek zase.'}),
     h('p',{class:'small muted',text:'Aplikacijo uporabljaš že dlje in so podatki izginili? V razdelku Moj cilj jih obnoviš z varnostno kodo.'}),
-    h('button',{class:'btn',type:'button',onclick:()=>{ui.tab='cilj';render()}},'Postavi cilj')
+    h('button',{class:'btn',type:'button',onclick:()=>{ui.tab='cilj';render();window.scrollTo(0,0)}},'Postavi cilj')
   );
 }
 function helpLink(){
@@ -923,11 +923,11 @@ function viewToday(today){
   if(!storageOk) out.push(h('div',{class:'banner warn'},h('b',{text:'Shranjevanje v tem brskalniku ne deluje'}),h('span',{text:'Podatki bodo izginili, ko zapreš stran. Odpri povezavo v običajnem oknu ali shrani varnostno kodo v razdelku Moj cilj.'})));
   const qi=((diffDays('2026-01-01',today)%QUOTES.length)+QUOTES.length)%QUOTES.length;
   const qcard=h('section',{class:'card plain'},h('span',{class:'label',text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
+  if(!S.profile){out.push(emptyCard(),qcard);return out}
   out.push(qcard);
   out.push(h('section',{class:'card obveza'},h('span',{class:'label',text:'Obveza skupine'}),
     h('p',{text:'Če začutiš, da zmanjkuje motivacije in zagona, to napiši v WhatsApp skupino, še preden zgrešiš. Skupina ali Teja ti pomaga poiskati najmanjši možni korak.'}),
     h('a',{class:'btn',style:'margin-top:10px',target:'_blank',rel:'noopener',href:helpLink(),onclick:()=>{}},'Rabim pomoč')));
-  if(!S.profile){out.push(emptyCard());return out}
   if(ST.goals.length>1) out.push(goalChips(today));
   if(ST.fresh.length){
     const nb=ST.fresh.map(id=>BADGES.find(b=>b.id===id)).filter(Boolean);
