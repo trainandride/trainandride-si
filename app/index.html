@@ -1452,6 +1452,7 @@ function render(){
   const views={danes:viewToday,napredek:viewProgress,cilj:viewGoal,znanje:viewKnowledge,trener:viewCoach};
   (views[ui.tab]||viewToday)(today).forEach(n=>app.append(n));
   renderSheet();
+  if(ui._lt!==ui.tab){ui._lt=ui.tab;window.scrollTo(0,0)}
 }
 /* ---------- dostop s kodo skupine ---------- */
 /* Koda se zamenja tako: izracunaj SHA-256 nove kode (velike crke, brez presledkov in vezajev) in ga vpisi v ACCESS_HASH. */
@@ -1480,7 +1481,12 @@ function showGate(){
   document.body.append(gate);inp.focus();
 }
 setupTheme();
+try{history.scrollRestoration='manual'}catch(e){}
+const toTop=()=>{window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0};
+window.addEventListener('pageshow',toTop);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)toTop()});
 if(hasAccess())render();else showGate();
+toTop();setTimeout(toTop,80);setTimeout(toTop,400);
 })();
 </script>
 
