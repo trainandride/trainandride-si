@@ -944,7 +944,7 @@ function startGoalAnim(){
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches){go();return}
   if(document.querySelector('.hf-ov'))return;
   const ov=h('div',{class:'hf-ov',role:'presentation',onclick:go},
-    h('div',{class:'hf-in'},h('div',{class:'hf-svg',html:HF_SVG}),h('h2',{class:'hf-t',text:'High five! \u{1F64C}'}),h('p',{class:'hf-s',text:'Gremo postaviti tvoj cilj.'})));
+    h('div',{class:'hf-in'},h('div',{class:'hf-svg',html:HF_SVG}),h('h2',{class:'hf-t',text:'High five – Maš to! \u{1FAF5}'}),h('p',{class:'hf-s',text:'Gremo postaviti tvoj cilj.'})));
   document.body.append(ov);
   setTimeout(go,2500);
 }
