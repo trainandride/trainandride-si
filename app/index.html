@@ -51,10 +51,11 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .streakbox{text-align:right;flex:none}.streakbox b{display:block;font-size:30px;font-weight:800;line-height:1;color:var(--primary);letter-spacing:-.02em;font-variant-numeric:tabular-nums}.streakbox span{display:block;margin-top:3px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .pill{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;background:var(--surface-2);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700}
 .pill.hab{background:var(--accent-t);color:var(--accent)}
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;max-width:560px;margin:0 auto;background:var(--tabbg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--tabline);display:flex;padding:4px max(10px,env(safe-area-inset-left,0px)) calc(8px + env(safe-area-inset-bottom,0px))}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:transparent;padding:8px 2px 4px;font-weight:500;font-size:10.5px;color:var(--muted)}
-.tab svg{width:24px;height:24px}
-.tab[aria-selected="true"]{color:var(--primary);font-weight:700}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;max-width:560px;margin:0 auto;background:var(--tabbg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:2px solid var(--tabline);box-shadow:0 -4px 14px rgba(0,0,0,.07);display:flex;padding:4px max(10px,env(safe-area-inset-left,0px)) calc(8px + env(safe-area-inset-bottom,0px))}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:transparent;padding:8px 2px 6px;margin:4px 2px 0;border-radius:14px;font-weight:600;font-size:11.5px;color:var(--ink)}
+.tab svg{width:26px;height:26px}
+.tab[aria-selected="true"]{color:var(--primary);font-weight:800;background:var(--surface2,rgba(30,142,90,.12))}
+.tab[aria-selected="true"]{background:rgba(30,142,90,.14)}
 .stack{display:flex;flex-direction:column;gap:14px}
 .card{background:var(--surface);border:0;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .card h2{font-size:19px;font-weight:700;letter-spacing:-.01em}
@@ -922,7 +923,7 @@ function viewToday(today){
   const out=[];
   if(!storageOk) out.push(h('div',{class:'banner warn'},h('b',{text:'Shranjevanje v tem brskalniku ne deluje'}),h('span',{text:'Podatki bodo izginili, ko zapreš stran. Odpri povezavo v običajnem oknu ali shrani varnostno kodo v razdelku Moj cilj.'})));
   const qi=((diffDays('2026-01-01',today)%QUOTES.length)+QUOTES.length)%QUOTES.length;
-  const qcard=h('section',{class:'card plain'},h('span',{class:'label',text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
+  const qcard=h('section',{class:S.profile?'card plain':'card'},h('span',{class:'label',text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
   if(!S.profile){out.push(emptyCard(),qcard);return out}
   out.push(qcard);
   out.push(h('section',{class:'card obveza'},h('span',{class:'label',text:'Obveza skupine'}),
@@ -1204,7 +1205,7 @@ function viewGoal(today){
     el.value=strip(f.identity||'');f.identity=el.value;
     el.addEventListener('input',()=>{f.identity=el.value});
     el.addEventListener('blur',()=>{el.value=strip(el.value);f.identity=el.value});
-    return h('div',{class:'field'},h('span',{class:'hint',text:'Ne gre le za to, kaj narediš, ampak za to, kdo postajaš. Vsaka izvedba je glas za to osebo. Dopolni stavek, primer: skrbi za svoje telo.'}),
+    return h('div',{class:'field'},h('span',{class:'hint',text:'Ne gre le za to, kaj narediš, ampak za to, kdo postajaš. Vsaka izvedba je glas za to osebo. Primerno dopolni stavek: kdo želiš s to aktivnostjo postati. Npr. skrbi za svoje telo.'}),
       h('div',{class:'idrow'},h('span',{class:'idpre',text:'Sem oseba, ki'}),el));
   }
   const SC=['--primary','--accent','--rest','--min'];let secN=0;
@@ -1213,9 +1214,10 @@ function viewGoal(today){
     return h('section',{class:'fsec',style:'--sc:var('+c+')'},h('h3',{class:'fsec-h'},num?h('span',{class:'fsec-n',text:num}):null,h('span',{text:title})),...kids);
   }
   if(isFirst) form.append(sec('','Tvoje ime',field('f-name','Tvoje ime','Obvezno. Pojavi se v besedilu za ponedeljkov check-in.',{maxlength:'60'},null,true)));
-  form.append(sec('','Poskusi s primerom',h('span',{class:'hint',text:'Če klikneš primer, se vsa polja napolnijo, da lažje razumeš, kako izgleda dober cilj. Nato jih poljubno spremeniš.'}),
-    h('div',{class:'chips'},EXAMPLES.map(ex=>h('button',{class:'chip',type:'button',onclick:()=>{
-      Object.assign(f,{cilj:ex.cilj,perWeek:ex.perWeek,planned:ex.planned.slice(),kdaj:ex.kdaj,kje:ex.kje,kaj:ex.kaj,min:ex.min,identity:ex.identity,anchor:ex.anchor,ifthen:ex.ifthen,reward:ex.reward});render();
+  form.append(sec('','Poskusi s primerom',h('span',{class:'hint',text:'Če klikneš primer, se vsa polja napolnijo, da lažje razumeš, kako izgleda dober cilj. Nato jih poljubno spremeniš. Če primera ne želiš, tapni nanj še enkrat in polja se izpraznijo.'}),
+    h('div',{class:'chips'},EXAMPLES.map(ex=>h('button',{class:'chip',type:'button','aria-pressed':f._ex===ex.k?'true':'false',onclick:()=>{
+      if(f._ex===ex.k){Object.assign(f,{_ex:null,cilj:'',perWeek:0,planned:[0,2,4],kdaj:'',kje:'',kaj:'',min:'',identity:'',anchor:'',ifthen:'',reward:''});render();return}
+      f._ex=ex.k;Object.assign(f,{cilj:ex.cilj,perWeek:ex.perWeek,planned:ex.planned.slice(),kdaj:ex.kdaj,kje:ex.kje,kaj:ex.kaj,min:ex.min,identity:ex.identity,anchor:ex.anchor,ifthen:ex.ifthen,reward:ex.reward});render();
     }},ex.k)))));
   form.append(sec('1','Cilj',field('f-cilj','Cilj','Kaj želiš doseči? npr. postati močnejši za kolesarsko sezono',{maxlength:'200'},null,true)));
   form.append(sec('2','Kako ga izvajam',
@@ -1238,10 +1240,10 @@ function viewGoal(today){
     h('button',{class:'chip',type:'button','aria-pressed':f.perWeek?'false':'true',onclick:()=>{f.perWeek=0;if(!f.planned.length)f.planned=[0,2,4];render()}},'Točni dnevi'),
     h('button',{class:'chip',type:'button','aria-pressed':f.perWeek?'true':'false',onclick:()=>{if(!f.perWeek)f.perWeek=2;render()}},'Dan izberem sproti'));
   form.append(sec('3','Kdaj v tednu',
-    h('span',{class:'hint',text:f.perWeek?'Ne veš vnaprej, kateri dan, veš pa, koliko izvedb ta teden: izberi število. Dan vpišeš sproti, ko cilj narediš, aplikacija pa šteje izvedbe v tednu.':'Na teh dneh šteje vnos v tvoj odstotek in serijo. Ostali dnevi so prosti.'}),
+    h('span',{class:'hint',text:f.perWeek?'Ne veš vnaprej, kateri dan, veš pa, koliko izvedb bo v tednu: izberi število. Dan vpišeš sproti, ko cilj narediš, aplikacija pa šteje izvedbe v tednu.':'Na teh dneh šteje vnos v tvoj odstotek in serijo. Ostali dnevi so prosti.'}),
     modeBox,f.perWeek?cntBox:dayBox));
   form.append(sec('4','Minimalna različica',field('f-min','Minimalna različica','Če veš, da glavnega cilja ne moreš izpolniti, pomisli na manjšo različico, ki te še vedno vodi k cilju. Primer: namesto 1 ure treninga narediš 10 minut.',{maxlength:'200'},null,true)));
-  form.append(sec('5','Pripnem na obstoječo navado',field('f-anchor','Pripnem na obstoječo navado','npr. po kavi, po večerji, ko pridem domov',{maxlength:'160'},null,true)));
+  form.append(sec('5','Pripnem na obstoječo navado',field('f-anchor','Pripnem na obstoječo navado','Če izvedbo navežeš na že obstoječo navado, je večja možnost, da bo postala avtomatska, obstoječa navada pa je sprožilec za izvedbo. Npr. po kavi, po večerji, ko pridem domov.',{maxlength:'160'},null,true)));
   form.append(sec('6','Če se pojavi ovira, potem …',field('f-ifthen','Če se pojavi ovira, potem …','npr. Če dežuje, potem naredim 10 minut doma.',{maxlength:'240'},'area',true)));
   form.append(sec('7','Nagrada po izvedbi (ni obvezno)',field('f-reward','Nagrada po izvedbi','npr. topel čaj, ena skladba, kratek sprehod',{maxlength:'160'},null,true)));
   form.append(sec('8','Moja identiteta z navado',idField()));
@@ -1275,7 +1277,7 @@ function viewGoal(today){
     form.append(rb);
   }
   const title=adding?'Dodatni cilj':!n?'Postavi svoj cilj':(n>1?'Cilj '+(idx+1):'Moj cilj');
-  const sub=!n?'Prvi mesec gradiš eno navado. Ena navada naenkrat ima največ možnosti, da se res prime. Cilj je lahko karkoli: gibanje, prehrana ali trenutek zase brez hitenja.':adding?'Dodatni cilj naj bo majhen in jasen. Začne se danes.':'Tapni cilj zgoraj, če jih imaš več.';
+  const sub=!n?'Prvi mesec gradiš eno navado, saj imaš tako največ možnosti, da se res vzpostavi. Cilj je lahko karkoli: gibanje, prehrana, trenutek zase brez hitenja, itd.':adding?'Dodatni cilj naj bo majhen in jasen. Začne se danes.':'Tapni cilj zgoraj, če jih imaš več.';
   out.push(h('section',{class:'card'},h('h2',{text:title}),h('p',{class:'muted small',text:sub}),form));
 
   if(n>0){
