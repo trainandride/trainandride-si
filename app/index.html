@@ -227,6 +227,24 @@ textarea{resize:vertical;min-height:84px}
 .sheet-back{position:fixed;inset:0;background:rgba(20,30,25,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
 .sheet{width:100%;max-width:560px;background:var(--surface);color:var(--fg);border-radius:20px 20px 0 0;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;z-index:60}
+.card.empty .lead{font-size:18px;font-weight:700;line-height:1.3;font-family:var(--font-head)}
+.hf-ov{position:fixed;inset:0;z-index:60;background:var(--bg);display:grid;place-items:center;padding:24px;cursor:pointer}
+.hf-in{width:100%;max-width:420px;text-align:center}
+.hf-svg svg{width:100%;height:auto;overflow:visible;display:block}
+.hf-t{margin-top:8px;opacity:0;animation:hft .4s ease-out 1.2s forwards}
+.hf-s{color:var(--muted);opacity:0;animation:hft .4s ease-out 1.4s forwards}
+.hf-r{animation:hfx 1.1s cubic-bezier(.2,.7,.3,1) forwards}
+.hf-up{opacity:0;animation:hfon .01s linear 1.05s forwards}
+.hf-dn{animation:hfoff .01s linear 1.05s forwards}
+.hf-hand{opacity:0;transform-box:fill-box;transform-origin:50% 60%;animation:hfh .5s ease-out 1.1s forwards}
+.hf-sp circle{opacity:0;animation:spark .7s ease-out 1.15s forwards}
+.hf-sp circle:nth-child(2){animation-delay:1.25s}.hf-sp circle:nth-child(3){animation-delay:1.3s}.hf-sp circle:nth-child(4){animation-delay:1.35s}
+@keyframes hfx{0%{transform:translateX(-120px)}100%{transform:translateX(70px)}}
+@keyframes hfon{to{opacity:1}}
+@keyframes hfoff{to{opacity:0}}
+@keyframes hft{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes hfh{0%{opacity:0;transform:scale(.2) rotate(-20deg)}60%{opacity:1;transform:scale(1.25) rotate(12deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+
 .toast[hidden]{display:none}
 .empty{align-items:flex-start}
 @media (prefers-reduced-motion:no-preference){.bar i,.wk .tr i{transition:height .3s,width .3s}}
@@ -906,12 +924,38 @@ function renderTabs(){
 }
 
 /* ---------- Danes ---------- */
+const HF_SVG='<svg viewBox="0 0 340 220" focusable="false" aria-hidden="true"><g transform="translate(0,200)">'
+ +'<line x1="0" y1="0" x2="340" y2="0" style="stroke:var(--line)" stroke-width="3" stroke-linecap="round"/>'
+ +'<g class="hf-r"><g transform="scale(1.7)">'
+ +'<circle cx="-19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/><circle cx="19" cy="-13" r="12.5" fill="none" style="stroke:var(--fg)" stroke-width="3.5"/>'
+ +'<path d="M-19 -13 L-2 -13 L-8 -33 L13 -32 L-2 -13 M-8 -33 L-19 -13 M13 -32 L19 -13" fill="none" style="stroke:var(--accent)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>'
+ +'<path d="M13 -32 L13 -38 M10 -38 L17 -38 M-12 -34 L-4 -34" fill="none" style="stroke:var(--fg)" stroke-width="3.2" stroke-linecap="round"/>'
+ +'<path d="M-6 -38 L3 -27 L-1 -15 M-6 -38 L5 -56" fill="none" style="stroke:var(--primary)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>'
+ +'<path class="hf-dn" d="M5 -55 L16 -39" fill="none" style="stroke:var(--primary)" stroke-width="5.5" stroke-linecap="round"/>'
+ +'<g class="hf-up"><path d="M5 -55 L20 -78" fill="none" style="stroke:var(--primary)" stroke-width="5.5" stroke-linecap="round"/><circle cx="22" cy="-82" r="6" fill="#E9B896"/></g>'
+ +'<path d="M3 -63 Q-9 -64 -10 -52 M3 -62 Q-6 -60 -7 -50" fill="none" style="stroke:var(--fg)" stroke-width="3" stroke-linecap="round"/>'
+ +'<circle cx="9" cy="-65" r="6.5" fill="#E9B896"/><path d="M2 -66 Q9 -77 16 -67 Z" style="fill:var(--accent)"/><path d="M10 -64 L16 -63" style="stroke:var(--fg)" stroke-width="2" stroke-linecap="round"/>'
+ +'</g></g>'
+ +'<g transform="translate(150,-136)"><g class="hf-hand"><text text-anchor="middle" font-size="46" y="0">&#9995;</text></g></g>'
+ +'<g class="hf-sp" style="fill:var(--min)"><circle cx="118" cy="-186" r="5"/><circle cx="150" cy="-196" r="4"/><circle cx="184" cy="-176" r="5"/><circle cx="188" cy="-130" r="4"/></g>'
+ +'</g></svg>';
+function startGoalAnim(){
+  const go=()=>{const o=document.querySelector('.hf-ov');if(o)o.remove();ui.tab='cilj';render();window.scrollTo(0,0)};
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches){go();return}
+  if(document.querySelector('.hf-ov'))return;
+  const ov=h('div',{class:'hf-ov',role:'presentation',onclick:go},
+    h('div',{class:'hf-in'},h('div',{class:'hf-svg',html:HF_SVG}),h('h2',{class:'hf-t',text:'High five! \u{1F64C}'}),h('p',{class:'hf-s',text:'Gremo postaviti tvoj cilj.'})));
+  document.body.append(ov);
+  setTimeout(go,2500);
+}
 function emptyCard(){
   return h('section',{class:'card empty'},
-    h('h2',{text:'Začni s ciljem'}),
+    h('span',{class:'label',text:'Prvi korak'}),
+    h('h2',{text:'Bravo!'}),
+    h('p',{class:'lead',text:'Danes z vpisom cilja narediš prvi korak k uresničitvi boljše verzije sebe.'}),
     h('p',{class:'muted',text:'Zapiši en cilj, njegovo minimalno različico in dneve, ko ga želiš izvajati. Cilj je lahko karkoli: gibanje, prehrana ali trenutek zase.'}),
-    h('p',{class:'small muted',text:'Aplikacijo uporabljaš že dlje in so podatki izginili? V razdelku Moj cilj jih obnoviš z varnostno kodo.'}),
-    h('button',{class:'btn',type:'button',onclick:()=>{ui.tab='cilj';render();window.scrollTo(0,0)}},'Postavi cilj')
+    h('button',{class:'btn',type:'button',onclick:startGoalAnim},'Postavi cilj'),
+    h('p',{class:'small muted',text:'Aplikacijo uporabljaš že dlje in so podatki izginili? V razdelku Moj cilj jih obnoviš z varnostno kodo.'})
   );
 }
 function helpLink(){
@@ -924,7 +968,7 @@ function viewToday(today){
   if(!storageOk) out.push(h('div',{class:'banner warn'},h('b',{text:'Shranjevanje v tem brskalniku ne deluje'}),h('span',{text:'Podatki bodo izginili, ko zapreš stran. Odpri povezavo v običajnem oknu ali shrani varnostno kodo v razdelku Moj cilj.'})));
   const qi=((diffDays('2026-01-01',today)%QUOTES.length)+QUOTES.length)%QUOTES.length;
   const qcard=h('section',{class:S.profile?'card plain':'card'},h('span',{class:'label',text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
-  if(!S.profile){out.push(emptyCard(),qcard);return out}
+  if(!S.profile){out.push(emptyCard());return out}
   out.push(qcard);
   out.push(h('section',{class:'card obveza'},h('span',{class:'label',text:'Obveza skupine'}),
     h('p',{text:'Če začutiš, da zmanjkuje motivacije in zagona, to napiši v WhatsApp skupino, še preden zgrešiš. Skupina ali Teja ti pomaga poiskati najmanjši možni korak.'}),
