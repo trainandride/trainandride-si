@@ -374,6 +374,13 @@ textarea[hidden]{display:none}
 .bdcf{position:absolute;top:-12px;width:8px;height:12px;border-radius:2px;opacity:0;animation:bdfall 2.4s linear both}
 @keyframes bdfall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(230px) rotate(var(--r))}}
 @media (prefers-reduced-motion:reduce){.bd-stage2 *,.bd-t,.bd-s{animation-duration:.01s!important;animation-delay:0s!important}}
+.bdrb{stroke-dasharray:340;stroke-dashoffset:340;animation:bdck .8s ease both}
+.bdcl{opacity:0;animation:bdcl .8s ease both}
+@keyframes bdcl{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+.bdbl{animation:bdrise 1.5s cubic-bezier(.2,.9,.3,1) both}
+@keyframes bdrise{from{transform:translateY(170px);opacity:0}15%{opacity:1}to{transform:none;opacity:1}}
+.bdbob{animation:bdbob 2s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes bdbob{from{transform:rotate(-3deg) translateY(0)}to{transform:rotate(3deg) translateY(-5px)}}
 .testbox{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px}
 .testbox .row{gap:8px}.testbox input[type=date]{flex:1;min-width:0;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit}
 .laws{display:flex;flex-direction:column;gap:10px}
@@ -1139,10 +1146,12 @@ function bdSpark(d,cx,cy,r){let o='';for(let i=0;i<8;i++){const a=i*Math.PI/4;o+
 function bdConfetti(n,d){let o='';const C=['--accent','--done','--min','--rest','--miss'];for(let i=0;i<n;i++){o+='<i class="bdcf" style="left:'+((i*37+11)%96+2)+'%;background:var('+C[i%5]+');animation-delay:'+(d+(i%7)*.12).toFixed(2)+'s;animation-duration:'+(1.8+(i%5)*.25).toFixed(2)+'s;--r:'+((i*53)%360)+'deg"></i>'}return o}
 function bdSvg(id){
   const W='<svg viewBox="0 0 300 190" focusable="false" aria-hidden="true">',E='</svg>';
-  if(id==='s7'){ // teden: sedem dni se prižge
-    let g='';for(let i=0;i<7;i++){const x=30+i*40,d=(.3+i*.32).toFixed(2);
-      g+='<g class="bdd" style="animation-delay:'+d+'s"><circle cx="'+x+'" cy="135" r="15" fill="none" style="stroke:var(--line)" stroke-width="3"/><circle class="bdfill" cx="'+x+'" cy="135" r="15" style="fill:var(--done);animation-delay:'+d+'s"/><path class="bdck" d="M'+(x-7)+' 135 l5 6 l10 -12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:'+d+'s"/></g>'}
-    return W+g+bdMedal(7,2.7)+bdSpark(2.7,150,38,52)+E}
+  if(id==='s7'){ // teden: mavrica iz sedmih dni
+    const col=['var(--miss)','var(--accent)','var(--min)','var(--done)','var(--rest)','#6C5BD2','#C455A8'];let g='';
+    for(let i=0;i<7;i++){const r=108-i*10.5,d=(.2+i*.32).toFixed(2);
+      g+='<path class="bdrb" d="M'+(150-r)+' 168 A'+r+' '+r+' 0 0 1 '+(150+r)+' 168" fill="none" stroke="'+col[i]+'" stroke-width="9" stroke-linecap="round" style="animation-delay:'+d+'s"/>'}
+    const cl=(x,d)=>'<g class="bdcl" style="animation-delay:'+d+'s"><ellipse cx="'+x+'" cy="170" rx="26" ry="13" fill="#fff" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.12))"/><ellipse cx="'+(x+14)+'" cy="162" rx="16" ry="11" fill="#fff"/><ellipse cx="'+(x-12)+'" cy="164" rx="14" ry="10" fill="#fff"/></g>';
+    return W+g+cl(46,2.2)+cl(254,2.4)+'<g class="bdm" style="animation-delay:2.5s"><circle cx="150" cy="142" r="24" style="fill:var(--accent)"/><text x="150" y="151" text-anchor="middle" font-family="Inter,sans-serif" font-weight="800" font-size="26" style="fill:var(--on-status,#fff)">7</text></g>'+bdSpark(2.5,150,142,60)+E}
   if(id==='s14'){ // dva tedna: plamen
     let em='';for(let i=0;i<7;i++)em+='<circle class="bdem" cx="'+(125+i*8)+'" cy="150" r="2.5" style="fill:var(--min);animation-delay:'+(1.2+i*.35).toFixed(2)+'s;--ex:'+((i%2?1:-1)*(6+i*2))+'px"/>';
     return W+'<g class="bdfl"><path d="M150 14 C172 52 200 70 194 112 C190 144 168 160 150 160 C132 160 110 144 106 112 C103 86 124 72 130 48 C142 62 146 38 150 14Z" style="fill:var(--accent)"/><path d="M150 70 C162 92 176 100 172 124 C170 142 160 150 150 150 C140 150 130 142 128 124 C126 106 140 98 150 70Z" style="fill:var(--min)"/></g>'+em
@@ -1151,10 +1160,11 @@ function bdSvg(id){
     let t='';for(let i=0;i<30;i++){const a=i*12-90,d=(.2+i*.07).toFixed(2);
       t+='<line class="bdtk" x1="150" y1="'+(95-62)+'" x2="150" y2="'+(95-48)+'" transform="rotate('+(i*12)+' 150 95)" style="stroke:var('+(i%5===4?'--min':'--done')+');animation-delay:'+d+'s" stroke-width="5" stroke-linecap="round"/>'}
     return W+'<circle class="bdglow" cx="150" cy="95" r="44" style="fill:var(--min)"/>'+t+'<g class="bdm" style="animation-delay:2.4s"><circle cx="150" cy="95" r="36" style="fill:var(--accent)"/><text x="150" y="107" text-anchor="middle" font-family="Inter,sans-serif" font-weight="800" font-size="34" style="fill:var(--on-status,#fff)">30</text></g>'+bdSpark(2.4,150,95,80)+E}
-  if(id==='t10'){ // deset žigov
-    let g='';for(let i=0;i<10;i++){const x=50+(i%5)*50,y=i<5?100:150,d=(.3+i*.22).toFixed(2);
-      g+='<g class="bdst" style="animation-delay:'+d+'s"><circle cx="'+x+'" cy="'+y+'" r="18" style="fill:var(--done-t);stroke:var(--done)" stroke-width="3"/><path d="M'+(x-8)+' '+y+' l6 7 l11 -13" fill="none" style="stroke:var(--done)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>'}
-    return W+g+bdMedal(10,2.7)+bdSpark(2.7,150,38,52)+E}
+  if(id==='t10'){ // deset balonov
+    const col=['var(--miss)','var(--min)','var(--done)','var(--rest)','var(--accent)','#6C5BD2','#C455A8','var(--done)','var(--min)','var(--rest)'];let g='';
+    for(let i=0;i<10;i++){const x=32+i*27.5,y=96+(i%2?24:0)+Math.abs(i-4.5)*3,d=(.2+i*.22).toFixed(2);
+      g+='<g class="bdbl" style="animation-delay:'+d+'s"><g class="bdbob" style="animation-delay:'+(2.6+i*.15).toFixed(2)+'s;animation-duration:'+(1.6+(i%3)*.3)+'s"><path d="M'+x+' '+(y+19)+' q-5 18 0 36 t0 30" fill="none" style="stroke:var(--muted)" stroke-width="1.5"/><ellipse cx="'+x+'" cy="'+y+'" rx="15" ry="19" fill="'+col[i]+'"/><ellipse cx="'+(x-5)+'" cy="'+(y-7)+'" rx="4" ry="6" fill="#fff" fill-opacity=".4"/><path d="M'+(x-3)+' '+(y+19)+' l3 5 l3 -5z" fill="'+col[i]+'"/></g></g>'}
+    return W+g+bdMedal(10,2.4)+bdSpark(2.4,150,38,52)+E}
   if(id==='t25'){ // četrtina poti: rastoči stolpci
     let g='';for(let i=0;i<5;i++){const x=55+i*45,h=28+i*22,d=(.3+i*.4).toFixed(2);
       g+='<rect class="bdbar" x="'+x+'" y="'+(170-h)+'" width="32" height="'+h+'" rx="7" style="fill:var('+(i===4?'--accent':'--done')+');animation-delay:'+d+'s"/>'}
