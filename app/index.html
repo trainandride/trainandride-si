@@ -308,9 +308,11 @@ textarea{resize:vertical;min-height:84px}
 .card.fp{background:var(--surface-2);border:1px solid var(--line);border-left:5px solid var(--sc,var(--primary));border-radius:14px;padding:14px 14px 16px;gap:10px}
 .card.fp>h2,.card.fp .row>h2{font:800 14px/1.2 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--sc,var(--primary))}
 .card.fp>h3{font:800 14px/1.2 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--sc,var(--primary))}
+.card.fp>.label~h2{font:700 19px/1.25 var(--font-head);letter-spacing:0;text-transform:none;color:var(--fg)}
 .card.fp .label{color:var(--sc,var(--primary))}
 .card.fp .bar,.card.fp .wk .tr,.card.fp textarea{background:var(--surface)}
 .card.fp .iconbtn{background:var(--surface)}
+.card.fp.goalcard{--ring-track:var(--surface)}
 .card.fp .badge:not(.on) .c{background:var(--surface)}
 
 .toast[hidden]{display:none}
@@ -1161,7 +1163,7 @@ function viewToday(today){
         catch(e){ui.tab='cilj';render();toast('Kopiranje ni uspelo. Tapni Ustvari kodo.')}
       }},'Kopiraj varnostno kodo')));
   }
-  return out;
+  return fpStyle(out);
 }
 
 /* ---------- Napredek ---------- */
@@ -1303,7 +1305,7 @@ function viewProgress(today){
 }
 function fpStyle(out){
   let fi=0;const FC=['--primary','--accent','--rest','--min'];
-  out.forEach(el=>{if(el&&el.tagName==='SECTION'&&el.classList.contains('card')){el.classList.add('fp');el.style.setProperty('--sc','var('+FC[fi++%4]+')')}});
+  out.forEach(el=>{if(el&&el.tagName==='SECTION'&&el.classList.contains('card')&&!el.classList.contains('celebrate')){el.classList.add('fp');el.style.setProperty('--sc','var('+FC[fi++%4]+')')}});
   return out;
 }
 
