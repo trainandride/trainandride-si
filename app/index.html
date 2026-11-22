@@ -328,6 +328,10 @@ textarea{resize:vertical;min-height:84px}
 .nstep .nn{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--sc,var(--primary));color:var(--on-primary);font-weight:800;font-size:13px}
 .nstep b{color:var(--fg)}
 
+.rp-ov{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.6);overflow:auto;display:flex;justify-content:center;padding:16px}
+.rp-in{background:var(--surface);border-radius:18px;padding:16px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px;align-self:flex-start}
+.rp-in img{width:100%;height:auto;border-radius:12px;display:block}
+
 .toast[hidden]{display:none}
 .empty{align-items:flex-start}
 @media (prefers-reduced-motion:no-preference){.bar i,.wk .tr i{transition:height .3s,width .3s}}
@@ -1214,6 +1218,102 @@ function checkinText(ws,today){
   lines.push('','Kaj je delovalo: '+(rv.w||''),'Kaj me je oviralo: '+(rv.o||''),'Kaj spremenim: '+(rv.c||''),'Potrebujem podporo: ');
   return lines.join('\n');
 }
+/* ---------- slika za ponedeljkov check-in ---------- */
+async function reportBlob(ws,today){
+  const G=S;const p=G.profile;const sm=weekSummary(G,ws,today);const rv=ST.reviews[ws]||{};
+  try{await document.fonts.ready}catch(e){}
+  const FF=(getComputedStyle(document.body).fontFamily||'Arial, sans-serif');
+  const W=1080,M=56;
+  const meas=document.createElement('canvas').getContext('2d');
+  const font=(w,sz)=>w+' '+sz+'px '+FF;
+  const wrap=(ctx,text,maxW,maxLines)=>{
+    const words=String(text||'').trim().split(/\s+/).filter(Boolean);const lines=[];let cur='';
+    for(const w of words){const t=cur?cur+' '+w:w;if(ctx.measureText(t).width>maxW&&cur){lines.push(cur);cur=w}else cur=t}
+    if(cur)lines.push(cur);
+    if(lines.length>maxLines){lines.length=maxLines;let l=lines[maxLines-1];while(l.length&&ctx.measureText(l+'…').width>maxW)l=l.slice(0,-1);lines[maxLines-1]=l.replace(/[\s.,;:]+$/,'')+'…'}
+    return lines;
+  };
+  meas.font=font(400,30);
+  const Q=[['Kaj je delovalo?',rv.w,'#177A4C'],['Kaj me je oviralo?',rv.o,'#B5532F'],['Kaj spremenim naslednji teden?',rv.c,'#2F4F78']];
+  const qs=Q.map(([t,a,c])=>({t,c,lines:wrap(meas,a||'—',W-2*M-30-60,4)}));
+  const qh=qs.reduce((a,q)=>a+30+34+q.lines.length*41+26+20,0);
+  const H=Math.max(1440,760+qh+150);
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');
+  const rr=(x,y,w,h,r)=>{c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()};
+  c.fillStyle='#F2F2F7';c.fillRect(0,0,W,H);
+  c.textBaseline='alphabetic';
+  const lab=(t,x,y,col,al)=>{c.font=font(700,24);c.fillStyle=col||'#636366';c.textAlign=al||'left';if(c.letterSpacing!==undefined)c.letterSpacing='3px';c.fillText(t.toUpperCase(),x,y);if(c.letterSpacing!==undefined)c.letterSpacing='0px'};
+  lab('Check-in · teden '+fmtRange(ws),M,86);
+  c.font=font(800,64);c.fillStyle='#1C1C1E';c.textAlign='left';c.fillText(p.name||'Moj teden',M,156);
+  const sk=streak(G,today);
+  c.font=font(800,64);c.fillStyle='#177A4C';c.textAlign='right';c.fillText(String(sk),W-M,110);
+  lab('dni v seriji',W-M,148,'#636366','right');
+  c.textAlign='left';
+  /* kartica cilja */
+  const cy=200,ch=462;
+  c.fillStyle='#fff';rr(M,cy,W-2*M,ch,32);c.fill();
+  const rx=M+38+85,ry=cy+34+85;
+  c.lineWidth=18;c.lineCap='round';c.strokeStyle='#D8F0E2';c.beginPath();c.arc(rx,ry,68,0,Math.PI*2);c.stroke();
+  const frac=sm.target?Math.min(1,sm.good/sm.target):0;
+  if(frac>0){c.strokeStyle='#1E8E5A';c.beginPath();c.arc(rx,ry,68,-Math.PI/2,-Math.PI/2+Math.PI*2*frac);c.stroke()}
+  c.font=font(800,40);c.fillStyle='#1C1C1E';c.textAlign='center';c.fillText(sm.good+'/'+sm.target,rx,ry+14);c.textAlign='left';
+  const tx=M+38+170+34;
+  lab('Moj cilj',tx,cy+78,'#177A4C');
+  c.font=font(800,42);c.fillStyle='#1C1C1E';
+  const gl=wrap(c,p.cilj||p.kaj||'',W-M-38-tx,2);gl.forEach((l,i)=>c.fillText(l,tx,cy+128+i*48));
+  c.font=font(400,27);c.fillStyle='#636366';
+  const sub=wrap(c,String(p.kaj||'')+(p.kdaj?', '+p.kdaj:''),W-M-38-tx,2);sub.forEach((l,i)=>c.fillText(l,tx,cy+128+gl.length*48-6+i*34+34));
+  /* dnevi */
+  const dl=['P','T','S','Č','P','S','N'];const gx=M+38,gw=(W-2*M-76-6*14)/7,gy=cy+270;
+  const col={done:['#DDF2E5','#0F5E39'],min:['#FBEBC8','#7A4F00'],rest:['#DFE8F4','#2F4F78'],miss:['#F8E0D9','#8E2E19'],missed:['#F8E0D9','#8E2E19']};
+  sm.days.forEach((d,i)=>{
+    const x=gx+i*(gw+14),cc=col[d.state];
+    if(cc){c.fillStyle=cc[0];rr(x,gy,gw,118,24);c.fill()}else{c.fillStyle='#fff';rr(x,gy,gw,118,24);c.fill();c.setLineDash([8,8]);c.lineWidth=3;c.strokeStyle='#C7C7CC';c.stroke();c.setLineDash([])}
+    c.font=font(700,24);c.fillStyle='#636366';c.textAlign='center';c.fillText(dl[i],x+gw/2,gy+34);
+    const ix=x+gw/2,iy=gy+78;c.lineWidth=6;c.lineCap='round';c.lineJoin='round';
+    if(d.state==='done'){c.strokeStyle=cc[1];c.beginPath();c.moveTo(ix-13,iy);c.lineTo(ix-3,iy+10);c.lineTo(ix+14,iy-10);c.stroke()}
+    else if(d.state==='min'){c.strokeStyle=cc[1];c.lineWidth=5;c.beginPath();c.arc(ix,iy,15,0,Math.PI*2);c.stroke();c.fillStyle=cc[1];c.beginPath();c.moveTo(ix,iy-15);c.arc(ix,iy,15,-Math.PI/2,Math.PI/2);c.closePath();c.fill()}
+    else if(d.state==='rest'){c.strokeStyle=cc[1];c.beginPath();c.moveTo(ix-6,iy-12);c.lineTo(ix-6,iy+12);c.moveTo(ix+6,iy-12);c.lineTo(ix+6,iy+12);c.stroke()}
+    else if(cc){c.strokeStyle=cc[1];c.beginPath();c.moveTo(ix-11,iy-11);c.lineTo(ix+11,iy+11);c.moveTo(ix+11,iy-11);c.lineTo(ix-11,iy+11);c.stroke()}
+    else{c.fillStyle='#C7C7CC';c.beginPath();c.arc(ix,iy,7,0,Math.PI*2);c.fill()}
+  });
+  c.textAlign='left';
+  const nMin=sm.days.filter(d=>d.state==='min').length,nRest=sm.days.filter(d=>d.state==='rest').length;
+  c.font=font(400,27);c.fillStyle='#636366';
+  const sumTxt='Izvedeno: '+sm.good+' od '+sm.target+' načrtovanih dni'+(nMin?' · od tega '+nMin+'× minimalna različica':'')+(nRest?' · '+nRest+'× počitek':'');
+  wrap(c,sumTxt,W-2*M-76,2).forEach((l,i)=>c.fillText(l,gx,gy+118+42+i*34));
+  /* odgovori */
+  let y=cy+ch+26;
+  qs.forEach(q=>{
+    const bh=30+34+q.lines.length*41+26;
+    c.fillStyle='#EDEDF2';rr(M,y,W-2*M,bh,24);c.fill();
+    c.fillStyle=q.c;c.save();c.beginPath();rr(M,y,W-2*M,bh,24);c.clip();c.fillRect(M,y,10,bh);c.restore();
+    lab(q.t,M+40,y+46,q.c);
+    c.font=font(400,30);c.fillStyle='#1C1C1E';q.lines.forEach((l,i)=>c.fillText(l,M+40,y+46+14+34+i*41-8));
+    y+=bh+20;
+  });
+  c.font=font(700,24);c.fillStyle='#636366';if(c.letterSpacing!==undefined)c.letterSpacing='2px';c.fillText('TRAIN & RIDE · ACCOUNTABILITY CLUB',M,H-44);
+  c.fillStyle='#177A4C';c.textAlign='right';c.fillText('✓ MAŠ TO',W-M,H-44);if(c.letterSpacing!==undefined)c.letterSpacing='0px';
+  return await new Promise(res=>cv.toBlob(res,'image/png'));
+}
+async function shareReport(ws,today){
+  toast('Pripravljam sliko …');
+  let blob;try{blob=await reportBlob(ws,today)}catch(e){toast('Slike ni bilo mogoče narediti.');return}
+  if(!blob){toast('Slike ni bilo mogoče narediti.');return}
+  const nm='check-in-'+fmtRange(ws).replace(/[^0-9]+/g,'-').replace(/^-|-$/g,'')+'.png';
+  let file=null;try{file=new File([blob],nm,{type:'image/png'})}catch(e){}
+  try{
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Check-in'});return}
+  }catch(e){if(e&&e.name==='AbortError')return}
+  const url=URL.createObjectURL(blob);
+  const old=document.querySelector('.rp-ov');if(old)old.remove();
+  const ov=h('div',{class:'rp-ov',role:'dialog','aria-label':'Slika check-ina'},
+    h('div',{class:'rp-in'},h('p',{class:'small',text:'Dolg tap na sliko in izberi Shrani sliko ali Deli. Nato jo pošlji v WhatsApp skupino.'}),
+      h('img',{src:url,alt:'Check-in'}),
+      h('a',{class:'btn',href:url,download:nm},'Prenesi sliko'),
+      h('button',{class:'btn alt',type:'button',onclick:()=>{ov.remove();URL.revokeObjectURL(url)}},'Zapri')));
+  document.body.append(ov);
+}
 function viewProgress(today){
   if(!S.profile) return [emptyCard()];
   const p=S.profile;const out=[];
@@ -1260,8 +1360,10 @@ function viewProgress(today){
   if(pv==='week'){
     if(wd(today)===0) out.push(h('section',{class:'card',style:'border-left:4px solid var(--accent)'},h('span',{class:'label',text:'Ponedeljek je dan za check-in'}),h('h2',{text:'Ponedeljkov check-in'}),
       h('p',{text:'Sharing is caring. Samo s pomočjo skupnosti lažje rastemo. Deli svoj napredek tudi, če ni bil popoln in je teden šel slabše. Tvoja iskrenost pomaga tebi in drugim.'}),
-      h('p',{class:'small muted',text:'Kopiraj besedilo, dopolni vrstice na koncu in ga pošlji v WhatsApp skupino.'}),
-      ta,h('button',{class:'btn',type:'button',onclick:async()=>{
+      h('p',{class:'small muted',text:'Tapni Deli sliko in izberi WhatsApp skupino. Če raje pošlješ besedilo, ga kopiraj spodaj.'}),
+      h('button',{class:'btn',type:'button',onclick:()=>shareReport(rws,today)},'Deli sliko'),
+      h('p',{class:'small muted',text:'Ali pošlji kot besedilo:'}),
+      ta,h('button',{class:'btn alt',type:'button',onclick:async()=>{
         try{await navigator.clipboard.writeText(ta.value);toast('Kopirano. Prilepi v skupino.')}catch(e){ta.removeAttribute('readonly');ta.focus();ta.select();toast('Označeno. Kopiraj ročno.')}
       }},'Kopiraj besedilo')));
     else out.push(h('section',{class:'card'},h('h2',{text:'Ponedeljkov check-in'}),
