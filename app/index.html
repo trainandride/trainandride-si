@@ -1878,6 +1878,9 @@ function viewKnowledge(){
       h('p',{class:'small muted',text:'Aplikacija se pretvarja, da je izbrani dan, in pokaže ponedeljkov check-in ali razmislek. Vnosi v testnem načinu se ob vrnitvi zbrišejo, tvoji podatki ostanejo takšni kot prej.'}),
       h('div',{class:'row'},di,h('button',{class:'btn sm',type:'button',onclick:()=>{if(di.value)startTest(di.value)}},'Preizkusi')),
       h('button',{class:'btn alt sm',type:'button',onclick:()=>startTest(nextMon())},'Naslednji ponedeljek')));
+    tkids.push(h('div',{class:'testbox'},h('b',{text:'Preizkusi animacije značk'}),
+      h('p',{class:'small muted',text:'Predvajaj animacijo katere koli značke, tudi če je še nisi pridobila. Podatkov ne spreminja.'}),
+      h('div',{class:'row',style:'flex-wrap:wrap'},BADGES.map(b=>h('button',{class:'btn alt sm',type:'button',onclick:()=>playBadge(b)},String(b.n)+(b.kind==='streak'?' v seriji':' dni'))))));
   }
   out.push(h('section',{class:'card'},tkids));
   return fpStyle(out);
