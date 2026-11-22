@@ -1199,18 +1199,24 @@ function viewProgress(today){
   const mode=(ui.ciUser&&ui.ciUser!=='fri'?ui.ciUser:'prev');
   const rws=mode==='prev'?addDays(cws,-7):cws;
   const build=()=>mode==='fri'?fridayText(cws,today):checkinText(rws,today);
-  if(pv==='week'&&mode!=='fri'){
+  if(pv==='week'&&mode!=='fri'&&wd(today)!==0){
+    out.push(h('section',{class:'card'},h('h2',{text:'Tedenski razmislek'}),
+      h('p',{class:'small muted',text:'Odpre se v ponedeljek, skupaj s check-inom. Takrat odgovoriš na tri kratka vprašanja:'}),
+      h('ol',{class:'steps small'},h('li',{text:'Kaj je delovalo?'}),h('li',{text:'Kaj te je oviralo?'}),h('li',{text:'Kaj spremenim naslednji teden?'}))));
+  }
+  if(pv==='week'&&mode!=='fri'&&wd(today)===0){
     const rv=ST.reviews[rws]||{};
+    const savedEl=h('p',{class:'small','aria-live':'polite',style:'color:var(--primary);font-weight:700;min-height:1.3em;margin:0'});
     const rvField=(key,label,hint)=>{
       const el=h('textarea',{rows:'2',maxlength:'300','aria-label':label});el.value=rv[key]||'';
-      el.addEventListener('input',()=>{const r=ST.reviews[rws]||(ST.reviews[rws]={});r[key]=el.value;save();ta.value=build()});
+      el.addEventListener('input',()=>{const r=ST.reviews[rws]||(ST.reviews[rws]={});r[key]=el.value;save();ta.value=build();savedEl.textContent='Shranjeno ✓'});
       return h('div',{class:'field'},h('span',{class:'lb',text:label}),h('span',{class:'hint',text:hint}),el);
     };
     out.push(h('section',{class:'card'},h('h2',{text:'Tedenski razmislek'}),
       h('p',{class:'small muted',text:'Teden '+fmtRange(rws)+'. Tri kratka vprašanja. Odgovori se vpišejo v sporočilo spodaj.'}),
       rvField('w','Kaj je delovalo?','Zakaj ti je uspelo izvesti cilj? Kaj ti je pomagalo, da si ga naredil, in kaj ti je bilo lažje (ura, kraj, oseba, razpoloženje)?'),
       rvField('o','Kaj te je oviralo?','Katera ovira se je ponovila?'),
-      rvField('c','Kaj spremenim naslednji teden?','Ena majhna sprememba v času, prostoru ali velikosti cilja.')));
+      rvField('c','Kaj spremenim naslednji teden?','Ena majhna sprememba v času, prostoru ali velikosti cilja.'),savedEl));
   }
   const ctext=build();
   const ta=h('textarea',{id:'ci-text',readonly:true,rows:'12','aria-label':'Besedilo za skupino'});ta.value=ctext;
