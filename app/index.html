@@ -1132,20 +1132,59 @@ const MOTIV=[
  {t:'Zamenjaj okolje',x:'Pojdi 5 minut ven ali spremeni prostor. Pogosto sprosti glavo in energijo.',p:'Kratek sprehod pred težko nalogo ali delo za drugo mizo.',z:'Kratka aktivnost izboljša razpoloženje in energijo.'},
  {t:'Povej naprej',x:'Napiši skupini, kaj boš naredila danes. Ko to poveš na glas, je težje odnehati.',p:'»Danes do 20h naredim 10 minut svojega koraka.«',z:'Socialna podpora in zaveza povečata vztrajnost.'}
 ];
+MOTIV.forEach(m=>m.w=0);
+MOTIV.push(
+ {w:1,t:'Naredi še manjše',x:'Če je korak prevelik, ga prepolovi. Potem še enkrat. Cilj je, da je tako majhen, da ga ne moreš zavrniti.',p:'Namesto 20 minut učenja: 1 stran. Namesto popolnega obroka: ena porcija zelenjave.',z:'Fogg: drobne navade (praksa, omejeni dokazi).'},
+ {w:1,t:'10 minut in stop',x:'Nastavi budilko na 10 minut in delaj samo toliko. Ko zazvoni, imaš pravico nehati.',p:'10 minut pospravljanja, 10 minut pisanja ali 10 minut sprehoda.',z:'Pomodoro: kratki intervali olajšajo začetek (praksa).'},
+ {w:1,t:'Tri dobre stvari',x:'Zvečer zapiši tri stvari, ki so danes šle dobro, in zakaj. Pomaga, da opaziš, kar deluje.',p:'»Danes sem šla ven kljub dežju. Kosilo sem skuhala sama. Poklicala sem prijateljico.«',z:'Seligman idr.: vaja treh dobrih stvari izboljša počutje.'},
+ {w:1,t:'Najprej najtežje',x:'Težko stvar naredi prvo, ko imaš še energijo. Ostanek dneva je potem lažji.',p:'Neprijeten e-mail pošlješ zjutraj, vadbo opraviš pred službo.',z:'Praksa upravljanja časa, dokazi omejeni.'},
+ {w:2,t:'Nagradi se takoj',x:'Majhna nagrada neposredno po dejanju okrepi navado bolj kot velika nagrada čez teden.',p:'Topel čaj po vadbi, kljukica v aplikaciji, minuta tišine po opravljeni nalogi.',z:'Raziskave navad: takojšnja nagrada krepi ponavljanje.'},
+ {w:2,t:'Izbiram, ne moram',x:'Zamenjaj »moram« z »izbiram« ali »ne« namesto »ne smem«. Občutek izbire poveča vztrajnost.',p:'»Izbiram 5 minut raztezanja.« »Ne jem sladkega med delom.«',z:'Patrick in Hagtvedt: »ne« deluje bolje kot »ne morem«.'},
+ {w:2,t:'Pripni na obstoječe',x:'Nov korak vežemo na nekaj, kar že delaš vsak dan. Ta stvar je opomnik.',p:'Po zobni ščetki 2 minuti raztezanja. Po jutranji kavi pregled dnevnih nalog.',z:'Lally idr.: stalni kontekst pomaga pri oblikovanju navad.'},
+ {w:2,t:'Nov začetek',x:'Ponedeljek, začetek meseca ali rojstni dan so naravni trenutki za nov zagon. Izkoristi jih.',p:'»Od ponedeljka začnem znova z minimalno različico.«',z:'Dai, Milkman in Riis: učinek svežega začetka.'},
+ {w:3,t:'Minuta dihanja',x:'Počasno dihanje (daljši izdih) umiri telo in glavo, preden začneš.',p:'4 sekunde vdih, 6 sekund izdih, 6 ponovitev. Nato prvi korak.',z:'Pregledne študije: počasno dihanje zmanjša stres.'},
+ {w:3,t:'Zakaj je tebi to pomembno',x:'Spomni se osebnega razloga, ne tistega, ki ga pričakujejo drugi. Notranji razlog drži dlje.',p:'»Hočem več energije za otroke.« »Hočem se počutiti močno.« »Hočem mir v glavi.«',z:'Sheldon in Elliot: cilji, ki so skladni z vrednotami, se bolj izpolnijo.'},
+ {w:3,t:'Ne dvakrat zapored',x:'En zgrešen dan ni težava. Dva zapored je začetek nove navade. Naslednji dan naredi vsaj minimalno različico.',p:'Včeraj ni šlo? Danes samo 2 minuti.',z:'Lally: posamezen izpuščen dan ne pokvari navade.'},
+ {w:3,t:'Predstavljaj si postopek',x:'Ne predstavljaj si samo cilja, ampak korake do njega. Tako veš, kaj narediš prvo.',p:'Ne »hodim na vadbo«, ampak: obuješ copate, vzameš torbo, greš skozi vrata.',z:'Pham in Taylor: vizualizacija postopka pomaga bolj kot vizualizacija izida.'},
+ {w:4,t:'Prilagodi dan',x:'Utrujena ali preobremenjena? Zmanjšaj cilj, ne ukini ga. Pomembno je, da navada ostane živa.',p:'Namesto celega treninga: 10 minut gibanja. Namesto celega obroka: nekaj zdravega.',z:'Raziskave perfekcionizma: prilagodljivi cilji povečajo vztrajnost.'},
+ {w:4,t:'Poišči zaveznico',x:'Dogovori se z eno osebo, ki ti pošlje opomnik ali se ti pridruži.',p:'Prijateljica, s katero se dogovoriš za skupen sprehod, ali sporočilo v skupino.',z:'Wing in Jeffery: podpora partnerja poveča vztrajnost.'},
+ {w:4,t:'Odstrani skušnjavo',x:'Odstrani, kar te odvrača, in pusti na vidnem, kar te vabi.',p:'Telefon v drugo sobo med delom, sadje na pult, sladkarije v omaro.',z:'Wood in Neal: okolje usmerja navade.'},
+ {w:4,t:'Proslavi majhno',x:'Ko končaš, si za trenutek privošči dober občutek. Zadovoljstvo pomaga navadi, da se zasidra.',p:'Reci si »Bravo!«, stisni pest ali se nasmehni.',z:'Fogg: pozitiven občutek po dejanju krepi navado (praksa).'}
+);
 let motLast=-1;
+const MOTIV_CAP=5;
+function motivState(){try{return JSON.parse(localStorage.getItem('tr-motiv')||'{}')||{}}catch(e){return {}}}
+function motivSave(st){try{localStorage.setItem('tr-motiv',JSON.stringify(st))}catch(e){}}
 function popOverlay(inner){
   const old=document.querySelector('.pop-ov');if(old)old.remove();
   const ov=h('div',{class:'pop-ov',role:'dialog','aria-modal':'true',onclick:e=>{if(e.target===ov)ov.remove()}},inner);
   document.body.append(ov);return ov;
 }
 function showMotivation(){
-  let i;do{i=Math.floor(Math.random()*MOTIV.length)}while(i===motLast&&MOTIV.length>1);motLast=i;
-  const m=Object.assign({},MOTIV[i]);m.p=m.p.replace('[ime]',(ST.name||'').split(' ')[0]||'Zmoreš');
+  const today=todayStr();let st=motivState();
+  if(st.d!==today){st={d:today,n:0,seen:st.seen||[]}}
+  if(!Array.isArray(st.seen))st.seen=[];
+  if(st.n>=MOTIV_CAP){
+    const ov=popOverlay(h('div',{class:'pop-in'},h('span',{class:'label',text:'Hitra motivacija'}),h('h2',{text:'Za danes je dovolj idej'}),
+      h('p',{text:'Izberi eno, ki ti je bila všeč, in jo preizkusi. Več idej ne pomeni več motivacije. Jutri pridejo nove. Če še vedno ne gre, napiši skupini.'}),
+      h('a',{class:'btn',target:'_blank',rel:'noopener',href:helpLink()},'Rabim pomoč'),
+      h('button',{class:'btn alt',type:'button',onclick:()=>ov.remove()},'Zapri')));
+    return;
+  }
+  const days=Math.max(0,diffDays(GROUP_START,today)),batch=Math.floor(days/14);
+  const avail=MOTIV.filter(m=>m.w<=batch);
+  let pool=avail.filter(m=>!st.seen.includes(m.t)&&m.t!==motLast);
+  if(!pool.length){st.seen=[];pool=avail.filter(m=>m.t!==motLast)}
+  if(!pool.length)pool=avail;
+  const m0=pool[Math.floor(Math.random()*pool.length)];motLast=m0.t;
+  st.seen.push(m0.t);st.n++;motivSave(st);
+  const m=Object.assign({},m0);m.p=m.p.replace('[ime]',(ST.name||'').split(' ')[0]||'Zmoreš');
+  const last=st.n>=MOTIV_CAP;
   const ov=popOverlay(h('div',{class:'pop-in'},
-    h('span',{class:'label',text:'Hitra motivacija'}),
+    h('span',{class:'label',text:'Hitra motivacija · '+st.n+' od '+MOTIV_CAP+' danes'}),
     h('h2',{text:m.t}),h('p',{text:m.x}),h('div',{class:'todo'},h('b',{text:'Primer'}),m.p),h('p',{class:'small muted',text:m.z}),
-    h('button',{class:'btn',type:'button',onclick:showMotivation},'Še ena ideja'),
-    h('button',{class:'btn alt',type:'button',onclick:()=>ov.remove()},'Zapri')));
+    last?h('p',{class:'small muted',text:'To je zadnja ideja za danes. Izberi eno in jo preizkusi.'}):h('button',{class:'btn',type:'button',onclick:showMotivation},'Še ena ideja'),
+    h('button',{class:last?'btn':'btn alt',type:'button',onclick:()=>ov.remove()},'Zapri')));
 }
 function showSummary(p){
   const rows=[['Minimalna različica',p.min,'--min'],['Sem oseba, ki',p.identity?p.identity.replace(/^\s*sem\s+oseba,?\s+ki\s+/i,'').replace(/\.+\s*$/,''):'','--primary'],['Pripeto na',p.anchor,'--rest'],['Ovira',p.ifthen,'--miss']].filter(r=>r[1]);
