@@ -315,6 +315,19 @@ textarea{resize:vertical;min-height:84px}
 .card.fp.goalcard{--ring-track:var(--surface)}
 .card.fp .badge:not(.on) .c{background:var(--surface)}
 
+#testbar{position:fixed;top:0;left:0;right:0;z-index:70;display:flex;gap:10px;align-items:center;justify-content:space-between;background:#B3261E;color:#fff;font-size:13px;font-weight:700;padding:calc(6px + env(safe-area-inset-top,0px)) 12px 6px}
+#testbar button{border:0;border-radius:999px;background:#fff;color:#B3261E;font:inherit;font-weight:800;padding:5px 12px;cursor:pointer;white-space:nowrap}
+.testbox{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px}
+.testbox .row{gap:8px}.testbox input[type=date]{flex:1;min-width:0;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit}
+.laws{display:flex;flex-direction:column;gap:10px}
+.lawt{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.lawt h3{margin:2px 0 0;font-size:17px}.lawt p{margin:0;font-size:15px}
+.lawt .ex{margin-top:6px;font-size:13.5px;color:var(--muted);border-left:3px solid var(--line);padding-left:10px}.lawt .ex b{color:var(--fg)}
+.nsteps{display:flex;flex-direction:column;gap:8px}
+.nstep{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px;line-height:1.4}
+.nstep .nn{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--sc,var(--primary));color:var(--on-primary);font-weight:800;font-size:13px}
+.nstep b{color:var(--fg)}
+
 .toast[hidden]{display:none}
 .empty{align-items:flex-start}
 @media (prefers-reduced-motion:no-preference){.bar i,.wk .tr i{transition:height .3s,width .3s}}
@@ -756,7 +769,24 @@ function h(tag,props,...kids){
   for(const c of kids.flat()) if(c!=null&&c!==false) e.append(c.nodeType?c:document.createTextNode(c));
   return e;
 }
-const todayStr=()=>ymd(new Date());
+const TDKEY='tr-testday',TBKEY='tr-testbackup';
+const testDay=()=>{try{return localStorage.getItem(TDKEY)||''}catch(e){return ''}};
+const todayStr=()=>testDay()||ymd(new Date());
+function startTest(day){
+  try{
+    if(!localStorage.getItem(TBKEY)){const snap={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('train-ride-zimske-navade')===0)snap[k]=localStorage.getItem(k)}localStorage.setItem(TBKEY,JSON.stringify(snap))}
+    localStorage.setItem(TDKEY,day);
+  }catch(e){}
+  location.reload();
+}
+function endTest(){
+  try{
+    const b=localStorage.getItem(TBKEY);
+    if(b){const snap=JSON.parse(b);const del=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('train-ride-zimske-navade')===0)del.push(k)}del.forEach(k=>localStorage.removeItem(k));Object.keys(snap).forEach(k=>localStorage.setItem(k,snap[k]))}
+    localStorage.removeItem(TBKEY);localStorage.removeItem(TDKEY);
+  }catch(e){}
+  location.reload();
+}
 const fmtDate=s=>{const d=parse(s);return d.getDate()+'. '+(d.getMonth()+1)+'.'};
 function fmtRange(ws){
   const a=parse(ws),b=parse(addDays(ws,6));
@@ -969,6 +999,13 @@ function setupTheme(){
   if(b)b.addEventListener('click',()=>{const n=themeNow()==='dark'?'light':'dark';try{localStorage.setItem('tr-theme',n)}catch(e){}applyTheme(n)});
 }
 function renderHead(today){
+  let tb=document.getElementById('testbar');
+  if(testDay()){
+    if(!tb){tb=document.createElement('div');tb.id='testbar';document.body.prepend(tb)}
+    const tt=parse(today);
+    tb.replaceChildren(h('span',{text:'Testni dan: '+DAYS_LONG[wd(today)]+', '+tt.getDate()+'. '+(tt.getMonth()+1)+'. Vnosi se ob izhodu zbrišejo.'}),h('button',{type:'button',onclick:endTest},'Nazaj na danes'));
+    document.body.style.paddingTop='38px';
+  } else {if(tb)tb.remove();document.body.style.paddingTop=''}
   const ph=document.getElementById('phase');
   const t=parse(today);
   const TT={danes:'Danes',napredek:'Napredek',cilj:'Moj cilj',znanje:'Znanje',trener:'Trener'};
@@ -1538,25 +1575,36 @@ function viewCoach(today){
 /* ---------- Znanje ---------- */
 function viewKnowledge(){
   const out=[];
-  out.push(h('section',{class:'card'},h('h2',{text:'Štirje zakoni navade'}),h('p',{class:'small muted',text:'Povzeto po načelih knjige Atomic Habits (James Clear), prilagojeno za zimsko skupino.'}),
-    LAWS.map((l,i)=>h('div',{class:'law'},h('span',{class:'tag t'+(i+1),text:(i+1)+'. zakon'}),h('h3',{text:l.n}),h('p',{text:l.x}),h('p',{class:'small muted',text:'Primer: '+l.p})))));
+  const step=(n,lead,txt)=>h('div',{class:'nstep'},h('span',{class:'nn',text:String(n)}),h('div',{},h('b',{text:lead}),txt?h('span',{text:' '+txt}):null));
+  out.push(h('section',{class:'card'},h('h2',{text:'Štirje zakoni navade'}),h('p',{class:'small muted',text:'Po načelih knjige Atomic Habits (James Clear). Če navada ne uspeva, pomisli, kateri zakon manjka.'}),
+    h('div',{class:'laws'},LAWS.map((l,i)=>h('div',{class:'lawt t'+(i+1)},h('span',{class:'tag t'+(i+1),text:(i+1)+'. zakon'}),h('h3',{text:l.n}),h('p',{text:l.x}),h('div',{class:'ex'},h('b',{text:'Primer '}),l.p.replace(/^Primer:\s*/,'')))))));
   out.push(h('section',{class:'card'},h('h2',{text:'Pravila skupine'}),
-    h('ol',{class:'steps'},
-      h('li',{text:'Prvi mesec en cilj in ena minimalna različica. Cilj je lahko karkoli.'}),
-      h('li',{text:'Ko ti prvi cilj uspeva vsaj 70 % načrtovanih dni, se po 28 dneh odprejo še do 2 dodatna cilja.'}),
-      h('li',{text:'Prva dva tedna je cilj samo pokazati se, ne doseči rezultata.'}),
-      h('li',{text:'Enkrat zgrešiš, ni panike. Dvakrat zapored ne: takrat se zavežeš, da narediš vsaj minimalno različico ali se oglasiš v WhatsApp skupini. Če čutiš, da zmanjkuje motivacije in zagona, to napiši že prej, še preden zgrešiš. Skupina ali Teja ti pomaga poiskati najmanjši možni korak.'}),
-      h('li',{text:'Bolezen, potovanje ali utrujenost označiš kot počitek.'}),
-      h('li',{text:'Podpiramo, ne sodimo.'}))));
+    h('div',{class:'nsteps'},
+      step(1,'En cilj.','Prvi mesec velja en cilj in ena minimalna različica. Cilj je lahko karkoli.'),
+      step(2,'Dodatni cilji.','Ko ti prvi cilj uspeva vsaj 70 % načrtovanih dni, se po 28 dneh odprejo še do 2 dodatna cilja.'),
+      step(3,'Pokaži se.','Prva dva tedna je cilj samo pokazati se, ne doseči rezultata.'),
+      step(4,'Enkrat zgrešiš, ni panike.','Dvakrat zapored ne: takrat narediš vsaj minimalno različico ali se oglasiš v WhatsApp skupini.'),
+      step(5,'Piši že prej.','Če čutiš, da zmanjkuje motivacije in zagona, to napiši, še preden zgrešiš. Skupina ali Teja pomaga poiskati najmanjši možni korak.'),
+      step(6,'Počitek.','Bolezen, potovanje ali utrujenost označiš kot počitek.'),
+      step(7,'Podpiramo, ne sodimo.',''))));
   out.push(h('section',{class:'card'},h('h2',{text:'Kako uporabljam aplikacijo'}),
-    h('ol',{class:'steps'},
-      h('li',{text:'V razdelku Moj cilj zapiši cilj, minimalno različico in dneve.'}),
-      h('li',{text:'Označi samo dneve, ko imaš cilj v načrtu, ali ko ga narediš. Pri cilju »dan izberem sproti« vneseš, ko ga izvedeš. Traja deset sekund.'}),
-      h('li',{text:'V ponedeljek v razdelku Napredek kopiraj check-in in ga pošlji v skupino.'}),
-      h('li',{text:'Shrani varnostno kodo, če ne želiš izgubiti podatkov ob menjavi telefona.'}))));
+    h('div',{class:'nsteps'},
+      step(1,'Zapiši cilj.','V razdelku Moj cilj vpiši cilj, minimalno različico in dneve.'),
+      step(2,'Označi dan.','Označi dneve, ko imaš cilj v načrtu ali ko ga narediš. Pri »dan izberem sproti« vneseš, ko ga izvedeš. Traja deset sekund.'),
+      step(3,'Ponedeljek.','V razdelku Napredek odgovori na razmislek, kopiraj check-in in ga pošlji v skupino.'),
+      step(4,'Varnostna koda.','Shrani jo, da ne izgubiš podatkov ob menjavi telefona.'))));
   out.push(h('section',{class:'card'},h('h3',{text:'Zasebnost'}),h('p',{class:'small',text:'Podatki ostanejo samo v tvojem brskalniku. Teja in skupina vidita samo to, kar sama pošlješ v check-inu.'})));
-  out.push(h('section',{class:'card'},h('h3',{text:'Za trenerko'}),h('p',{class:'small muted',text:'Pogled za Tejo: pregled poročil skupine. Deluje samo na tej napravi in je prazen, dokler ne prilepiš sporočil.'}),
-    h('button',{class:'btn alt sm',type:'button',onclick:()=>{C.on=!C.on;saveC();if(!C.on&&ui.tab==='trener')ui.tab='danes';render()}},C.on?'Izklopi pogled za trenerko':'Vklopi pogled za trenerko')));
+  const tkids=[h('h3',{text:'Za trenerko'}),h('p',{class:'small muted',text:'Pogled za Tejo: pregled poročil skupine. Deluje samo na tej napravi in je prazen, dokler ne prilepiš sporočil.'}),
+    h('button',{class:'btn alt sm',type:'button',onclick:()=>{C.on=!C.on;saveC();if(!C.on&&ui.tab==='trener')ui.tab='danes';render()}},C.on?'Izklopi pogled za trenerko':'Vklopi pogled za trenerko')];
+  if(C.on){
+    const di=h('input',{type:'date',value:todayStr(),'aria-label':'Testni dan'});
+    const nextMon=()=>{const t=parse(ymd(new Date()));const d=(8-t.getDay())%7||7;t.setDate(t.getDate()+d);return ymd(t)};
+    tkids.push(h('div',{class:'testbox'},h('b',{text:'Preizkusi drug dan'}),
+      h('p',{class:'small muted',text:'Aplikacija se pretvarja, da je izbrani dan, in pokaže ponedeljkov check-in ali razmislek. Vnosi v testnem načinu se ob vrnitvi zbrišejo, tvoji podatki ostanejo takšni kot prej.'}),
+      h('div',{class:'row'},di,h('button',{class:'btn sm',type:'button',onclick:()=>{if(di.value)startTest(di.value)}},'Preizkusi')),
+      h('button',{class:'btn alt sm',type:'button',onclick:()=>startTest(nextMon())},'Naslednji ponedeljek')));
+  }
+  out.push(h('section',{class:'card'},tkids));
   return fpStyle(out);
 }
 
