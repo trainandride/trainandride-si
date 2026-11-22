@@ -1140,10 +1140,8 @@ function viewToday(today){
     let at=0;while(at<out.length&&out[at]&&out[at].classList&&out[at].classList.contains('banner'))at++;
     out.splice(at,0,...mv);
   }
-  const di=Math.max(0,diffDays(ST.goals[0].start,today));const tip=TIPS[di%TIPS.length];
-  out.push(h('section',{class:'card'},h('span',{class:'label',text:'Navodilo dneva'}),
-    h('span',{class:'tag t'+(tip.l||1),text:tip.l?['','Naj bo očitno','Naj bo privlačno','Naj bo enostavno','Naj bo zadovoljivo'][tip.l]:'Pravilo skupine'}),
-    h('h2',{text:tip.t}),h('p',{text:tip.x}),h('div',{class:'todo'},h('b',{text:'Naredi danes'}),tip.a)));
+  { const di=Math.max(0,diffDays(ST.goals[0].start,today));const tip=TIPS[di%TIPS.length];
+    qcard.append(h('div',{class:'todo'},h('b',{text:'Naredi danes'}),tip.a)); }
   if(marked>=2&&(!ST.backupAt||diffDays(ST.backupAt,today)>=7)){
     out.push(h('p',{class:'small muted',style:'text-align:center;margin:18px 0 4px'},'Podatki so samo v tem brskalniku. ',
       h('button',{class:'btn ghost sm',type:'button',onclick:async()=>{
