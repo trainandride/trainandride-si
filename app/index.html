@@ -1103,17 +1103,6 @@ function viewToday(today){
         h('button',{class:'btn',type:'button',onclick:()=>{monSet(mws);render();toast('Odlično. Uspešen teden!')}},'Da, imam načrt'),
         h('button',{class:'btn alt',type:'button',onclick:()=>{ui.tab='cilj';render();window.scrollTo({top:0})}},'Še ne, uredim načrt'))));
   }
-  if(wd(today)>=4&&!before){
-    const f=fridayStatus(S,mws,today);
-    if(f.target>0){
-      if(f.need>0) out.push(h('section',{class:'card'},h('span',{class:'label',text:'Petkov pregled'}),
-        h('h2',{text:f.state==='dosegljiv'?'Še imaš čas za tedenski cilj':'Ta teden je videti zahtevno'}),
-        h('p',{text:'Do zdaj '+f.good+' od '+f.target+'. Do cilja še '+f.need+' '+dni(f.need)+'. '+(f.state==='dosegljiv'?'Vikend je še pred tabo.':'Zadošča minimalna različica, vsaj enkrat do nedelje.')})));
-      else out.push(h('section',{class:'card'},h('span',{class:'label',text:'Petkov pregled'}),
-        h('h2',{text:'Tedenski cilj je dosežen 🎉'}),
-        h('p',{text:'Bravo. Deli ta uspeh s skupino in navdihni še katero.'})));
-    }
-  }
   if(wd(today)===0||wd(today)===6){
     const rws=wd(today)===0?addDays(mws,-7):mws;const rv=ST.reviews[rws];
     if(!before&&!(rv&&(rv.w||rv.o||rv.c))) out.push(h('section',{class:'card'},h('span',{class:'label',text:'Tedenski razmislek'}),
