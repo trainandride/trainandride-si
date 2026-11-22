@@ -30,6 +30,10 @@ alter table public.checkins  enable row level security;
 create or replace function public.is_admin() returns boolean
 language sql stable as $$ select coalesce(auth.jwt()->>'email','') = 'TEJA_EMAIL' $$;
 
+-- dostop prek API-ja (v novih projektih tabele niso samodejno izpostavljene)
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.profiles, public.app_state, public.checkins to authenticated;
+
 -- vsaka uporabnica vidi in ureja samo svoje vrstice
 create policy "own profile"  on public.profiles  for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
 create policy "own state"    on public.app_state  for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
@@ -50,3 +54,5 @@ select c.week_start as teden,
        c.answers->>'c' as kaj_spremenim,
        c.updated_at
 from public.checkins c left join public.profiles p using (user_id);
+
+grant select on public.v_checkins to authenticated;
