@@ -10,6 +10,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Accountability Club">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script src="config.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>try{var _t=localStorage.getItem("tr-theme");if(_t==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="../icons/icon-192.png">
@@ -212,7 +214,7 @@ form{display:flex;flex-direction:column;gap:14px}
 .fsec-h{margin:0;font:800 14px/1.2 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--sc,var(--primary));display:flex;align-items:center;gap:10px}
 .fsec-n{display:inline-grid;place-items:center;min-width:26px;height:26px;border-radius:50%;background:var(--sc,var(--primary));color:var(--on-primary);font-size:13px;letter-spacing:0}
 .mwk{display:flex;flex-direction:column;gap:10px}.mwk-r{display:grid;grid-template-columns:96px 1fr 40px;gap:10px;align-items:center}.mwk-r .bar{margin:0}.mwk-d{font-size:13px;color:var(--muted)}.mwk-r b{text-align:right}
-input[type=text],input[type=date],input[type=number],textarea{width:100%;font:inherit;color:var(--fg);background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:11px 12px;min-height:46px}
+input[type=text],input[type=email],input[type=date],input[type=number],textarea{width:100%;font:inherit;color:var(--fg);background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:11px 12px;min-height:46px}
 textarea{resize:vertical;min-height:84px}
 .three{display:grid;grid-template-columns:1fr;gap:10px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -662,6 +664,10 @@ function noteInsight(G,today){
 (function(){
 'use strict';
 const KEY='train-ride-zimske-navade-v1';
+const CFG=window.TR_CONFIG||{};
+const sb=(CFG.supabaseUrl&&CFG.supabaseKey&&window.supabase)?window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'tr-sb-auth'}}):null;
+let sbUser=null,pushT=null,ciT=null;
+const LKEY='tr-local-at',UKEY='tr-sync-uid';
 const DAYS=['P','T','S','Č','P','S','N'];
 const DAYS_LONG=['ponedeljek','torek','sreda','četrtek','petek','sobota','nedelja'];
 const MONTHS=['januar','februar','marec','april','maj','junij','julij','avgust','september','oktober','november','december'];
@@ -794,6 +800,13 @@ function load(){
 }
 function save(){
   try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){storageOk=false}
+  if(!inTest()){try{localStorage.setItem(LKEY,new Date().toISOString())}catch(e){};schedulePush()}
+}
+function inTest(){try{return !!localStorage.getItem('tr-testday')}catch(e){return false}}
+function schedulePush(){if(!sb||!sbUser)return;clearTimeout(pushT);pushT=setTimeout(pushNow,1500)}
+async function pushNow(){
+  if(!sb||!sbUser||inTest())return false;
+  try{const r=await sb.from('app_state').upsert({user_id:sbUser.id,data:ST,updated_at:new Date().toISOString()});return !r.error}catch(e){return false}
 }
 let ST=load();
 try{if(navigator.storage&&navigator.storage.persist) navigator.storage.persist()}catch(e){}
@@ -1480,6 +1493,7 @@ async function reportBlob(ws,today){
   return await new Promise(res=>cv.toBlob(res,'image/png'));
 }
 async function shareReport(ws,today){
+  pushCheckin(ws,today);
   toast('Pripravljam sliko …');
   let blob;try{blob=await reportBlob(ws,today)}catch(e){toast('Slike ni bilo mogoče narediti.');return}
   if(!blob){toast('Slike ni bilo mogoče narediti.');return}
@@ -1529,7 +1543,7 @@ function viewProgress(today){
     const savedEl=h('p',{class:'small','aria-live':'polite',style:'color:var(--primary);font-weight:700;min-height:1.3em;margin:0'});
     const rvField=(key,label,hint)=>{
       const el=h('textarea',{rows:'2',maxlength:'300','aria-label':label});el.value=rv[key]||'';
-      el.addEventListener('input',()=>{const r=ST.reviews[rws]||(ST.reviews[rws]={});r[key]=el.value;save();ta.value=build();savedEl.textContent='Shranjeno ✓'});
+      el.addEventListener('input',()=>{const r=ST.reviews[rws]||(ST.reviews[rws]={});r[key]=el.value;save();ta.value=build();savedEl.textContent='Shranjeno ✓';schedCheckin(rws,today)});
       return h('div',{class:'field'},h('span',{class:'lb',text:label}),h('span',{class:'hint',text:hint}),el);
     };
     out.push(h('section',{class:'card'},h('h2',{text:'Tedenski razmislek'}),
@@ -1548,7 +1562,7 @@ function viewProgress(today){
       h('button',{class:'btn alt',type:'button',onclick:async e=>{
         const btn=e.currentTarget;
         if(!ta.hidden){ta.hidden=true;btn.textContent='Deli besedilo';return}
-        ta.hidden=false;btn.textContent='Skrij besedilo';
+        ta.hidden=false;btn.textContent='Skrij besedilo';pushCheckin(rws,today);
         try{await navigator.clipboard.writeText(ta.value);toast('Besedilo kopirano. Prilepi v skupino.')}catch(err){ta.removeAttribute('readonly');ta.focus();ta.select();toast('Označeno. Kopiraj ročno.')}
       }},'Deli besedilo'),ta));
     else out.push(h('section',{class:'card'},h('h2',{text:'Ponedeljkov check-in'}),
@@ -1880,7 +1894,7 @@ function viewKnowledge(){
       step(2,'Označi dan.','Označi dneve, ko imaš cilj v načrtu ali ko ga narediš. Pri »dan izberem sproti« vneseš, ko ga izvedeš. Traja deset sekund.'),
       step(3,'Ponedeljek.','V razdelku Napredek odgovori na razmislek, kopiraj check-in in ga pošlji v skupino.'),
       step(4,'Varnostna koda.','Shrani jo, da ne izgubiš podatkov ob menjavi telefona.'))));
-  out.push(h('section',{class:'card'},h('h3',{text:'Zasebnost'}),h('p',{class:'small',text:'Podatki ostanejo samo v tvojem brskalniku. Teja in skupina vidita samo to, kar sama pošlješ v check-inu.'})));
+  out.push(h('section',{class:'card'},h('h3',{text:'Zasebnost'}),h('p',{class:'small',text:sb?'Podatki se shranjujejo v zaščiteni bazi v EU, vezani na tvoj email, da jih odpreš tudi na drugem telefonu. Teja vidi samo tvoj cilj in tedenske check-ine, dnevnih opomb ne bere.':'Podatki ostanejo samo v tvojem brskalniku. Teja in skupina vidita samo to, kar sama pošlješ v check-inu.'}),sb&&sbUser?h('button',{class:'btn ghost sm',type:'button',onclick:()=>{if(confirm('Se želiš odjaviti?'))sbSignOut()}},'Odjava ('+(sbUser.email||'')+')'):null));
   const tkids=[h('h3',{text:'Za trenerko'}),h('p',{class:'small muted',text:'Pogled za Tejo: pregled poročil skupine. Deluje samo na tej napravi in je prazen, dokler ne prilepiš sporočil.'}),
     h('button',{class:'btn alt sm',type:'button',onclick:()=>{C.on=!C.on;saveC();if(!C.on&&ui.tab==='trener')ui.tab='danes';render()}},C.on?'Izklopi pogled za trenerko':'Vklopi pogled za trenerko')];
   if(C.on){
@@ -1930,6 +1944,104 @@ function render(){
   renderSheet();
   if(ui._lt!==ui.tab){ui._lt=ui.tab;window.scrollTo(0,0)}
 }
+/* ---------- prijava z emailom (Supabase) in sinhronizacija ---------- */
+function checkinPayload(ws,today){
+  const goals=ST.goals.map((g,i)=>{const G=gv(i),sm=weekSummary(G,ws,today);return {cilj:G.profile.cilj||'',kaj:goalSentence(G.profile),min:G.profile.min||'',marks:sm.days.map(d=>d.state),good:sm.good,target:sm.target}});
+  const rv=ST.reviews[ws]||{};
+  return {user_id:sbUser.id,week_start:ws,name:ST.name||'',goals,answers:{w:rv.w||'',o:rv.o||'',c:rv.c||''},updated_at:new Date().toISOString()};
+}
+async function pushCheckin(ws,today){
+  if(!sb||!sbUser||inTest()||!ST.goals.length)return;
+  try{await sb.from('checkins').upsert(checkinPayload(ws,today),{onConflict:'user_id,week_start'})}catch(e){}
+}
+function schedCheckin(ws,today){clearTimeout(ciT);ciT=setTimeout(()=>pushCheckin(ws,today),2500)}
+async function syncDown(){
+  try{
+    const r=await sb.from('app_state').select('data,updated_at').eq('user_id',sbUser.id).maybeSingle();
+    if(r.error)return;
+    const data=r.data;let lastUid=null,localAt='';
+    try{lastUid=localStorage.getItem(UKEY);localAt=localStorage.getItem(LKEY)||''}catch(e){}
+    const hasLocal=ST.goals&&ST.goals.length>0;
+    let adopt=false;
+    if(lastUid&&lastUid!==sbUser.id){adopt=true;if(!data)ST=emptyState()}
+    else if(data&&(!hasLocal||data.updated_at>localAt))adopt=true;
+    if(adopt&&data)ST=normalize(data.data);
+    try{localStorage.setItem(UKEY,sbUser.id);localStorage.setItem(KEY,JSON.stringify(ST));if(adopt&&data)localStorage.setItem(LKEY,data.updated_at)}catch(e){}
+    if(!adopt&&hasLocal)await pushNow();
+    ui.gi=0;
+  }catch(e){}
+}
+async function sbSignOut(){
+  clearTimeout(pushT);await pushNow();
+  try{await sb.auth.signOut()}catch(e){}
+  try{localStorage.removeItem(KEY);localStorage.removeItem(LKEY);localStorage.removeItem(UKEY)}catch(e){}
+  location.reload();
+}
+function showLogin(){
+  const shell=document.querySelector('.shell');if(shell)shell.style.display='none';
+  const msg=h('p',{class:'small',style:'color:var(--miss);min-height:1.4em;margin:8px 0 0',role:'alert'});
+  const box=h('div',{class:'card',style:'max-width:380px;width:100%;text-align:center'});
+  const wrapEl=h('div',{style:'min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)'},box);
+  let email='',consentOk=false;
+  const fin=async()=>{
+    wrapEl.remove();if(shell)shell.style.display='';
+    try{await sb.from('profiles').upsert({user_id:sbUser.id,email:sbUser.email,consent_checkins:true,consent_at:new Date().toISOString()})}catch(e){}
+    await syncDown();render();toTop();
+  };
+  const step1=()=>{
+    msg.textContent='';
+    const code=h('input',{type:'text',autocomplete:'off',autocapitalize:'characters',spellcheck:'false','aria-label':'Koda skupine',placeholder:'Koda skupine',style:'text-align:center;letter-spacing:.08em'});
+    const em=h('input',{type:'email',autocomplete:'email',inputmode:'email','aria-label':'Email',placeholder:'Tvoj email',style:'text-align:center;margin-top:10px'});
+    const cb=h('input',{type:'checkbox',id:'cons',style:'width:22px;height:22px;flex:none;margin-top:2px'});
+    const go=h('button',{class:'btn',type:'button',style:'margin-top:12px;width:100%'},'Pošlji kodo na email');
+    go.onclick=async()=>{
+      msg.textContent='';
+      let ok=false;try{ok=(await sha(normCode(code.value)))===ACCESS_HASH}catch(e){}
+      if(!ok){msg.textContent='Koda skupine ni pravilna. Preveri sporočilo od Teje.';return}
+      email=em.value.trim().toLowerCase();
+      if(!/^\S+@\S+\.\S+$/.test(email)){msg.textContent='Vpiši veljaven email.';return}
+      if(!cb.checked){msg.textContent='Za nadaljevanje potrdi soglasje.';return}
+      go.disabled=true;go.textContent='Pošiljam …';
+      const r=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
+      go.disabled=false;go.textContent='Pošlji kodo na email';
+      if(r.error){msg.textContent=/rate|seconds|many/i.test(r.error.message)?'Prehitro. Počakaj minuto in poskusi znova.':'Pošiljanje ni uspelo. Preveri email in poskusi znova.';return}
+      step2();
+    };
+    box.replaceChildren(h('span',{class:'label',text:'Train & Ride'}),h('h1',{text:'Accountability Club',style:'margin:6px 0 10px'}),
+      h('p',{text:'Vpiši kodo skupine in svoj email. Na email ti pošljemo 6-mestno kodo za prijavo.'}),
+      code,em,
+      h('label',{style:'display:flex;gap:10px;text-align:left;margin-top:12px;font-size:14px;align-items:flex-start'},cb,h('span',{text:'Soglašam, da Teja vidi moj cilj in tedenske check-ine. Dnevnih opomb ne bere.'})),
+      msg,go);
+  };
+  const step2=()=>{
+    msg.textContent='';
+    const tok=h('input',{type:'text',inputmode:'numeric',autocomplete:'one-time-code',maxlength:'8','aria-label':'Koda iz emaila',placeholder:'Koda iz emaila',style:'text-align:center;font-size:1.4rem;letter-spacing:.3em'});
+    const ok=h('button',{class:'btn',type:'button',style:'margin-top:12px;width:100%'},'Potrdi');
+    const again=h('button',{class:'btn ghost',type:'button',style:'margin-top:8px;width:100%'},'Drug email');
+    ok.onclick=async()=>{
+      msg.textContent='';const t=tok.value.replace(/\D/g,'');
+      if(t.length<6){msg.textContent='Vpiši kodo iz emaila.';return}
+      ok.disabled=true;ok.textContent='Preverjam …';
+      const r=await sb.auth.verifyOtp({email,token:t,type:'email'});
+      ok.disabled=false;ok.textContent='Potrdi';
+      if(r.error||!r.data||!r.data.user){msg.textContent='Koda ni pravilna ali je potekla. Zahtevaj novo.';return}
+      sbUser=r.data.user;fin();
+    };
+    again.onclick=step1;
+    tok.addEventListener('keydown',e=>{if(e.key==='Enter')ok.onclick()});
+    box.replaceChildren(h('span',{class:'label',text:'Train & Ride'}),h('h1',{text:'Preveri email',style:'margin:6px 0 10px'}),
+      h('p',{text:'Poslali smo kodo na '+email+'. Poglej tudi v vsiljeno pošto.'}),tok,msg,ok,again);
+    tok.focus();
+  };
+  step1();document.body.append(wrapEl);
+}
+async function boot(){
+  if(!sb){if(hasAccess())render();else showGate();return}
+  let sess=null;try{sess=(await sb.auth.getSession()).data.session}catch(e){}
+  if(sess){sbUser=sess.user;await syncDown();render()}else showLogin();
+  sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'&&sbUser){sbUser=null;location.reload()}});
+  window.addEventListener('online',()=>{if(sbUser)pushNow()});
+}
 /* ---------- dostop s kodo skupine ---------- */
 /* Koda se zamenja tako: izracunaj SHA-256 nove kode (velike crke, brez presledkov in vezajev) in ga vpisi v ACCESS_HASH. */
 const ACCESS_HASH='72d2778e8277b18c2a2d334ccdd114d240f61ed55979a533eecc39aa6e54babf';
@@ -1961,7 +2073,7 @@ try{history.scrollRestoration='manual'}catch(e){}
 const toTop=()=>{window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0};
 window.addEventListener('pageshow',toTop);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)toTop()});
-if(hasAccess())render();else showGate();
+boot();
 toTop();setTimeout(toTop,80);setTimeout(toTop,400);
 })();
 </script>
