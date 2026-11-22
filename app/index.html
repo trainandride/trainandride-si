@@ -1119,17 +1119,18 @@ function helpLink(){
   return 'https://wa.me/?text='+encodeURIComponent(t);
 }
 const MOTIV=[
- {t:'Samo 2 minuti',x:'Obleci opremo in začni z minimalno različico. Po dveh minutah se odloči, ali nadaljuješ. Začetek je običajno najtežji del.',z:'Vedenjska aktivacija: zagon pride po dejanju, ne pred njim.'},
- {t:'Če–potem načrt',x:'Reci si: »Ko se zgodi X, naredim Y.« Konkreten trenutek in dejanje, brez razmišljanja o volji.',z:'Gollwitzer: implementacijski nameni močno povečajo izvedbo.'},
- {t:'Razdalja od sebe',x:'Pogovori se s sabo v tretji osebi: »[ime], zmoreš 5 minut.« Zveni neumno, a zmanjša stres in odlašanje.',z:'Kross: distancirani samogovor.'},
- {t:'Najprej ovire stran',x:'Pripravi opremo, obleko ali prostor že zdaj. Čim manj korakov do začetka, tem lažje.',z:'Raziskave navad: manj trenja, več izvedbe.'},
- {t:'Pomislek in načrt (WOOP)',x:'Predstavljaj si, kako je, ko cilj narediš. Nato si predstavljaj, kaj te bo ustavilo, in pripravi odgovor nanj.',z:'Oettingen: mentalno kontrastiranje.'},
- {t:'Prijazna do sebe',x:'Če te je zgrešilo, brez obsojanja. Reci si, kaj bi rekla prijateljici. Samoprijaznost pomaga, da se hitreje vrneš.',z:'Breines in Chen: samoprijaznost po neuspehu poveča motivacijo.'},
- {t:'Navezava z užitkom',x:'Združi cilj s čim, kar imaš rada: priljubljen podkast, glasba ali kava po vadbi. Užitek dobiš le ob cilju.',z:'Milkman: temptation bundling.'},
- {t:'Glasba, ki te zažene',x:'Vklopi 2 do 3 pesmi z močnim ritmom in začni, preden se premisliš.',z:'Karageorghis: motivacijska glasba zmanjša občutek napora.'},
- {t:'Kdo si',x:'Namesto »moram vaditi« reci »sem oseba, ki skrbi za svoje telo«. Identiteta motivira bolj kot dolžnost.',z:'Bryan: samopodoba kot samostalnik vpliva na vedenje.'},
- {t:'Vidim napredek',x:'Odpri Napredek in poglej, koliko dni si že naredila. Majhne zmage držijo motivacijo.',z:'Amabile: načelo napredka.'},
- {t:'Premik namesto čakanja',x:'Pojdi 5 minut ven ali naredi nekaj počepov. Če po tem še vedno nočeš, je to v redu. Večinoma pa gre.',z:'Kratka aktivnost izboljša razpoloženje in energijo.'}
+ {t:'Samo 2 minuti',x:'Začni z najmanjšim možnim korakom in po dveh minutah se odloči, ali nadaljuješ. Začetek je običajno najtežji del.',p:'Odpreš zvezek in napišeš eno vrstico. Obuješ tekaške copate. Skuhaš samo zelenjavo za prilogo.',z:'Vedenjska aktivacija: zagon pride po dejanju, ne pred njim.'},
+ {t:'Če–potem načrt',x:'Določi konkreten trenutek in dejanje, da ti ni treba odločati sproti.',p:'»Ko po kosilu odložim krožnik, 5 minut pišem poročilo.« Ali: »Ko pridem domov, takoj popijem kozarec vode.«',z:'Gollwitzer: implementacijski nameni povečajo izvedbo.'},
+ {t:'Razdalja od sebe',x:'Pogovori se s sabo v tretji osebi, kot bi svetovala prijateljici. Zmanjša stres in odlašanje.',p:'»[ime], zmoreš 5 minut. Samo začni.«',z:'Kross: distancirani samogovor.'},
+ {t:'Odstrani oviro',x:'Pripravi vse že vnaprej, da je do začetka čim manj korakov.',p:'Zvečer pripraviš opremo, odpreš dokument, ki ga moraš pisati, ali daj sadje na pult namesto v predal.',z:'Raziskave navad: manj trenja, več izvedbe.'},
+ {t:'Pomislek in načrt',x:'Predstavljaj si, kako je, ko cilj dosežeš. Nato si predstavljaj, kaj te bo ustavilo, in pripravi odgovor.',p:'»Če bom utrujena po službi, naredim samo minimalno različico.«',z:'Oettingen: mentalno kontrastiranje (WOOP).'},
+ {t:'Prijazna do sebe',x:'Če te je zgrešilo, brez obsojanja. Reci si, kaj bi rekla prijateljici. Samoprijaznost pomaga, da se hitreje vrneš.',p:'Namesto »spet mi ni uspelo« reci »tak dan je pač bil, jutri začnem z majhnim korakom«.',z:'Breines in Chen: samoprijaznost po neuspehu poveča motivacijo.'},
+ {t:'Poveži z užitkom',x:'Navado združi s čim, kar imaš rada, da užitek dobiš le ob njej.',p:'Priljubljen podkast samo med sprehodom, kava samo ob pisanju, serija samo med likanjem.',z:'Milkman: temptation bundling.'},
+ {t:'Zaženi se z glasbo',x:'Vklopi 2 do 3 pesmi z močnim ritmom in začni, preden se premisliš.',p:'Pred začetkom učenja, pospravljanja ali vadbe: ena pesem, ki te dvigne.',z:'Karageorghis: glasba zmanjša občutek napora.'},
+ {t:'Kdo si',x:'Namesto »moram« reci »sem oseba, ki …«. Identiteta motivira bolj kot dolžnost.',p:'»Sem oseba, ki skrbi zase.« »Sem oseba, ki dokonča, kar začne.«',z:'Bryan: samopodoba kot samostalnik vpliva na vedenje.'},
+ {t:'Poglej napredek',x:'Odpri Napredek in poglej, kaj si že naredila. Majhne zmage držijo motivacijo.',p:'»Že 9 dni v mesecu sem naredila svoj korak. Nočem tega zdaj prekiniti.«',z:'Amabile: načelo napredka.'},
+ {t:'Zamenjaj okolje',x:'Pojdi 5 minut ven ali spremeni prostor. Pogosto sprosti glavo in energijo.',p:'Kratek sprehod pred težko nalogo ali delo za drugo mizo.',z:'Kratka aktivnost izboljša razpoloženje in energijo.'},
+ {t:'Povej naprej',x:'Napiši skupini, kaj boš naredila danes. Ko to poveš na glas, je težje odnehati.',p:'»Danes do 20h naredim 10 minut svojega koraka.«',z:'Socialna podpora in zaveza povečata vztrajnost.'}
 ];
 let motLast=-1;
 function popOverlay(inner){
@@ -1139,10 +1140,10 @@ function popOverlay(inner){
 }
 function showMotivation(){
   let i;do{i=Math.floor(Math.random()*MOTIV.length)}while(i===motLast&&MOTIV.length>1);motLast=i;
-  const m=Object.assign({},MOTIV[i]);m.x=m.x.replace('[ime]',(ST.name||'').split(' ')[0]||'Zmoreš');
+  const m=Object.assign({},MOTIV[i]);m.p=m.p.replace('[ime]',(ST.name||'').split(' ')[0]||'Zmoreš');
   const ov=popOverlay(h('div',{class:'pop-in'},
     h('span',{class:'label',text:'Hitra motivacija'}),
-    h('h2',{text:m.t}),h('p',{text:m.x}),h('p',{class:'small muted',text:m.z}),
+    h('h2',{text:m.t}),h('p',{text:m.x}),h('div',{class:'todo'},h('b',{text:'Primer'}),m.p),h('p',{class:'small muted',text:m.z}),
     h('button',{class:'btn',type:'button',onclick:showMotivation},'Še ena ideja'),
     h('button',{class:'btn alt',type:'button',onclick:()=>ov.remove()},'Zapri')));
 }
