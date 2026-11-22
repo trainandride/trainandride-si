@@ -1103,12 +1103,12 @@ function viewToday(today){
         h('button',{class:'btn',type:'button',onclick:()=>{monSet(mws);render();toast('Odlično. Uspešen teden!')}},'Da, imam načrt'),
         h('button',{class:'btn alt',type:'button',onclick:()=>{ui.tab='cilj';render();window.scrollTo({top:0})}},'Še ne, uredim načrt'))));
   }
-  if(wd(today)===0||wd(today)===6){
-    const rws=wd(today)===0?addDays(mws,-7):mws;const rv=ST.reviews[rws];
+  if(wd(today)===0){
+    const rws=addDays(mws,-7);const rv=ST.reviews[rws];
     if(!before&&!(rv&&(rv.w||rv.o||rv.c))) out.push(h('section',{class:'card'},h('span',{class:'label',text:'Tedenski razmislek'}),
       h('h2',{text:'Dve minuti za razmislek o tednu'}),
       h('p',{text:'Kaj je delovalo, kaj te je oviralo in kaj spremeniš? Odgovori se samodejno vpišejo v tvoj check-in.'}),
-      h('button',{class:'btn alt',type:'button',onclick:()=>{ui.ciUser=wd(today)===0?'prev':'cur';ui.tab='napredek';render();window.scrollTo({top:0})}},'Odgovori')));
+      h('button',{class:'btn alt',type:'button',onclick:()=>{ui.ciUser='prev';ui.tab='napredek';render();window.scrollTo({top:0})}},'Odgovori')));
   }
   if(before) out.push(h('div',{class:'banner info'},h('b',{text:'Skupina začne '+fmtDate(p.start)}),h('span',{text:'Do takrat vnos še ni mogoč. Če želiš aplikacijo preizkusiti, v razdelku Moj cilj nastavi začetek na današnji datum.'})));
 
