@@ -815,6 +815,7 @@ function cleanReviews(r){
   if(r&&typeof r==='object') for(const k in r){
     if(!validDate(k)||!r[k]||typeof r[k]!=='object') continue;
     o[k]={w:String(r[k].w||'').slice(0,300),o:String(r[k].o||'').slice(0,300),c:String(r[k].c||'').slice(0,300)};
+    const sa=r[k].sentAt;if(typeof sa==='string'&&!isNaN(new Date(sa).getTime()))o[k].sentAt=sa;
   }
   return o;
 }
@@ -2443,6 +2444,10 @@ async function syncDown(){
     try{localStorage.setItem(UKEY,sbUser.id);localStorage.setItem(KEY,JSON.stringify(ST));if(adopt&&data)localStorage.setItem(LKEY,data.updated_at)}catch(e){}
     if(!adopt&&hasLocal)await pushNow();
     ui.gi=0;
+    try{
+      const cr=await sb.from('checkins').select('week_start,submitted_at').eq('user_id',sbUser.id).not('submitted_at','is',null);
+      if(!cr.error&&cr.data){let ch=false;cr.data.forEach(x=>{const r=ST.reviews[x.week_start]||(ST.reviews[x.week_start]={w:'',o:'',c:''});if(!r.sentAt){r.sentAt=x.submitted_at;ch=true}});if(ch){try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){}}}
+    }catch(e){}
   }catch(e){}
 }
 async function sbSignOut(){
