@@ -1292,12 +1292,40 @@ function popOverlay(inner){
   const ov=h('div',{class:'pop-ov',role:'dialog','aria-modal':'true',onclick:e=>{if(e.target===ov)ov.remove()}},inner);
   document.body.append(ov);return ov;
 }
+function myWhy(){const g=ST.goals[ui.gi||0]||ST.goals[0]||{};return String(g.why||'').trim()}
+function whyBox(){const w=myWhy();return w?h('div',{class:'todo'},h('b',{text:'Spomni se, zakaj si začela'}),w):null}
+const WEEK_MISS=0.7;
+function weekMissInfo(today){
+  if(!ST.goals.length)return null;
+  const ws=addDays(weekStart(today),-7);let good=0,target=0,ok=false;
+  ST.goals.forEach((g,i)=>{const G=gv(i);if(ws<G.profile.start)return;const sm=weekSummary(G,ws,today);if(sm.target){ok=true;good+=sm.good;target+=sm.target}});
+  if(!ok||!target)return null;
+  return {ws,good,target,pct:good/target};
+}
+function maybeWeekMiss(today){
+  try{
+    const info=weekMissInfo(today);if(!info||info.pct>=WEEK_MISS)return;
+    let seen;const t=inTest();
+    if(t){if(ui._wmT===info.ws)return;ui._wmT=info.ws}
+    else{try{seen=localStorage.getItem('tr-wkmiss')}catch(e){}if(seen===info.ws)return;try{localStorage.setItem('tr-wkmiss',info.ws)}catch(e){}}
+    const w=myWhy(),g=ST.goals[0]||{};
+    const ov=popOverlay(h('div',{class:'pop-in'},
+      h('span',{class:'label',text:'Prejšnji teden · '+fmtRange(info.ws)}),
+      h('h2',{text:'Prejšnji teden ni šel po načrtu'}),
+      h('p',{text:'Izvedeno: '+info.good+' od '+info.target+' načrtovanih dni. To se zgodi vsakomur in ni konec. Pomembno je, da se vrneš.'}),
+      w?h('div',{class:'todo'},h('b',{text:'Spomni se, zakaj si začela'}),w):null,
+      g.min?h('p',{class:'small'},h('b',{text:'Ta teden začni z minimalno različico: '}),g.min):h('p',{class:'small',text:'Ta teden začni z minimalno različico cilja.'}),
+      h('button',{class:'btn',type:'button',onclick:()=>ov.remove()},'Začnem znova'),
+      h('button',{class:'btn alt',type:'button',onclick:()=>{ov.remove();showMotivation()}},'Rabim motivacijo'),
+      h('a',{class:'btn alt',target:'_blank',rel:'noopener',href:helpLink()},'Napiši skupini')));
+  }catch(e){}
+}
 function showMotivation(){
   const today=todayStr();let st=motivState();
   if(st.d!==today){st={d:today,n:0,seen:st.seen||[]}}
   if(!Array.isArray(st.seen))st.seen=[];
   if(st.n>=MOTIV_CAP){
-    const ov=popOverlay(h('div',{class:'pop-in'},h('span',{class:'label',text:'Hitra motivacija'}),h('h2',{text:'Za danes je dovolj idej'}),
+    const ov=popOverlay(h('div',{class:'pop-in'},h('span',{class:'label',text:'Hitra motivacija'}),whyBox(),h('h2',{text:'Za danes je dovolj idej'}),
       h('p',{text:'Izberi eno, ki ti je bila všeč, in jo preizkusi. Več idej ne pomeni več motivacije. Jutri pridejo nove. Če še vedno ne gre, napiši skupini.'}),
       h('a',{class:'btn',target:'_blank',rel:'noopener',href:helpLink()},'Rabim pomoč'),
       h('button',{class:'btn alt',type:'button',onclick:()=>ov.remove()},'Zapri')));
@@ -1314,6 +1342,7 @@ function showMotivation(){
   const last=st.n>=MOTIV_CAP;
   const ov=popOverlay(h('div',{class:'pop-in'},
     h('span',{class:'label',text:'Hitra motivacija · '+st.n+' od '+MOTIV_CAP+' danes'}),
+    whyBox(),
     h('h2',{text:m.t}),h('p',{text:m.x}),h('div',{class:'todo'},h('b',{text:'Primer'}),m.p),h('p',{class:'small muted',text:m.z}),
     last?h('p',{class:'small muted',text:'To je zadnja ideja za danes. Izberi eno in jo preizkusi.'}):h('button',{class:'btn',type:'button',onclick:showMotivation},'Še ena ideja'),
     h('button',{class:last?'btn':'btn alt',type:'button',onclick:()=>ov.remove()},'Zapri')));
@@ -1332,6 +1361,7 @@ function viewToday(today){
   const qi=((diffDays('2026-01-01',today)%QUOTES.length)+QUOTES.length)%QUOTES.length;
   const qcard=h('section',{class:S.profile?'card plain':'card'},h('span',{class:'label',text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
   if(!S.profile){out.push(emptyCard());return out}
+  setTimeout(()=>{if(ui.tab==='danes'&&!document.querySelector('.pop-ov'))maybeWeekMiss(today)},500);
   out.push(qcard);
   out.push(h('section',{class:'card obveza'},h('span',{class:'label',text:'Obveza skupine'}),
     h('p',{text:'Če začutiš, da zmanjkuje zagona, to napiši v WhatsApp skupino, še preden zgrešiš.'}),
