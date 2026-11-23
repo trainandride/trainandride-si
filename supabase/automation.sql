@@ -63,7 +63,7 @@ create or replace function public.send_monday_reminders(p_only text default null
 returns void language plpgsql security definer set search_path = public, extensions as $$
 declare payload jsonb;
 begin
-  if not p_force and (current_date < date '2026-12-07' or current_date > date '2027-03-29') then return; end if;
+  if not p_force and (current_date < date '2026-11-30' or current_date > date '2027-03-29') then return; end if;
   select jsonb_agg(jsonb_build_object(
       'from','Train & Ride <app@trainandride.si>','to',jsonb_build_array(email),
       'subject','Ponedeljkov check-in',
