@@ -1556,15 +1556,16 @@ function viewProgress(today){
   const ta=h('textarea',{id:'ci-text',readonly:true,hidden:true,rows:'12','aria-label':'Besedilo za skupino'});ta.value=ctext;
   if(pv==='week'){
     if(wd(today)===0) out.push(h('section',{class:'card',style:'border-left:5px solid var(--accent);border-right:5px solid var(--accent)'},h('span',{class:'label',text:'Ponedeljek je dan za check-in'}),h('h2',{text:'Ponedeljkov check-in'}),
-      h('p',{text:'Sharing is caring. Samo s pomočjo skupnosti lažje rastemo. Deli svoj napredek tudi, če ni bil popoln in je teden šel slabše. Tvoja iskrenost pomaga tebi in drugim.'}),
+      h('p',{text:'Sharing is caring. Samo s pomočjo skupnosti lažje rastemo. Odgovori na tri vprašanja spodaj in pošlji check-in. Tvoja iskrenost pomaga tebi in drugim, tudi če teden ni bil popoln.'}),
+      sb?sendBlock(rws,today):h('div',{},
       h('p',{class:'small muted',text:'Izberi, kako želiš deliti s skupino.'}),
       h('button',{class:'btn',type:'button',onclick:()=>shareReport(rws,today)},'Deli sliko'),
       h('button',{class:'btn alt',type:'button',onclick:async e=>{
         const btn=e.currentTarget;
         if(!ta.hidden){ta.hidden=true;btn.textContent='Deli besedilo';return}
-        ta.hidden=false;btn.textContent='Skrij besedilo';pushCheckin(rws,today);
+        ta.hidden=false;btn.textContent='Skrij besedilo';
         try{await navigator.clipboard.writeText(ta.value);toast('Besedilo kopirano. Prilepi v skupino.')}catch(err){ta.removeAttribute('readonly');ta.focus();ta.select();toast('Označeno. Kopiraj ročno.')}
-      }},'Deli besedilo'),ta));
+      }},'Deli besedilo'),ta)));
     else out.push(h('section',{class:'card'},h('h2',{text:'Ponedeljkov check-in'}),
       h('p',{class:'small muted',text:'Check-in se odpre vsak ponedeljek. Takrat deliš svoj teden s skupino, tudi če ni bil popoln.'})));
   }
@@ -1950,9 +1951,30 @@ function checkinPayload(ws,today){
   const rv=ST.reviews[ws]||{};
   return {user_id:sbUser.id,week_start:ws,name:ST.name||'',goals,answers:{w:rv.w||'',o:rv.o||'',c:rv.c||''},updated_at:new Date().toISOString()};
 }
-async function pushCheckin(ws,today){
-  if(!sb||!sbUser||inTest()||!ST.goals.length)return;
-  try{await sb.from('checkins').upsert(checkinPayload(ws,today),{onConflict:'user_id,week_start'})}catch(e){}
+async function pushCheckin(ws,today,submit){
+  if(!sb||!sbUser||inTest()||!ST.goals.length)return false;
+  const pl=checkinPayload(ws,today);
+  if(submit)pl.submitted_at=new Date().toISOString();
+  try{const r=await sb.from('checkins').upsert(pl,{onConflict:'user_id,week_start'});return !r.error}catch(e){return false}
+}
+function sendBlock(ws,today){
+  const wrap=h('div',{});
+  const draw=()=>{
+    const rv=ST.reviews[ws]||{};const sent=rv.sentAt;
+    const msg=h('p',{class:'small','aria-live':'polite',style:'color:var(--primary);font-weight:700;min-height:1.3em;margin:0'});
+    if(sent){const d=new Date(sent);msg.textContent='Oddano ✓ '+d.getDate()+'. '+(d.getMonth()+1)+'. ob '+pad(d.getHours())+':'+pad(d.getMinutes())}
+    const btn=h('button',{class:'btn',type:'button'},sent?'Posodobi check-in':'Pošlji check-in');
+    btn.onclick=async()=>{
+      if(inTest()){toast('Testni način: check-in se ne pošilja.');return}
+      if(!(rv.w||rv.o||rv.c)&&!confirm('Odgovori so prazni. Vseeno pošljem check-in?'))return;
+      btn.disabled=true;btn.textContent='Pošiljam …';
+      const ok=await pushCheckin(ws,today,true);
+      if(ok){const r=ST.reviews[ws]||(ST.reviews[ws]={});r.sentAt=new Date().toISOString();save();toast('Check-in je oddan. Hvala!');draw()}
+      else{btn.disabled=false;btn.textContent=sent?'Posodobi check-in':'Pošlji check-in';toast('Pošiljanje ni uspelo. Preveri povezavo in poskusi znova.')}
+    };
+    wrap.replaceChildren(btn,msg);
+  };
+  draw();return wrap;
 }
 function schedCheckin(ws,today){clearTimeout(ciT);ciT=setTimeout(()=>pushCheckin(ws,today),2500)}
 async function syncDown(){
@@ -2073,6 +2095,7 @@ try{history.scrollRestoration='manual'}catch(e){}
 const toTop=()=>{window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0};
 window.addEventListener('pageshow',toTop);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)toTop()});
+try{if(location.hash==='#checkin')ui.tab='napredek'}catch(e){}
 boot();
 toTop();setTimeout(toTop,80);setTimeout(toTop,400);
 })();
