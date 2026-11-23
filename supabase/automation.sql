@@ -71,6 +71,10 @@ begin
            ||'<p><b>Odpri aplikacijo na začetnem zaslonu</b> (ikona Accountability Club na telefonu) in v zavihku Napredek oddaj check-in.</p>'
            ||'<p>Aplikacije nimaš na začetnem zaslonu? Odpri jo v brskalniku:</p>'
            ||'<p><a href="https://trainandride.si/app/#checkin" style="background:#177A4C;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold">Odpri check-in v brskalniku</a></p>'
+           ||'<p><b>Nimaš ikone na začetnem zaslonu? Tako si jo dodaš:</b></p>'
+           ||'<p><b>iPhone (Safari):</b> odpri povezavo v Safariju, tapni gumb Deli (kvadrat s puščico navzgor), izberi »Dodaj na začetni zaslon« in tapni »Dodaj«.</p>'
+           ||'<p><b>Android (Chrome):</b> odpri povezavo v Chromu, tapni tri pike zgoraj desno, izberi »Dodaj na začetni zaslon« ali »Namesti aplikacijo« in potrdi.</p>'
+           ||'<p>Po dodajanju se v aplikaciji prijavi z istim emailom in podatki se naložijo.</p>'
            ||'<p>Sharing is caring. Tvoja iskrenost pomaga tebi in drugim.</p><p>Train &amp; Ride</p>'))
     into payload
   from public.profiles
