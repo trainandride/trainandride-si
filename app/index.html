@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Accountability Club</title>
-<meta name="theme-color" content="#A9BDA9">
-<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="color-scheme" content="light dark">
+<meta name="darkreader-lock">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Accountability Club">
@@ -20,10 +21,10 @@
 <style>
 /* Koncept: ena kolona, zavihki zgoraj, velike tipke za dnevni vnos. Gozdno zelena + korala iz podobe skupine. */
 :root{
-  --bg:#A9BDA9; --surface:#ffffff; --surface-2:#F0F3E8; --fg:#1C1C1E; --muted:#3F4C3D; --line:#B3C0A4;
+  --bg:#FFFFFF; --surface:#ffffff; --surface-2:#F4F6F1; --fg:#1C1C1E; --muted:#3F4C3D; --line:#E6E9E2;
   --primary:#177A4C; --on-primary:#ffffff; --ring:#1E8E5A; --accent:#B5532F; --accent-t:#FBE6DC;
   --done:#177A4C; --done-t:#DDF2E5; --min:#8A5A00; --min-t:#FBEBC8; --rest:#3F6590; --rest-t:#DFE8F4; --miss:#B13E2A; --miss-t:#F8E0D9;
-  --on-status:#ffffff; --ring-track:#D8F0E2; --tabbg:rgba(236,241,226,.96); --tabline:#A9B895; color-scheme:light;
+  --on-status:#ffffff; --ring-track:#D8F0E2; --tabbg:rgba(255,255,255,.97); --tabline:#E6E9E2; color-scheme:light;
   --font-head:Inter,-apple-system,'Segoe UI',system-ui,sans-serif;
   --font-body:Inter,-apple-system,'Segoe UI',system-ui,sans-serif;
 }
@@ -323,9 +324,9 @@ textarea{resize:vertical;min-height:84px}
 
 #testbar{position:fixed;top:0;left:0;right:0;z-index:70;display:flex;gap:10px;align-items:center;justify-content:space-between;background:#B3261E;color:#fff;font-size:13px;font-weight:700;padding:calc(6px + env(safe-area-inset-top,0px)) 12px 6px}
 #testbar button{border:0;border-radius:999px;background:#fff;color:#B3261E;font:inherit;font-weight:800;padding:5px 12px;cursor:pointer;white-space:nowrap}
-:root:not([data-theme="dark"]) .card{border:1px solid #A3B392;box-shadow:0 2px 8px rgba(40,60,25,.2)}
-:root:not([data-theme="dark"]) .card.fp{background:#fff;border:1px solid #A3B392;border-left:6px solid var(--sc,var(--primary));border-right:6px solid var(--sc,var(--primary));box-shadow:0 2px 8px rgba(40,60,25,.2)}
-:root:not([data-theme="dark"]) .card.fp .bar,:root:not([data-theme="dark"]) .card.fp .wk .tr,:root:not([data-theme="dark"]) .card.fp textarea,:root:not([data-theme="dark"]) .card.fp .iconbtn,:root:not([data-theme="dark"]) .card.fp .badge:not(.on) .c{background:var(--surface-2)}
+:root:not([data-theme="dark"]) .card{background:#F6F8F3;border:0;border-radius:20px;box-shadow:none}
+:root:not([data-theme="dark"]) .card.fp{background:color-mix(in srgb,var(--sc,#177A4C) 9%,#fff);border:0;border-radius:20px;box-shadow:none}
+:root:not([data-theme="dark"]) .card.fp .bar,:root:not([data-theme="dark"]) .card.fp .wk .tr,:root:not([data-theme="dark"]) .card.fp textarea,:root:not([data-theme="dark"]) .card.fp .iconbtn,:root:not([data-theme="dark"]) .card.fp .badge:not(.on) .c{background:rgba(255,255,255,.75)}
 :root:not([data-theme="dark"]) .card.fp.goalcard{--ring-track:var(--surface-2)}
 :root:not([data-theme="dark"]) .lawt,:root:not([data-theme="dark"]) .nstep{background:var(--surface-2)}
 textarea[hidden]{display:none}
@@ -1133,8 +1134,8 @@ let _themeMem=null;
 function themeNow(){if(_themeMem)return _themeMem;try{return localStorage.getItem('tr-theme')==='light'?'light':'dark'}catch(e){return 'dark'}}
 function applyTheme(t){
   if(t==='dark')document.documentElement.setAttribute('data-theme','dark');else document.documentElement.removeAttribute('data-theme');
-  const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',t==='dark'?'#0E1512':'#A9BDA9');
-  const c=document.querySelector('meta[name=color-scheme]');if(c)c.setAttribute('content',t==='dark'?'dark':'light');
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',t==='dark'?'#0E1512':'#FFFFFF');
+  
   const b=document.getElementById('themebtn');
   if(b){b.innerHTML=t==='dark'?SUN:MOON;b.setAttribute('aria-label',t==='dark'?'Preklopi na svetel videz':'Preklopi na temen videz')}
 }
