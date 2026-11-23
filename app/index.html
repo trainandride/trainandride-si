@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Accountability Club</title>
-<meta name="theme-color" content="#C9D3B8">
+<meta name="theme-color" content="#A9BDA9">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -20,7 +20,7 @@
 <style>
 /* Koncept: ena kolona, zavihki zgoraj, velike tipke za dnevni vnos. Gozdno zelena + korala iz podobe skupine. */
 :root{
-  --bg:#C9D3B8; --surface:#ffffff; --surface-2:#F0F3E8; --fg:#1C1C1E; --muted:#4D5A49; --line:#B3C0A4;
+  --bg:#A9BDA9; --surface:#ffffff; --surface-2:#F0F3E8; --fg:#1C1C1E; --muted:#3F4C3D; --line:#B3C0A4;
   --primary:#177A4C; --on-primary:#ffffff; --ring:#1E8E5A; --accent:#B5532F; --accent-t:#FBE6DC;
   --done:#177A4C; --done-t:#DDF2E5; --min:#8A5A00; --min-t:#FBEBC8; --rest:#3F6590; --rest-t:#DFE8F4; --miss:#B13E2A; --miss-t:#F8E0D9;
   --on-status:#ffffff; --ring-track:#D8F0E2; --tabbg:rgba(236,241,226,.96); --tabline:#A9B895; color-scheme:light;
@@ -1095,7 +1095,7 @@ const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wi
 function themeNow(){try{return localStorage.getItem('tr-theme')==='dark'?'dark':'light'}catch(e){return 'light'}}
 function applyTheme(t){
   if(t==='dark')document.documentElement.setAttribute('data-theme','dark');else document.documentElement.removeAttribute('data-theme');
-  const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',t==='dark'?'#0E1512':'#C9D3B8');
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',t==='dark'?'#0E1512':'#A9BDA9');
   const c=document.querySelector('meta[name=color-scheme]');if(c)c.setAttribute('content',t==='dark'?'dark':'light');
   const b=document.getElementById('themebtn');
   if(b){b.innerHTML=t==='dark'?SUN:MOON;b.setAttribute('aria-label',t==='dark'?'Preklopi na svetel videz':'Preklopi na temen videz')}
