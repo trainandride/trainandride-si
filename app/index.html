@@ -65,7 +65,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .card h3{font-size:16px}
 .label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .muted{color:var(--muted)}
-.small{font-size:14px}
+.small{font-size:15px}
 .quote{font-family:var(--font-head);font-size:19px;line-height:1.3;font-weight:700;letter-spacing:-.01em}
 .plain{background:transparent;padding:2px 4px 0;gap:6px}
 .goal{font-size:18px;font-weight:700;line-height:1.35}
@@ -207,7 +207,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-align:c
 form{display:flex;flex-direction:column;gap:14px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label,.field .lb{font-weight:700;font-size:15px}
-.field .hint{font-size:13px;color:var(--muted)}
+.hint{font-size:15px;color:var(--muted)}
+.field .hint{font-size:15px;color:var(--muted)}
 .idrow{display:flex;flex-direction:column;gap:6px}.idpre{font-weight:700;color:var(--sc,var(--accent));font-size:1.05rem}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .fsec{border:1px solid var(--line);border-left:5px solid var(--sc,var(--primary));border-radius:14px;padding:14px 14px 16px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px;margin:14px 0}
@@ -797,7 +798,7 @@ function cleanGoal(g,log){
     id:String(g.id||('g'+Math.random().toString(36).slice(2,8))).slice(0,20),
     cilj:String(g.cilj||'').slice(0,200),perWeek:Math.max(0,Math.min(7,Math.round(+g.perWeek||0))),kdaj:String(g.kdaj||'').slice(0,160),kje:String(g.kje||'').slice(0,160),kaj:String(g.kaj||'').slice(0,200),
     min:String(g.min||'').slice(0,200),identity:String(g.identity||'').slice(0,160),anchor:String(g.anchor||'').slice(0,160),
-    ifthen:String(g.ifthen||'').slice(0,240),reward:String(g.reward||'').slice(0,160),
+    ifthen:String(g.ifthen||'').slice(0,240),reward:String(g.reward||'').slice(0,160),why:String(g.why||'').slice(0,300),
     planned:[...new Set(g.planned.map(Number).filter(n=>n>=0&&n<=6))].sort(),start:g.start,log:L,notes:N
   };
 }
@@ -833,7 +834,7 @@ let S={profile:null,log:{}};
 const ui={tab:'danes',weekOff:0,month:null,ci:'prev',sheetDay:null,code:'',form:null,gi:0,adding:false};
 function gv(i){
   const g=ST.goals[i];
-  return {profile:{name:ST.name,cilj:g.cilj||'',perWeek:g.perWeek||0,kdaj:g.kdaj,kje:g.kje,kaj:g.kaj,min:g.min,identity:g.identity,anchor:g.anchor,ifthen:g.ifthen,reward:g.reward,planned:g.planned,start:g.start},log:g.log,notes:g.notes||(g.notes={})};
+  return {profile:{name:ST.name,cilj:g.cilj||'',perWeek:g.perWeek||0,kdaj:g.kdaj,kje:g.kje,kaj:g.kaj,min:g.min,identity:g.identity,anchor:g.anchor,ifthen:g.ifthen,reward:g.reward,why:g.why||'',planned:g.planned,start:g.start},log:g.log,notes:g.notes||(g.notes={})};
 }
 function canAdd(today){return ST.goals.length>0&&(ST.unlocked||unlockInfo(gv(0),today).ok)}
 function useGoal(){
@@ -1318,7 +1319,7 @@ function showMotivation(){
     h('button',{class:last?'btn':'btn alt',type:'button',onclick:()=>ov.remove()},'Zapri')));
 }
 function showSummary(p){
-  const rows=[['Minimalna različica',p.min,'--min'],['Sem oseba, ki',p.identity?p.identity.replace(/^\s*sem\s+oseba,?\s+ki\s+/i,'').replace(/\.+\s*$/,''):'','--primary'],['Pripeto na',p.anchor,'--rest'],['Ovira',p.ifthen,'--miss']].filter(r=>r[1]);
+  const rows=[['Minimalna različica',p.min,'--min'],['Sem oseba, ki',p.identity?p.identity.replace(/^\s*sem\s+oseba,?\s+ki\s+/i,'').replace(/\.+\s*$/,''):'','--primary'],['Zakaj mi je pomembno',p.why,'--accent'],['Pripeto na',p.anchor,'--rest'],['Ovira',p.ifthen,'--miss']].filter(r=>r[1]);
   const ov=popOverlay(h('div',{class:'pop-in sum',onclick:()=>ov.remove()},
     h('span',{class:'label',text:'Moj cilj'}),h('h2',{text:p.cilj||goalSentence(p)}),
     p.kaj?h('p',{class:'sm-sentence',text:goalSentence(p)}):null,
@@ -1684,7 +1685,7 @@ function viewGoal(today){
       h('p',{class:'small muted',text:u.elapsed<28?'Odpre se po 28 dneh, če je uspešnost vsaj 70 %.':'Mesec je mimo, a uspešnost je pod 70 %. Prvi cilj še utrdi (po potrebi ga pomanjšaj na minimalno različico). Dodatni cilji se odprejo, ko boš nad 70 %.'})));
   }
   const f=ui.form||(ui.form={
-    name:ST.name||'',cilj:p?p.cilj||'':'',perWeek:p?p.perWeek||0:0,kdaj:p?p.kdaj:'',kje:p?p.kje:'',kaj:p?p.kaj:'',min:p?p.min:'',identity:p?p.identity:'',anchor:p?p.anchor:'',ifthen:p?p.ifthen:'',reward:p?p.reward:'',
+    name:ST.name||'',cilj:p?p.cilj||'':'',perWeek:p?p.perWeek||0:0,kdaj:p?p.kdaj:'',kje:p?p.kje:'',kaj:p?p.kaj:'',min:p?p.min:'',identity:p?p.identity:'',anchor:p?p.anchor:'',ifthen:p?p.ifthen:'',reward:p?p.reward:'',why:p?p.why||'':'',
     planned:p?p.planned.slice():[0,2,4],start:p?p.start:(adding?today:GROUP_START)
   });
   const msg=h('p',{class:'err',id:'form-err',role:'alert'});
@@ -1704,6 +1705,14 @@ function viewGoal(today){
     return h('div',{class:'field'},h('span',{class:'hint',text:'Ne gre le za to, kaj narediš, ampak za to, kdo postajaš. Vsaka izvedba je glas za to osebo. Primerno dopolni stavek: kdo želiš s to aktivnostjo postati. Npr. skrbi za svoje telo.'}),
       h('div',{class:'idrow'},h('span',{class:'idpre',text:'Sem oseba, ki'}),el));
   }
+  function whyField(){
+    const el=h('textarea',{id:'f-why',rows:'2',maxlength:'300','aria-label':'Zakaj mi je to pomembno',placeholder:'npr. Rada bi imela energijo za sezono in se v svojem telesu dobro počutila.'});
+    el.value=f.why||'';el.addEventListener('input',()=>{f.why=el.value});
+    return h('div',{class:'field'},h('span',{class:'lb',text:'Zakaj mi je to pomembno?'}),
+      h('span',{class:'hint',text:'Teorija samoodločanja kaže, da ljudje dlje vztrajajo pri ciljih, ki so jim osebno pomembni in jih izberejo sami, kot pri ciljih iz občutka dolžnosti ali pritiska.'}),
+      h('span',{class:'hint'},h('b',{text:'Kaj narediš: '}),'vprašaj se, zakaj je to pomembno meni. Napiši en stavek in ga preberi, ko ne gre.'),el);
+  }
+
   const SC=['--primary','--accent','--rest','--min'];let secN=0;
   function sec(num,title,...kids){
     const c=SC[(secN++)%SC.length];
@@ -1712,8 +1721,8 @@ function viewGoal(today){
   if(isFirst) form.append(sec('','Tvoje ime',field('f-name','Tvoje ime','Obvezno. Pojavi se v besedilu za ponedeljkov check-in.',{maxlength:'60'},null,true)));
   form.append(sec('','Poskusi s primerom',h('span',{class:'hint',text:'Če klikneš primer, se vsa polja napolnijo, da lažje razumeš, kako izgleda dober cilj. Nato jih poljubno spremeniš. Če primera ne želiš, tapni nanj še enkrat in polja se izpraznijo.'}),
     h('div',{class:'chips'},EXAMPLES.map(ex=>h('button',{class:'chip',type:'button','aria-pressed':f._ex===ex.k?'true':'false',onclick:()=>{
-      if(f._ex===ex.k){Object.assign(f,{_ex:null,cilj:'',perWeek:0,planned:[0,2,4],kdaj:'',kje:'',kaj:'',min:'',identity:'',anchor:'',ifthen:'',reward:''});render();return}
-      f._ex=ex.k;Object.assign(f,{cilj:ex.cilj,perWeek:ex.perWeek,planned:ex.planned.slice(),kdaj:ex.kdaj,kje:ex.kje,kaj:ex.kaj,min:ex.min,identity:ex.identity,anchor:ex.anchor,ifthen:ex.ifthen,reward:ex.reward});render();
+      if(f._ex===ex.k){Object.assign(f,{_ex:null,cilj:'',perWeek:0,planned:[0,2,4],kdaj:'',kje:'',kaj:'',min:'',identity:'',anchor:'',ifthen:'',reward:'',why:''});render();return}
+      f._ex=ex.k;Object.assign(f,{cilj:ex.cilj,perWeek:ex.perWeek,planned:ex.planned.slice(),kdaj:ex.kdaj,kje:ex.kje,kaj:ex.kaj,min:ex.min,identity:ex.identity,anchor:ex.anchor,ifthen:ex.ifthen,reward:ex.reward,why:''});render();
     }},ex.k)))));
   form.append(sec('1','Cilj',field('f-cilj','Cilj','Kaj želiš doseči? npr. postati močnejši za kolesarsko sezono',{maxlength:'200'},null,true)));
   form.append(sec('2','Kako ga izvajam',
@@ -1742,17 +1751,17 @@ function viewGoal(today){
   form.append(sec('5','Pripnem na obstoječo navado',field('f-anchor','Pripnem na obstoječo navado','Če izvedbo navežeš na že obstoječo navado, je večja možnost, da bo postala avtomatska, obstoječa navada pa je sprožilec za izvedbo. Npr. po kavi, po večerji, ko pridem domov.',{maxlength:'160'},null,true)));
   form.append(sec('6','Če se pojavi ovira, potem …',field('f-ifthen','Če se pojavi ovira, potem …','npr. Če dežuje, potem naredim 10 minut doma.',{maxlength:'240'},'area',true)));
   form.append(sec('7','Nagrada po izvedbi (ni obvezno)',field('f-reward','Nagrada po izvedbi','npr. topel čaj, ena skladba, kratek sprehod',{maxlength:'160'},null,true)));
-  form.append(sec('8','Moja identiteta z navado',idField()));
+  form.append(sec('8','Moja identiteta z navado',idField(),whyField()));
   if(isFirst){
     const date=h('input',{id:'f-start',type:'date','aria-label':'Začetek',value:f.start});date.addEventListener('input',()=>{if(validDate(date.value))f.start=date.value});
-    form.append(sec('','Začetek',h('span',{class:'hint',text:'Skupina začne '+fmtDate(GROUP_START)+'. Za preizkus nastavi današnji datum.'}),date));
+    form.append(sec('','Začetek',h('span',{class:'hint',text:'Skupina začne '+fmtDate(GROUP_START)+' Za preizkus nastavi današnji datum.'}),date));
   }
   form.append(msg,h('button',{class:'btn',type:'button',onclick:()=>{
     const need=[...(isFirst?[['name','Ime']]:[]),['cilj','Cilj'],['kaj','Kaj naredim'],['kdaj','Kdaj'],['kje','Kje'],['min','Minimalna različica']].filter(([k])=>!(f[k]||'').trim());
     if(need.length){msg.textContent='Dopolni: '+need.map(x=>x[1]).join(', ')+'.';return}
     if(!f.perWeek&&!f.planned.length){msg.textContent='Izberi vsaj en dan v tednu ali število izvedb na teden.';return}
     if(!validDate(f.start)){msg.textContent='Izberi veljaven datum začetka.';return}
-    const fields={cilj:f.cilj.trim(),perWeek:f.perWeek||0,kdaj:f.kdaj.trim(),kje:f.kje.trim(),kaj:f.kaj.trim(),min:f.min.trim(),identity:f.identity.trim(),anchor:f.anchor.trim(),ifthen:f.ifthen.trim(),reward:f.reward.trim(),planned:f.perWeek?[]:f.planned.slice().sort()};
+    const fields={cilj:f.cilj.trim(),perWeek:f.perWeek||0,kdaj:f.kdaj.trim(),kje:f.kje.trim(),kaj:f.kaj.trim(),min:f.min.trim(),identity:f.identity.trim(),anchor:f.anchor.trim(),ifthen:f.ifthen.trim(),reward:f.reward.trim(),why:(f.why||'').trim(),planned:f.perWeek?[]:f.planned.slice().sort()};
     if(adding){
       ST.goals.push({id:'g'+Date.now().toString(36),...fields,start:today,log:{}});
       ui.gi=ST.goals.length-1;ui.adding=false;
