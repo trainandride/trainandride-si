@@ -670,7 +670,16 @@ function noteInsight(G,today){
 const KEY='train-ride-zimske-navade-v1';
 const CFG=window.TR_CONFIG||{};
 const sb=(CFG.supabaseUrl&&CFG.supabaseKey&&window.supabase)?window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'tr-sb-auth'}}):null;
-let sbUser=null,pushT=null,ciT=null;
+let sbUser=null,pushT=null,ciT=null,isCoach=false;
+const COACH_HASH='c8b99e02ab5cf47e64dd54fffba4deb739440d21f37a0e8b60e01213c5ae50f0';
+async function checkCoach(){
+  try{
+    const em=((sbUser&&sbUser.email)||'').trim().toLowerCase();
+    if(!em||!window.crypto||!crypto.subtle){isCoach=false;return}
+    const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(em));
+    isCoach=Array.from(new Uint8Array(d)).map(x=>x.toString(16).padStart(2,'0')).join('')===COACH_HASH;
+  }catch(e){isCoach=false}
+}
 const LKEY='tr-local-at',UKEY='tr-sync-uid';
 const DAYS=['P','T','S','Č','P','S','N'];
 const DAYS_LONG=['ponedeljek','torek','sreda','četrtek','petek','sobota','nedelja'];
@@ -1121,7 +1130,7 @@ const TABICON={
 function renderTabs(){
   const box=document.getElementById('tabs');box.replaceChildren();
   const list=[['danes','Danes'],['napredek','Napredek'],['cilj','Moj cilj'],['znanje','Znanje']];
-  if(C.on) list.splice(3,0,['trener','Trener']);
+  if(C.on&&isCoach) list.splice(3,0,['trener','Trener']);
   box.className='tabs';
   list.forEach(([id,label])=>{
     box.append(h('button',{class:'tab',role:'tab',type:'button','aria-selected':ui.tab===id?'true':'false',onclick:()=>{ui.tab=id;ui.sheetDay=null;render();window.scrollTo({top:0})}},h('i',{html:TABICON[id]||TABICON.danes,style:'display:contents'}),label));
@@ -1884,7 +1893,7 @@ function viewKnowledge(){
   out.push(h('section',{class:'card'},h('h3',{text:'Zasebnost'}),h('p',{class:'small',text:sb?'Podatki se shranjujejo v zaščiteni bazi v EU, vezani na tvoj email, da jih odpreš tudi na drugem telefonu. Teja vidi samo tvoj cilj in tedenske check-ine, dnevnih opomb ne bere.':'Podatki ostanejo samo v tvojem brskalniku. Teja in skupina vidita samo to, kar sama pošlješ v check-inu.'}),sb&&sbUser?h('button',{class:'btn ghost sm',type:'button',onclick:()=>{if(confirm('Se želiš odjaviti?'))sbSignOut()}},'Odjava ('+(sbUser.email||'')+')'):null));
   const tkids=[h('h3',{text:'Za trenerko'}),h('p',{class:'small muted',text:'Pogled za Tejo: pregled poročil skupine. Deluje samo na tej napravi in je prazen, dokler ne prilepiš sporočil.'}),
     h('button',{class:'btn alt sm',type:'button',onclick:()=>{C.on=!C.on;saveC();if(!C.on&&ui.tab==='trener')ui.tab='danes';render()}},C.on?'Izklopi pogled za trenerko':'Vklopi pogled za trenerko')];
-  if(C.on){
+  if(C.on&&isCoach){
     const di=h('input',{type:'date',value:todayStr(),'aria-label':'Testni dan'});
     const nextMon=()=>{const t=parse(ymd(new Date()));const d=(8-t.getDay())%7||7;t.setDate(t.getDate()+d);return ymd(t)};
     tkids.push(h('div',{class:'testbox'},h('b',{text:'Preizkusi drug dan'}),
@@ -1895,7 +1904,7 @@ function viewKnowledge(){
       h('p',{class:'small muted',text:'Predvajaj animacijo katere koli značke, tudi če je še nisi pridobila. Podatkov ne spreminja.'}),
       h('div',{class:'row',style:'flex-wrap:wrap'},BADGES.map(b=>h('button',{class:'btn alt sm',type:'button',onclick:()=>playBadge(b)},String(b.n)+(b.kind==='streak'?' v seriji':' dni'))))));
   }
-  out.push(h('section',{class:'card'},tkids));
+  if(isCoach) out.push(h('section',{class:'card'},tkids));
   return fpStyle(out);
 }
 
@@ -2033,7 +2042,7 @@ function showLogin(){
       const r=await sb.auth.verifyOtp({email,token:t,type:'email'});
       ok.disabled=false;ok.textContent='Potrdi';
       if(r.error||!r.data||!r.data.user){msg.textContent='Koda ni pravilna ali je potekla. Zahtevaj novo.';return}
-      sbUser=r.data.user;fin();
+      sbUser=r.data.user;await checkCoach();fin();
     };
     again.onclick=step1;
     tok.addEventListener('keydown',e=>{if(e.key==='Enter')ok.onclick()});
@@ -2046,7 +2055,7 @@ function showLogin(){
 async function boot(){
   if(!sb){if(hasAccess())render();else showGate();return}
   let sess=null;try{sess=(await sb.auth.getSession()).data.session}catch(e){}
-  if(sess){sbUser=sess.user;await syncDown();render()}else showLogin();
+  if(sess){sbUser=sess.user;await checkCoach();await syncDown();render()}else showLogin();
   sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'&&sbUser){sbUser=null;location.reload()}});
   window.addEventListener('online',()=>{if(sbUser)pushNow()});
 }
