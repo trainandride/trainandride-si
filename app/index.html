@@ -407,6 +407,12 @@ textarea[hidden]{display:none}
 .field.qrow .lb{font:800 12px/1.2 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--rc)}
 :root[data-theme="dark"] .card.fp .btn.alt{background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
 :root[data-theme="dark"] .card.fp .btn.ghost{border-color:#5B7364}
+.sci-list{display:flex;flex-direction:column;gap:8px}
+.sci-b{display:flex;flex-direction:column;gap:2px;text-align:left;border:1px solid var(--line);border-left:5px solid var(--primary);border-right:5px solid var(--primary);border-radius:14px;background:var(--surface);color:var(--fg);padding:10px 12px}
+:root:not([data-theme="dark"]) .card.fp .sci-b{background:var(--surface-2)}
+.pop-in.sci{max-height:85vh;overflow:auto}
+.sci-pt{display:flex;flex-direction:column;gap:4px;border-left:4px solid var(--primary);padding-left:10px}
+.sci-a{color:var(--fg)}
 .toast[hidden]{display:none}
 .empty{align-items:flex-start}
 @media (prefers-reduced-motion:no-preference){.bar i,.wk .tr i{transition:height .3s,width .3s}}
@@ -1870,11 +1876,60 @@ function viewCoach(today){
 }
 
 /* ---------- Znanje ---------- */
+
+/* ---------- znanost o navadah (pop-up kategorije) ---------- */
+const SCI=[
+ {id:'cas',t:'Kako dolgo traja, da navada postane samodejna',s:'Koliko dni resnično potrebuješ',
+  pts:[
+   {h:'Povprečno 66 dni, a z velikim razponom',x:'V raziskavi University College London so 12 tednov spremljali ljudi, ki so si izbrali novo vsakdanjo navado. Do samodejnosti je bilo potrebno v povprečju 66 dni, pri posameznikih od 18 do 254 dni. Preprosta dejanja (kozarec vode) so postala navada hitreje kot zahtevnejša (telovadba).',a:'Računaj na 2 do 3 mesece. Tvoja skupina traja 16 tednov, kar je dovolj za pravo navado.'},
+   {h:'Pravilo »21 dni« nima znanstvene podlage',x:'Številka 21 se širi iz motivacijskih knjig, v raziskavah pa je ni. Če se po treh tednih še vedno trudiš, to ne pomeni, da ti ne gre.',a:'Merilo uspeha ni »je že samodejno«, ampak »sem prišla nazaj«.'},
+   {h:'Ena zgrešena priložnost proces komaj ošibi',x:'Pri istih udeležencih posamezen izpuščen dan ni bistveno upočasnil nastajanja navade. Pomembno je, da se vrneš.',a:'Zato v skupini velja pravilo: enkrat zgrešiš, ni panike. Dvakrat zapored ne.'}],
+  src:'Lally, van Jaarsveld, Potts in Wardle (2010), European Journal of Social Psychology.'},
+ {id:'ovire',t:'Kaj te ustavi',s:'Zakaj načrti pogosto padejo in kaj pomaga',
+  pts:[
+   {h:'Navade se vežejo na okolje',x:'Dnevniška raziskava je pokazala, da se približno 43 % vsakdanjih dejanj ponavlja skoraj brez premisleka, običajno ob istem času in na istem kraju. Navada se tako veže na znak: uro, prostor, predhodno dejanje.',a:'Izberi stalen znak: »po zajtrku«, »ko pridem iz službe«. Pripravi opremo že prejšnji večer.'},
+   {h:'Načrt »če … potem …« močno poveča uspeh',x:'Pregled 94 raziskav je pokazal, da ljudje z jasnim načrtom »če se zgodi X, potem naredim Y« cilje dosegajo občutno pogosteje kot ljudje samo z namenom. Učinek je srednji do velik.',a:'Napiši: »Če je ob 17h še vedno dež, potem naredim 10 minut vaj doma.« Za vsako znano oviro en načrt.'},
+   {h:'Zanašanje na voljo ni dobra strategija',x:'Zamisel, da se volja čez dan izprazni kot baterija, so poskusi ponovitve v veliki meri postavili pod vprašaj. Zanesljivejše je zmanjšati trenje: manj korakov med tabo in dejanjem.',a:'Ne iščeš več volje, ampak lažji začetek. Zato obstaja minimalna različica cilja.'}],
+  src:'Wood, Quinn in Kashy (2002), Journal of Personality and Social Psychology. Gollwitzer in Sheeran (2006), Advances in Experimental Social Psychology. Hagger in sod. (2016), Perspectives on Psychological Science.'},
+ {id:'motivacija',t:'Kako se motivirati',s:'Kaj res drži, ko motivacije ni',
+  pts:[
+   {h:'Cilj, ki ga izbereš sama, drži dlje',x:'Teorija samoodločanja kaže, da ljudje dlje vztrajajo pri ciljih, ki so jim osebno pomembni in jih izberejo sami, kot pri ciljih iz občutka dolžnosti ali pritiska.',a:'Vprašaj se: zakaj je to pomembno meni? Napiši en stavek in ga preberi, ko ne gre.'},
+   {h:'Pomembno je, kako se počutiš takoj',x:'Ljudje, ki jim je dejavnost všeč že med izvajanjem, so pri dolgoročnih ciljih bolj vztrajni od tistih, ki računajo na korist čez mesece.',a:'Dodaj nekaj prijetnega: glasbo, družbo, lepo traso, nagrado po treningu.'},
+   {h:'Identiteta pomaga',x:'V poskusu so ljudje, ki so jih vprašali »ali želiš biti volivka«, volili pogosteje kot tisti, ki so jih vprašali »ali želiš voliti«. Ko se dejanje poveže z osebo, ki si, ga je težje opustiti.',a:'Namesto »moram tekati« reci »sem oseba, ki se premika«. Vsak označen dan je glas za to.'},
+   {h:'Motivacija niha, zahtevnost lahko prilagodiš',x:'Model vedenja (BJ Fogg) pravi, da se vedenje zgodi, ko se srečajo motivacija, zmožnost in sprožilec. To je model, ne dokazan zakon, a je v praksi uporaben.',a:'Ko motivacije ni, ne čakaj nanjo. Zmanjšaj zahtevnost na minimalno različico in jo naredi.'}],
+  src:'Deci in Ryan (2000), Psychological Inquiry. Woolley in Fishbach (2017), Personality and Social Psychology Bulletin. Bryan, Walton, Rogers in Dweck (2011), PNAS. Fogg (2009), Persuasive Technology.'},
+ {id:'zacetek',t:'Kako začeti in ostati',s:'Cilji, majhni koraki in pravi trenutek',
+  pts:[
+   {h:'Konkreten cilj deluje bolje kot »naredi kar moreš«',x:'Dolgoletne raziskave postavljanja ciljev kažejo, da konkretni cilji dosegajo boljše rezultate od splošnih. Konkretno pomeni: kaj, kolikokrat in kdaj.',a:'»Trikrat na teden po 20 minut« je boljše od »več se bom gibala«.'},
+   {h:'Začni majhno',x:'Ker se navada gradi s ponavljanjem v istem okolju, je pogostost pomembnejša od obsega. Majhno dejanje, ki ga ponavljaš, naredi več kot veliko, ki ga opustiš.',a:'Uporabi minimalno različico na slabe dneve. Dan z minimalno različico šteje.'},
+   {h:'Učinek svežega začetka',x:'Ljudje pogosteje začnejo cilje po časovnih mejnikih, kot so ponedeljek, začetek meseca ali novo leto, ker občutijo, da začenjajo znova.',a:'Ponedeljek je tvoj dan za nov začetek. Zato je ponedeljkov check-in.'}],
+  src:'Locke in Latham (2002), American Psychologist. Dai, Milkman in Riis (2014), Management Science.'},
+ {id:'zgresis',t:'Ko zgrešiš dan',s:'Kako se vrniti brez krivde',
+  pts:[
+   {h:'Prijaznost do sebe poveča voljo za popravek',x:'V poskusih so udeleženci, ki so po neuspehu ravnali s seboj prijazno, kasneje pokazali več motivacije za izboljšanje kot tisti, ki so se samo kritizirali.',a:'Reci si: »Ni mi uspelo. Kaj bi pomagalo jutri?« Ne: »Tako je vedno.«'},
+   {h:'Išči oviro, ne krivca',x:'Zgrešen dan je podatek o tem, kaj ne deluje. Ponavljajoča se ovira pokaže, kaj je treba spremeniti: čas, prostor ali velikost cilja.',a:'Pri tedenskem check-inu odgovori na »kaj te je oviralo« in izberi eno majhno spremembo.'},
+   {h:'Ne zgreši dvakrat zapored',x:'To je pravilo skupine in ne rezultat raziskave. Temelji na tem, da se ena zgrešitev ne razširi v pot odpovedi.',a:'Po zgrešenem dnevu naredi vsaj minimalno različico ali napiši skupini.'}],
+  src:'Breines in Chen (2012), Personality and Social Psychology Bulletin. Lally idr. (2010).'},
+ {id:'skupnost',t:'Skupnost in spremljanje',s:'Zakaj pomaga zapisovati in deliti',
+  pts:[
+   {h:'Spremljanje napredka poveča uspeh',x:'Pregled 138 poskusov je pokazal, da ljudje, ki spremljajo napredek pri cilju, cilje dosegajo pogosteje. Učinek je večji, kadar napredek zapišejo in ga delijo z drugimi.',a:'Dan označi še isti dan. Traja deset sekund.'},
+   {h:'Deljenje naredi cilj resničnejši',x:'Ko napredek poročaš drugim, se poveča občutek odgovornosti, hkrati pa dobiš podporo in ideje drugih članic.',a:'Odgovori na ponedeljkov check-in, tudi ko teden ni bil popoln. Iskrenost pomaga tebi in drugim.'}],
+  src:'Harkin in sod. (2016), Psychological Bulletin.'}
+];
+function showSci(c){
+  const ov=popOverlay(h('div',{class:'pop-in sci'},h('span',{class:'label',text:'Znanost o navadah'}),h('h2',{text:c.t}),
+    ...c.pts.map(pt=>h('div',{class:'sci-pt'},h('b',{text:pt.h}),h('p',{class:'small',text:pt.x}),h('p',{class:'small sci-a'},h('b',{text:'Kaj narediš: '}),pt.a))),
+    h('p',{class:'small muted',text:'Viri: '+c.src}),
+    h('button',{class:'btn',type:'button',onclick:()=>ov.remove()},'Zapri')));
+  ov.classList.add('mid');
+}
 function viewKnowledge(){
   const out=[];
   const step=(n,lead,txt)=>h('div',{class:'nstep'},h('span',{class:'nn',text:String(n)}),h('div',{},h('b',{text:lead}),txt?h('span',{text:' '+txt}):null));
   out.push(h('section',{class:'card'},h('h2',{text:'Štirje zakoni navade'}),h('p',{class:'small muted',text:'Po načelih knjige Atomic Habits (James Clear). Če navada ne uspeva, pomisli, kateri zakon manjka.'}),
     h('div',{class:'laws'},LAWS.map((l,i)=>h('div',{class:'lawt t'+(i+1)},h('span',{class:'tag t'+(i+1),text:(i+1)+'. zakon'}),h('h3',{text:l.n}),h('p',{text:l.x}),h('div',{class:'ex'},h('b',{text:'Primer '}),l.p.replace(/^Primer:\s*/,'')))))));
+  out.push(h('section',{class:'card'},h('h2',{text:'Znanost o navadah'}),h('p',{class:'small muted',text:'Kaj pravijo raziskave o gradnji navad, ovirah in motivaciji. Izberi temo.'}),
+    h('div',{class:'sci-list'},SCI.map(c=>h('button',{class:'sci-b',type:'button',onclick:()=>showSci(c)},h('b',{text:c.t}),h('span',{class:'small muted',text:c.s}))))));
   out.push(h('section',{class:'card'},h('h2',{text:'Pravila skupine'}),
     h('div',{class:'nsteps'},
       step(1,'En cilj.','Prvi mesec velja en cilj in ena minimalna različica. Cilj je lahko karkoli.'),
