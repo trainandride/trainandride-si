@@ -1383,7 +1383,13 @@ const ADV=[
   {t:'Vnaprej določi dan, uro in kraj vadbe in zapiši pravilo »če–potem«.',z:'Načrt »če–potem« po raziskavah bistveno poveča verjetnost, da vadbo tudi izvedeš (Milne in sod., 2002; Gollwitzer in Sheeran, 2006).'},
   {t:'Obremenitev večaj postopoma, šele ko se tehnika utrdi.',z:'Postopno večanje obremenitve je temeljno načelo treninga moči (ACSM).'},
   {t:'Počitek je del treninga. Načrtuj ga enako resno kot vadbo.',z:'Telo se na obremenitev prilagodi med okrevanjem (ACSM).'}]},
- {k:'bike',n:'kolesarjenje',re:/kolo|kolesar|mtb|singl|skok|zavij|tehnik|bunny|ovink|spust|\bpump/i,tips:[
+ {k:'bike',n:'kolesarjenje',re:/kolo|kolesar|\bmtb|singl|skok|zavij|zavoj|zaviran|tehnik|bunny|ovink|spust|\bpump|wheel|\bpivot|manual|\bdrop|\bflow|\btrail|skills?\b|brzd|ravnote|\bbike/i,w:2,tips:[
+  {t:'Wheelie: išči ravnotežno točko z nežnim potegom krmila in močnim potiskom pedala, prst pa naj ostane na zadnji zavori kot varnostna mreža.',z:'',m:/wheel|manual/i},
+  {t:'Wheelie vadi najprej na ravnem in mehkem (trava), v kratkih serijah po 5 poskusov. Ustavi se, ko postaneš utrujena in nenatančna.',z:'',m:/wheel|manual/i},
+  {t:'Pivot: pogled usmeri na izhod, ne na zadnje kolo. Telo vodi zavoj, kolo mu sledi.',z:'',m:/pivot|zavoj|zavij/i},
+  {t:'Pivot vadi počasi na ravnem in ga šele nato prenesi na naklon. Najprej gibanje, potem hitrost.',z:'',m:/pivot/i},
+  {t:'Po vadbi dobro spi. Spanec po vadbi pomaga utrditi novo motorično spretnost.',z:'Spanje po vadbi izboljša utrjevanje motoričnih spretnosti (Walker in sod., 2002).'},
+  {t:'Posnemi se in primerjaj svoj posnetek z vzorom. Vidiš stvari, ki jih med vožnjo ne čutiš.',z:''},
   {t:'Tehniko vadi v kratkih, pogostih blokih, na primer 10 minut, ne redko in dolgo.',z:'Porazdeljena vadba je pri učenju motoričnih spretnosti običajno učinkovitejša od strnjene.'},
   {t:'Spreminjaj pogoje vadbe (naklon, hitrost, podlaga). Ne ponavljaj vedno iste situacije.',z:'Variabilna vadba utrdi spretnost bolje kot ponavljanje enake naloge (Schmidt, 1975).'},
   {t:'Pozornost usmeri na kolo in linijo, ne na lastno telo.',z:'Zunanji fokus pozornosti izboljša učenje in izvedbo motoričnih spretnosti (Wulf, 2013).'},
@@ -1423,21 +1429,23 @@ function advCatFor(g){
   if(ov){const c=ADV.find(a=>a.k===ov);if(c)return c}
   const txt=[g.cilj,g.kaj,g.min].join(' ');
   let best=null,bn=0;
-  ADV.forEach(a=>{const m=txt.match(new RegExp(a.re.source,'gi'));const n=m?m.length:0;if(n>bn){bn=n;best=a}});
+  ADV.forEach(a=>{const m=txt.match(new RegExp(a.re.source,'gi'));const n=(m?m.length:0)*(a.w||1);if(n>bn){bn=n;best=a}});
   return best||ADV[ADV.length-1];
 }
 function setAdvCat(g,k){try{const o=JSON.parse(localStorage.getItem('tr-advcat')||'{}');o[g.id]=k;localStorage.setItem('tr-advcat',JSON.stringify(o))}catch(e){}}
 function adviceBlock(today){
   const g=ST.goals[ui.gi||0]||ST.goals[0];if(!g)return null;
   const cat=advCatFor(g);
-  const base=((diffDays('2026-01-01',today)%cat.tips.length)+cat.tips.length)%cat.tips.length;
-  const i=(base+(ui.advN||0))%cat.tips.length;const tp=cat.tips[i];
+  const gt=[g.cilj,g.kaj,g.min].join(' ');
+  const tl=[...cat.tips.filter(x=>x.m&&x.m.test(gt)),...cat.tips.filter(x=>!x.m)];
+  const base=((diffDays('2026-01-01',today)%tl.length)+tl.length)%tl.length;
+  const i=(base+(ui.advN||0))%tl.length;const tp=tl[i];
   return h('div',{class:'adv'},
     h('p',{class:'small muted',style:'margin:12px 0 6px;font-weight:800;letter-spacing:.09em;text-transform:uppercase',text:'Nasvet za tvoj cilj · '+cat.n}),
     h('p',{class:'lead',style:'margin:0 0 8px',text:tp.t}),
     tp.z?h('p',{class:'small muted',style:'border-left:3px solid var(--line);padding-left:10px;margin:0 0 10px',text:'Znanost: '+tp.z}):null,
     h('div',{class:'row'},
-      cat.tips.length>1?h('button',{class:'btn alt sm',type:'button',onclick:()=>{ui.advN=(ui.advN||0)+1;render()}},'Še en nasvet'):null,
+      tl.length>1?h('button',{class:'btn alt sm',type:'button',onclick:()=>{ui.advN=(ui.advN||0)+1;render()}},'Še en nasvet'):null,
       h('button',{class:'btn ghost sm',type:'button',onclick:()=>{
         const ov=popOverlay(h('div',{class:'pop-in'},h('h2',{text:'Izberi področje'}),
           h('div',{class:'chips'},ADV.map(a=>h('button',{class:'chip',type:'button','aria-pressed':a.k===cat.k?'true':'false',onclick:()=>{setAdvCat(g,a.k);ui.advN=0;ov.remove();render()}},a.n))),
