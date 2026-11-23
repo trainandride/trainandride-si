@@ -1374,11 +1374,81 @@ function showSummary(p){
     rows.map((r,n)=>h('div',{class:'sm-row',style:'--rc:var('+r[2]+');animation-delay:'+(.25+n*.35)+'s'},h('b',{text:r[0]}),h('span',{text:r[1]}))),
     h('p',{class:'small muted',style:'text-align:center',text:'Tapni za zapiranje'})));
 }
+
+/* ===== Nasvet za tvoj cilj (pregledan seznam, brez AI) ===== */
+const ADV=[
+ {k:'move',n:'gibanje in moč',re:/\bmoc|\bmoč|vadb|trening|telovad|fitnes|gibanj|\btek\b|\btecem|\bteka|sprehod|plank|zgib|\bvaje|misic|mišic|\bjoga|raztez|utez|počep|pocep/i,tips:[
+  {t:'Vsaj 2× na teden vključi vaje za moč za vse večje mišične skupine.',z:'Smernice SZO o telesni dejavnosti (2020) priporočajo vaje za moč vsaj 2 dni na teden.'},
+  {t:'Tudi kratka vadba šteje. Ni minimalnega trajanja, ki bi ga morala doseči.',z:'Smernice SZO (2020) poudarjajo, da šteje vsaka gibalna aktivnost.'},
+  {t:'Vnaprej določi dan, uro in kraj vadbe in zapiši pravilo »če–potem«.',z:'Načrt »če–potem« po raziskavah bistveno poveča verjetnost, da vadbo tudi izvedeš (Milne in sod., 2002; Gollwitzer in Sheeran, 2006).'},
+  {t:'Obremenitev večaj postopoma, šele ko se tehnika utrdi.',z:'Postopno večanje obremenitve je temeljno načelo treninga moči (ACSM).'},
+  {t:'Počitek je del treninga. Načrtuj ga enako resno kot vadbo.',z:'Telo se na obremenitev prilagodi med okrevanjem (ACSM).'}]},
+ {k:'bike',n:'kolesarjenje',re:/kolo|kolesar|mtb|singl|skok|zavij|tehnik|bunny|ovink|spust|\bpump/i,tips:[
+  {t:'Tehniko vadi v kratkih, pogostih blokih, na primer 10 minut, ne redko in dolgo.',z:'Porazdeljena vadba je pri učenju motoričnih spretnosti običajno učinkovitejša od strnjene.'},
+  {t:'Spreminjaj pogoje vadbe (naklon, hitrost, podlaga). Ne ponavljaj vedno iste situacije.',z:'Variabilna vadba utrdi spretnost bolje kot ponavljanje enake naloge (Schmidt, 1975).'},
+  {t:'Pozornost usmeri na kolo in linijo, ne na lastno telo.',z:'Zunanji fokus pozornosti izboljša učenje in izvedbo motoričnih spretnosti (Wulf, 2013).'},
+  {t:'Poglej tja, kamor želiš peljati. Pogled vodi telo.',z:'Pri boljših športnikih je značilen miren, stabilen pogled pred gibom (Vickers, »quiet eye«).'},
+  {t:'Pred zahtevnim elementom si ga predstavljaj, nato ga res izvedi.',z:'Mentalna vadba skupaj z dejansko vadbo izboljša izvedbo (Driskell in sod., 1994).'}]},
+ {k:'food',n:'prehrana',re:/prehran|zelenjav|sadj|\bjes|\bjem\b|obrok|\bvod|\bpij|sladkor|hran|kalor|beljakov|\bpit/i,tips:[
+  {t:'Zelenjavo ali sadje dodaj k obroku, ki ga že jješ, namesto da se česa odrekaš.',z:''},
+  {t:'Zelenjavo operi in postavi na vidno mesto. Manj truda pomeni več izvedbe.',z:'Navade se lažje držijo, ko je izvedba preprosta in v stalnem okolju (Wood in Neal, 2007).'},
+  {t:'Za najtežji trenutek določi »če–potem«, na primer »če sem ob 17h lačna, potem pojem sadje«.',z:'Implementacijski nameni so povezani z zdravejšo prehrano (Adriaanse in sod., 2011).'},
+  {t:'Spremljaj, kaj si pojedla. Že kratek zapis pomaga.',z:'Samonadzor je ena najbolje podprtih strategij pri spremembi prehrane (Burke in sod., 2011).'},
+  {t:'En slab obrok ne pokvari navade. Vrni se pri naslednjem brez krivde.',z:'En zamujen dan navade bistveno ne ovira (Lally in sod., 2010).'}]},
+ {k:'sleep',n:'spanec in počitek',re:/span|zaspa|posteljo|postelj|pocit|počit|vstaja|\bvstat|utruj/i,tips:[
+  {t:'Odrasli potrebujejo vsaj 7 ur spanja. Zato načrtuj uro, do katere si v postelji.',z:'Konsenz ameriških združenj za spanje (Watson in sod., 2015).'},
+  {t:'Zadnjo uro pred spanjem zmanjšaj zaslone in močno luč.',z:'Svetloba zvečer zavira melatonin in zakasni uro spanja (Chang in sod., 2015).'},
+  {t:'Dopoldne pojdi ven na dnevno svetlobo.',z:'Dnevna svetloba pomaga uravnavati notranjo uro (Wright in sod., 2013).'},
+  {t:'Zadnji kofein popij vsaj 6 ur pred spanjem.',z:'Kofein 6 ur pred spanjem zmanjša čas in kakovost spanca (Drake in sod., 2013).'},
+  {t:'Če ne zaspiš v približno 20 minutah, vstani in naredi nekaj umirjenega.',z:'Pravilo vrnitve postelje k spanju je del terapije nespečnosti (Morin in sod., 2006).'}]},
+ {k:'mind',n:'trenutek zase in stres',re:/meditac|dihanj|stres|\bzase|\bmir\b|hvalez|dnevnik|pozornost|mindful|sprosc|spros|pisanje|sanj/i,tips:[
+  {t:'Že 10 minut pozornosti na dan lahko pomaga pri stresu.',z:'Programi pozornosti zmerno zmanjšajo tesnobo in slabo razpoloženje (Goyal in sod., 2014).'},
+  {t:'Pojdi na sprehod v zelenje in pusti telefon v žepu.',z:'Po sprehodu v naravi se zmanjša premlevanje (Bratman in sod., 2015).'},
+  {t:'Zvečer zapiši tri stvari, ki so šle dobro.',z:'Vaja »tri dobre stvari« je izboljšala počutje za več mesecev (Seligman in sod., 2005).'},
+  {t:'Počasi diham: okoli 6 vdihov na minuto, nekaj minut.',z:'Počasno dihanje pomirja avtonomni živčni sistem (Zaccaro in sod., 2018).'},
+  {t:'Po zdrsu bodi do sebe prijazna, kot bi bila do prijateljice.',z:'Samopomilovanje po neuspehu poveča motivacijo za izboljšanje (Breines in Chen, 2012).'}]},
+ {k:'work',n:'delo in učenje',re:/ucen|učen|\bdelo|nalog|projekt|pisan|studij|študij|jezik|branje|koncentr|pisarn|izpit/i,tips:[
+  {t:'Učenje razporedi na več dni namesto enega dolgega bloka.',z:'Porazdeljeno učenje daje boljši spomin kot strnjeno (Cepeda in sod., 2006).'},
+  {t:'Preverjaj si spomin brez gradiva, namesto da snov samo ponovno bereš.',z:'Priklic iz spomina utrdi znanje bolj kot ponovno branje (Roediger in Karpicke, 2006).'},
+  {t:'Veliko nalogo razdeli na manjše podcilje s konkretnim rokom.',z:'Specifični in bližnji cilji izboljšajo uspešnost (Locke in Latham, 2002).'},
+  {t:'Med delom si privošči kratke odmore.',z:'Kratki odmori povečajo živahnost in zmanjšajo utrujenost (Albulescu in sod., 2022).'},
+  {t:'Za prvi blok dneva določi »če–potem« in ga začni takoj.',z:'Načrt »če–potem« pomaga pri zagonu cilja (Gollwitzer in Sheeran, 2006).'}]},
+ {k:'gen',n:'navade na splošno',re:/$^/,tips:[
+  {t:'Navado vežeš na nekaj, kar že počneš vsak dan, na primer kavo ali umivanje zob.',z:'Navade se oblikujejo ob stalnih znamenjih v okolju (Wood in sod., 2002).'},
+  {t:'Naredi cilj tako majhen, da ga zmoreš tudi v slabem dnevu.',z:'En zamujen dan navade bistveno ne ovira (Lally in sod., 2010).'},
+  {t:'Po izvedbi si privošči majhno nagrado ali trenutek zadovoljstva.',z:'Takojšnja nagrada pomaga, da se navada zasidra.'}]}
+];
+function advCatFor(g){
+  let ov=null;try{ov=(JSON.parse(localStorage.getItem('tr-advcat')||'{}'))[g.id]}catch(e){}
+  if(ov){const c=ADV.find(a=>a.k===ov);if(c)return c}
+  const txt=[g.cilj,g.kaj,g.min].join(' ');
+  let best=null,bn=0;
+  ADV.forEach(a=>{const m=txt.match(new RegExp(a.re.source,'gi'));const n=m?m.length:0;if(n>bn){bn=n;best=a}});
+  return best||ADV[ADV.length-1];
+}
+function setAdvCat(g,k){try{const o=JSON.parse(localStorage.getItem('tr-advcat')||'{}');o[g.id]=k;localStorage.setItem('tr-advcat',JSON.stringify(o))}catch(e){}}
+function adviceBlock(today){
+  const g=ST.goals[ui.gi||0]||ST.goals[0];if(!g)return null;
+  const cat=advCatFor(g);
+  const base=((diffDays('2026-01-01',today)%cat.tips.length)+cat.tips.length)%cat.tips.length;
+  const i=(base+(ui.advN||0))%cat.tips.length;const tp=cat.tips[i];
+  return h('div',{class:'adv'},
+    h('p',{class:'small muted',style:'margin:12px 0 6px;font-weight:800;letter-spacing:.09em;text-transform:uppercase',text:'Nasvet za tvoj cilj · '+cat.n}),
+    h('p',{class:'lead',style:'margin:0 0 8px',text:tp.t}),
+    tp.z?h('p',{class:'small muted',style:'border-left:3px solid var(--line);padding-left:10px;margin:0 0 10px',text:'Znanost: '+tp.z}):null,
+    h('div',{class:'row'},
+      cat.tips.length>1?h('button',{class:'btn alt sm',type:'button',onclick:()=>{ui.advN=(ui.advN||0)+1;render()}},'Še en nasvet'):null,
+      h('button',{class:'btn ghost sm',type:'button',onclick:()=>{
+        const ov=popOverlay(h('div',{class:'pop-in'},h('h2',{text:'Izberi področje'}),
+          h('div',{class:'chips'},ADV.map(a=>h('button',{class:'chip',type:'button','aria-pressed':a.k===cat.k?'true':'false',onclick:()=>{setAdvCat(g,a.k);ui.advN=0;ov.remove();render()}},a.n))),
+          h('button',{class:'btn alt',type:'button',onclick:()=>ov.remove()},'Zapri')));
+      }},'To ni moj cilj')));
+}
 function viewToday(today){
   const out=[];
   if(!storageOk) out.push(h('div',{class:'banner warn'},h('b',{text:'Shranjevanje v tem brskalniku ne deluje'}),h('span',{text:'Podatki bodo izginili, ko zapreš stran. Odpri povezavo v običajnem oknu.'})));
   const qi=((diffDays('2026-01-01',today)%QUOTES.length)+QUOTES.length)%QUOTES.length;
-  const qcard=h('section',{class:S.profile?'card plain':'card'},h('h2',{text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
+  const qcard=h('section',{class:S.profile?'card plain':'card'},h('h2',{text:S.profile?'Misel in nasvet dneva':'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}),S.profile?adviceBlock(today):null);
   if(!S.profile){out.push(emptyCard());return out}
   setTimeout(()=>{if(ui.tab==='danes'&&!document.querySelector('.pop-ov'))maybeWeekMiss(today)},500);
   out.push(qcard);
