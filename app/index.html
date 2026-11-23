@@ -1022,10 +1022,25 @@ function setNote(day,text){
   save();
 }
 function noteField(day){
-  const nt=h('textarea',{rows:'2',maxlength:'140','aria-label':'Opomba (ni obvezno)'});
-  nt.value=S.notes[day]||'';
-  nt.addEventListener('input',()=>setNote(day,nt.value));
-  return h('div',{class:'field'},h('span',{class:'lb',text:'Opomba (ni obvezno)'}),h('span',{class:'hint',text:'Kaj ti je pomagalo? Kako se počutiš po izvedbi?'}),nt);
+  const wrap=h('div',{class:'field'});
+  let edit=!S.notes[day];
+  const draw=()=>{
+    const cur=S.notes[day]||'';
+    if(!edit&&cur){
+      wrap.replaceChildren(h('span',{class:'lb',text:'Opomba'}),
+        h('p',{class:'small',style:'margin:0;border-left:3px solid var(--primary);padding-left:10px'},cur),
+        h('button',{class:'btn ghost sm',type:'button',onclick:()=>{edit=true;draw();const t=wrap.querySelector('textarea');if(t)t.focus()}},'Uredi opombo'));
+      return;
+    }
+    const nt=h('textarea',{rows:'2',maxlength:'140','aria-label':'Opomba (ni obvezno)'});
+    nt.value=cur;
+    nt.addEventListener('input',()=>setNote(day,nt.value));
+    const done=()=>{if((S.notes[day]||'').trim()){edit=false;draw()}};
+    nt.addEventListener('blur',()=>setTimeout(()=>{if(!wrap.contains(document.activeElement))done()},150));
+    wrap.replaceChildren(h('span',{class:'lb',text:'Opomba (ni obvezno)'}),h('span',{class:'hint',text:'Kaj ti je pomagalo? Kako se počutiš po izvedbi?'}),nt,
+      h('button',{class:'btn alt sm',type:'button',onclick:done},'Shrani opombo'));
+  };
+  draw();return wrap;
 }
 function riderG(jersey,bike,sc,delay){
   const st=delay?' style="animation-delay:'+delay+'s;animation-fill-mode:both"':'';
