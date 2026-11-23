@@ -431,6 +431,9 @@ textarea[hidden]{display:none}
 .nstep .nn{display:none}
 .nstep b{display:block;font:800 12px/1.3 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--sc,var(--primary))}
 .sci-b b,.sci-pt>b{font:800 12px/1.3 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--primary)}
+.lawt,.sci-b{width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.more{font:800 11px/1.2 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--rc,var(--primary));margin-top:4px}
+.sci-b .more{color:var(--primary)}
 .toast[hidden]{display:none}
 .empty{align-items:flex-start}
 @media (prefers-reduced-motion:no-preference){.bar i,.wk .tr i{transition:height .3s,width .3s}}
@@ -1963,20 +1966,51 @@ const SCI=[
    {h:'Deljenje naredi cilj resničnejši',x:'Ko napredek poročaš drugim, se poveča občutek odgovornosti, hkrati pa dobiš podporo in ideje drugih članic.',a:'Odgovori na ponedeljkov check-in, tudi ko teden ni bil popoln. Iskrenost pomaga tebi in drugim.'}],
   src:'Harkin in sod. (2016), Psychological Bulletin.'}
 ];
+
+const LAWS_MORE=[
+ {pts:[
+  {h:'Zakaj je to prvi zakon',x:'Navada se začne s sprožilcem. Če ga ne opaziš, se vedenje ne zgodi, ne glede na to, kako motivirana si. Zato je prvi korak, da navado naredimo vidno.',a:'V Moj cilj vpiši, kdaj in kje boš cilj izvajala. Konkreten čas in kraj sta sprožilec.'},
+  {h:'Pripni jo na nekaj, kar že delaš',x:'Obstoječa navada je zanesljiv sprožilec. Formula je preprosta: »Po [obstoječa navada] naredim [nova navada].«',a:'»Po jutranji kavi naredim 5 minut mobilnosti.« V obrazcu je za to polje »Pripnem na obstoječo navado«.'},
+  {h:'Uredi okolje',x:'Stvari, ki jih vidiš, uporabiš. Oprema, ki leži pripravljena, je sama po sebi opomnik.',a:'Pripravi oblačila ali pripomočke večer prej in jih pusti na vidnem mestu.'}],
+  src:'James Clear, Atomic Habits (2018). To je okvir iz knjige, ki temelji na raziskavah vedenja, ni pa samostojna znanstvena študija.'},
+ {pts:[
+  {h:'Zakaj je to drugi zakon',x:'Delamo tisto, kar nam obeta prijeten občutek. Če je navada sama po sebi dolgočasna, je tudi, ko ima smisel, težko vzdržati.',a:'Vprašaj se: kaj bi bilo na tem prijetno, če bi lahko izbirala?'},
+  {h:'Poveži jo z nečim, kar ti je všeč',x:'Uporabi navado kot vstopnico do užitka: priljubljen podkast ali glasbo poslušaš samo med gibanjem, kavo spiješ samo po izvedbi.',a:'Izberi eno prijetno stvar, ki si jo dovoliš samo ob svoji navadi.'},
+  {h:'Obkroži se z ljudmi, ki te podpirajo',x:'Navade se širijo v skupini. Ko so podobne navade normalne v okolju, so lažje tudi zate. Zato imaš skupino in ponedeljkov check-in.',a:'Odgovori na check-in in preberi, kaj dela skupina.'}],
+  src:'James Clear, Atomic Habits (2018). Okvir iz knjige. Povezovanje navade s prijetnim, na primer poslušanje zvočnih knjig med vadbo, je preučeval tudi Milkman s sodelavci (2014).'},
+ {pts:[
+  {h:'Zakaj je to tretji zakon',x:'Vedenje, ki zahteva manj truda, se ponavlja pogosteje. Če je navada prezahtevna, jo bomo na slab dan preprosto izpustili.',a:'Vprašaj se: kaj je najmanjša različica te navade, ki bi mi jo uspelo narediti tudi na najslabši dan?'},
+  {h:'Minimalna različica',x:'Cilj ni naredi manj, ampak ostani v ritmu. Dan z minimalno različico šteje, ker ohranja navado živo.',a:'Zapiši minimalno različico v obrazcu. Uporabi jo, ko ni časa, moči ali volje.'},
+  {h:'Odstrani ovire',x:'Vsak korak med tabo in dejanjem je trenje. Manj korakov pomeni lažji začetek.',a:'Zmanjšaj število korakov: pripravljena oprema, bližnji kraj, vnaprej izbran čas.'}],
+  src:'James Clear, Atomic Habits (2018). Okvir iz knjige. Spoznanje, da pogostost šteje več kot obseg, potrjujejo tudi raziskave o oblikovanju navad (Lally idr., 2010).'},
+ {pts:[
+  {h:'Zakaj je to četrti zakon',x:'Ponavljamo tisto, kar se konča z občutkom uspeha. Dolgoročne koristi se pokažejo prepozno, zato potrebujemo majhno nagrado takoj.',a:'Po izvedbi si vzemi trenutek: pomisli, kaj ti je uspelo in kako se počutiš.'},
+  {h:'Označi dan takoj',x:'Kljukica ali vnos v aplikacijo je preprosta nagrada, hkrati pa ohranja pregled nad napredkom. Raziskave kažejo, da spremljanje napredka poveča uspeh pri doseganju ciljev.',a:'Dan označi še isti dan. Traja deset sekund.'},
+  {h:'Praznuj majhne zmage',x:'Značke, serija in pogled na zadnje tedne so namenjeni temu, da napredek vidiš in občutiš.',a:'Ob koncu tedna poglej, koliko dni ti je uspelo, in si to priznaj.'}],
+  src:'James Clear, Atomic Habits (2018). Okvir iz knjige. Učinek spremljanja napredka: Harkin in sod. (2016), Psychological Bulletin.'}
+];
+function showLaw(i){
+  const l=LAWS[i],m=LAWS_MORE[i];
+  const ov=popOverlay(h('div',{class:'pop-in sci',onclick:()=>ov.remove()},h('span',{class:'label',text:(i+1)+'. zakon navade'}),h('h2',{text:l.n}),
+    ...m.pts.map(pt=>h('div',{class:'sci-pt'},h('b',{text:pt.h}),h('p',{class:'small',text:pt.x}),h('p',{class:'small sci-a'},h('b',{text:'Kaj narediš: '}),pt.a))),
+    h('p',{class:'small muted',text:'Vir: '+m.src}),
+    h('p',{class:'small muted',style:'text-align:center',text:'Tapni za zapiranje'})));
+  ov.classList.add('mid');
+}
 function showSci(c){
-  const ov=popOverlay(h('div',{class:'pop-in sci'},h('span',{class:'label',text:'Znanost o navadah'}),h('h2',{text:c.t}),
+  const ov=popOverlay(h('div',{class:'pop-in sci',onclick:()=>ov.remove()},h('span',{class:'label',text:'Znanost o navadah'}),h('h2',{text:c.t}),
     ...c.pts.map(pt=>h('div',{class:'sci-pt'},h('b',{text:pt.h}),h('p',{class:'small',text:pt.x}),h('p',{class:'small sci-a'},h('b',{text:'Kaj narediš: '}),pt.a))),
     h('p',{class:'small muted',text:'Viri: '+c.src}),
-    h('button',{class:'btn',type:'button',onclick:()=>ov.remove()},'Zapri')));
+    h('p',{class:'small muted',style:'text-align:center',text:'Tapni za zapiranje'})));
   ov.classList.add('mid');
 }
 function viewKnowledge(){
   const out=[];
   const step=(n,lead,txt)=>h('div',{class:'nstep'},h('span',{class:'nn',text:String(n)}),h('div',{},h('b',{text:n+'. '+lead.replace(/\.$/,'')}),txt?h('span',{text:txt}):null));
-  out.push(h('section',{class:'card'},h('h2',{text:'Štirje zakoni navade'}),h('p',{class:'small muted',text:'Po načelih knjige Atomic Habits (James Clear). Če navada ne uspeva, pomisli, kateri zakon manjka.'}),
-    h('div',{class:'laws'},LAWS.map((l,i)=>h('div',{class:'lawt t'+(i+1)},h('h3',{text:(i+1)+'. zakon · '+l.n}),h('p',{text:l.x}),h('div',{class:'ex'},h('b',{text:'Primer '}),l.p.replace(/^Primer:\s*/,'')))))));
-  out.push(h('section',{class:'card'},h('h2',{text:'Znanost o navadah'}),h('p',{class:'small muted',text:'Kaj pravijo raziskave o gradnji navad, ovirah in motivaciji. Izberi temo.'}),
-    h('div',{class:'sci-list'},SCI.map(c=>h('button',{class:'sci-b',type:'button',onclick:()=>showSci(c)},h('b',{text:c.t}),h('span',{class:'small muted',text:c.s}))))));
+  out.push(h('section',{class:'card'},h('h2',{text:'Štirje zakoni navade'}),h('p',{class:'small muted',text:'Po načelih knjige Atomic Habits (James Clear). Če navada ne uspeva, pomisli, kateri zakon manjka. Tapni zakon in preberi več.'}),
+    h('div',{class:'laws'},LAWS.map((l,i)=>h('button',{class:'lawt t'+(i+1),type:'button',onclick:()=>showLaw(i)},h('h3',{text:(i+1)+'. zakon · '+l.n}),h('p',{text:l.x}),h('div',{class:'ex'},h('b',{text:'Primer '}),l.p.replace(/^Primer:\s*/,'')),h('span',{class:'more',text:'Tapni za več ›'}))))));
+  out.push(h('section',{class:'card'},h('h2',{text:'Znanost o navadah'}),h('p',{class:'small muted',text:'Kaj pravijo raziskave o gradnji navad, ovirah in motivaciji. Tapni temo in preberi več.'}),
+    h('div',{class:'sci-list'},SCI.map(c=>h('button',{class:'sci-b',type:'button',onclick:()=>showSci(c)},h('b',{text:c.t}),h('span',{class:'small muted',text:c.s}),h('span',{class:'more',text:'Tapni za več ›'}))))));
   out.push(h('section',{class:'card'},h('h2',{text:'Pravila skupine'}),
     h('div',{class:'nsteps'},
       step(1,'En cilj.','Prvi mesec velja en cilj in ena minimalna različica. Cilj je lahko karkoli.'),
