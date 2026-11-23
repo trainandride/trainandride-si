@@ -1568,19 +1568,74 @@ function repPeriod(kind,today){
   const cws=weekStart(today);const t=parse(today);
   if(kind==='week'||kind==='pweek'){
     const ws=kind==='week'?cws:addDays(cws,-7);const sm=weekSummary(S,ws,today);
-    return {kind:'week',label:fmtRange(ws),title:kind==='week'?'Ta teden':'Prejšnji teden',days:sm.days,good:sm.good,target:sm.target,pct:sm.pct,mpct:kind==='week'?sm.rate:sm.pct,word:'teden',ws};
+    return {kind:'week',label:fmtRange(ws),title:kind==='week'?'Ta teden':'Prejšnji teden',days:sm.days,good:sm.good,target:sm.target,pct:sm.pct,mpct:kind==='week'?sm.rate:sm.pct,word:'teden',ws,rk:kind==='week'?'week':'pweek',seed:Math.floor(parse(ws).getTime()/6048e5)};
   }
   let y=t.getFullYear(),m=t.getMonth();if(kind==='pmonth'){m--;if(m<0){m=11;y--}}
   const ms=monthSummary(S,y,m,today);const den=ms.good+ms.bad;
-  return {kind:'month',label:MONTHS[m].charAt(0).toUpperCase()+MONTHS[m].slice(1)+' '+y,title:kind==='month'?'Ta mesec':'Prejšnji mesec',cells:ms.cells,lead:ms.lead,good:ms.good,target:den,pct:ms.pct,word:'mesec'};
+  return {kind:'month',label:MONTHS[m].charAt(0).toUpperCase()+MONTHS[m].slice(1)+' '+y,title:kind==='month'?'Ta mesec':'Prejšnji mesec',cells:ms.cells,lead:ms.lead,good:ms.good,target:den,pct:ms.pct,word:'mesec',rk:kind,seed:y*12+m,...(()=>{const g=[0,0,0,0,0,0,0],b=[0,0,0,0,0,0,0];ms.cells.forEach(c=>{const w=wd(c.day);if(isGood(c.state))g[w]++;else if(isBad(c.state))b[w]++});
+      const mx=a=>{let i=0;a.forEach((v,k)=>{if(v>a[i])i=k});return a[i]>0?i:null};return {wdBest:mx(g),wdWorst:mx(b)}})()};
 }
+const REP_OPEN={
+  week:[['Nov teden, nova priložnost. Še nič ni zapisano, zato ga lahko začneš po svoje.','Teden se je ravno začel. Prvi vnos je vedno najtežji, zato naj bo majhen.'],
+    ['Teden se odvija odlično. Bodi ponosna nase, ker si dosledna tudi takrat, ko ti ni do tega.','Do zdaj izvajaš skoraj vse, kar si načrtovala. Ta ritem ti res pristaja.'],
+    ['Teden teče dobro. Večina dni do zdaj ti je uspela, naj ti to da zagon za preostanek.','Dobro ti gre. Ostani pri tem, kar ti ta teden deluje.'],
+    ['Teden se še lahko obrne. Preostali dnevi štejejo enako kot prvi.','Do zdaj je mešano, a teden še ni zaključen. Vsak nov dan je nova priložnost.'],
+    ['Začetek tedna je počasen, a teden se še ni končal. Danes izberi minimalno različico in jo izvedi.','Začetek tedna ni šel po načrtu. To ne pomeni, da je teden izgubljen. Začni znova že danes.']],
+  pweek:[['Za ta teden ni vnosov. Brez skrbi: pomembno je, da začneš znova in da je prvi korak majhen.','Prejšnji teden je ostal prazen. Naredi si načrt za nov teden in izberi en dan za začetek.'],
+    ['Odličen teden! Bodi ponosna nase: izpolnila si skoraj vse, kar si načrtovala.','Izjemno dosleden teden. To ni naključje, to je rezultat tvojih odločitev.'],
+    ['Močan teden. Večino načrtovanih dni si izvedla in prav to gradi navado.','Trden teden. Privošči si zadovoljstvo, ker si se pojavila večino dni.'],
+    ['Teden z vzponi in padci, in to je normalno. Pomembno je, da si se vračala.','Polovica tedna je uspela. Poglej na to kot na podatek, ne kot na oceno.'],
+    ['Težek teden, a si ga pregledala in to že šteje. Bodi prijazna do sebe in naredi korak nazaj.','Ta teden ni šel po načrtu. Nobena navada ni zgrajena brez takih tednov.']],
+  month:[['Mesec se je ravno začel. Prazen list pomeni, da je vse še mogoče.','Nov mesec, nov zagon. Začni z enim majhnim vnosom.'],
+    ['Mesec do zdaj poteka odlično. Bodi ponosna nase, to je dolgoročna doslednost, ne le zagon.','Skoraj vsak dan do zdaj si izpolnila načrt. Ohrani ta ritem.'],
+    ['Mesec poteka dobro. Večina dni je uspela, to je trdna osnova za nadaljevanje.','Dober ritem tega meseca kaže, da navada raste.'],
+    ['Mesec je do zdaj mešan, a še imaš veliko dni pred seboj. Izberi, kaj boš naredila drugače.','Polovica dni do zdaj je uspela. Preostanek meseca lahko obrne smer.'],
+    ['Mesec se je začel počasi. To je v redu. Zmanjšaj cilj in se vrni k osnovam.','Do zdaj je bilo težko. Namesto popolnosti izberi dosledno majhnost.']],
+  pmonth:[['Prejšnji mesec je ostal brez vnosov. To ni neuspeh, ampak izhodišče. Nov mesec je priložnost za nov, manjši začetek.','Brez zapisov za prejšnji mesec ni pravih podatkov, zato začni preprosto: en cilj, en čas, en kraj.'],
+    ['Izjemen mesec! Bodi ponosna nase: skoraj vsak dan si izpolnila svoj cilj. To je že pravi značaj navade, ne le trud.','Mesec skoraj brez zdrsov. Ta doslednost je tisto, kar loči želje od navad. Privošči si pravi trenutek ponosa.'],
+    ['Zelo dober mesec. Večino načrtovanih dni si izvedla in to pomeni, da navada že dobiva trdne korenine. Bodi ponosna nase.','Trden mesec z jasnim ritmom. Zdrsi so bili redki in to je točno, kar potrebuje dolgoročna sprememba.'],
+    ['Mesec z vzponi in padci, kakršni so običajni pri gradnji navad. Pomembno je, da si ostala v igri in se vračala. Bodi prijazna do sebe.','Del meseca je šel dobro, del težje. Zdaj imaš dovolj podatkov, da vidiš, kaj ti pomaga in kaj ti ovira.'],
+    ['Težji mesec, in prav to je čas za zrelost, ne za krivdo. Da si ga pregledala, kaže, da ti je mar. Bodi nase prijazna, začni manjše.','Ta mesec ni bil lahek. Veliko ljudi se v takem obdobju ustavi, ti pa si tukaj in gledaš naprej. To je moč.']]
+};
+const REP_TIPS=[
+  ['Izberi en dan in uro za prvo izvedbo že danes.','Naredi cilj tako majhen, da ga lahko izvedeš tudi v slabem dnevu.'],
+  ['Ne dvigaj cilja prehitro. Ohrani ritem še dva tedna, nato dodaj eno majhno stopnjo.','Povežeš lahko navado z novo: za obstoječo rutino dodaj še eno majhno dejanje.','Nagradi se. Majhna, takojšnja nagrada po izvedbi navado utrdi.','Deli svojo izkušnjo z drugo članico. Pomoč drugi utrdi tvojo navado.'],
+  ['Poglej, kateri dan se ti najpogosteje zalomi, in mu določi fiksno uro ali kraj.','Pripravi si pripomočke že dan prej, da je začetek lažji.','Zapiši si pravilo »če–potem« za najtežji dan v tednu.','En dan, ki ti gre najbolje, uporabi kot sidro za druge dneve.'],
+  ['Na slabših dneh uporabi minimalno različico. Dve minuti še vedno štejeta.','Navado veži na nekaj, kar že počneš vsak dan, na primer kavo ali umivanje zob.','Za en teden zmanjšaj cilj na polovico in poglej, ali ti gre lažje.','Ugotovi, kaj te najpogosteje ustavi, in to odstrani že večer prej.'],
+  ['Pomanjšaj cilj na eno stvar na dan in mi piši. Skupaj poiščeva najmanjši korak.','Izberi samo dva dneva v tednu in ju zaščiti kot termin.','Naredi cilj tako majhen, da bi se ti zdelo smešno, če ga ne izvedeš.','Prosi članico skupine, naj te v ponedeljek vpraša, kako ti gre.']
+];
+const REP_SCI=[
+  ['Znanost: raziskava Lally in sodelavcev (2010) kaže, da traja v povprečju 66 dni, da navada postane avtomatična. Pri posameznikih je to od 18 do 254 dni, en zamujen dan pa napredka bistveno ne ovira.'],
+  ['Znanost: ko navada postane del rutine, jo možgani izvajajo z manj napora. Majhne zmage pa so po raziskavi Amabile in Kramer (2011) eden najmočnejših motivatorjev.','Znanost: po metaanalizi Gollwitzer in Sheeran (2006) načrt »če–potem« bistveno poveča verjetnost, da cilj tudi izvedeš.'],
+  ['Znanost: po metaanalizi Gollwitzer in Sheeran (2006) načrt »če–potem« bistveno poveča verjetnost, da cilj tudi izvedeš.','Znanost: navade se najlažje oblikujejo v stalnem okolju in ob stalnem znamenju (Wood in sodelavci, 2002), zato pomagata fiksna ura in kraj.'],
+  ['Znanost: navade se najlažje oblikujejo v stalnem okolju in ob stalnem znamenju (Wood in sodelavci, 2002), zato pomagata fiksna ura in kraj.','Znanost: raziskava Lally in sodelavcev (2010) kaže, da en zamujen dan navade bistveno ne ovira. Pomembno je, da se vrneš.'],
+  ['Znanost: samopomilovanje po zdrsu ne zmanjša motivacije, ampak jo poveča (Breines in Chen, 2012). Samokritika deluje slabše.','Znanost: raziskava Lally in sodelavcev (2010) kaže, da en zamujen dan navade bistveno ne ovira. Pomembno je, da se vrneš.']
+];
+const REP_NEXT=[
+  'Za naslednji mesec: izberi en dan v tednu, ki ga zaščitiš kot termin.',
+  'Za naslednji mesec: ohrani to, kar ti deluje, in dodaj samo eno majhno stopnjo.',
+  'Za naslednji mesec: poišči najtežji dan in mu vnaprej določi fiksen čas ali kraj.',
+  'Za naslednji mesec: zmanjšaj cilj za kakšno četrtino in ga izvajaj dosledno, ne popolno.',
+  'Za naslednji mesec: začni z dvema dnevoma v tednu in dodajaj počasi. Pomembno je, da začneš.'
+];
+const WD_NAME=['ponedeljek','torek','sreda','četrtek','petek','sobota','nedelja'];
 function repMotivation(P){
-  const w=P.word,pc=P.mpct!==undefined?P.mpct:P.pct;
-  if(pc==null||!P.target)return {h:'Začetek poti',t:'Tukaj se zgodba šele začenja. Izberi en majhen dan in ga izvedi. Prvi korak šteje več, kot misliš.',tip:'Nasvet: cilj naj bo tako majhen, da ga lahko narediš tudi v slabem dnevu.'};
-  if(pc>=0.9)return {h:'Odlično!',t:'Ta '+w+' si bila zelo dosledna. To ni sreča, to je sistem, ki ti deluje. Ponosna sem nate.',tip:'Nasvet: ne dvigaj cilja prehitro. Ohrani ritem še dva tedna, nato dodaj eno majhno stopnjo.'};
-  if(pc>=0.7)return {h:'Trdna osnova',t:'Večino dni si izpolnila svoj cilj. Navada se že vidi in to je veliko več, kot se zdi.',tip:'Nasvet: poglej, kateri dan se ti najpogosteje zalomi, in mu določi fiksno uro ali kraj.'};
-  if(pc>=0.4)return {h:'Dober začetek',t:'Navade se ne gradijo s popolnostjo, ampak z vračanjem. Ti se vračaš in to je bistvo.',tip:'Nasvet: na slabših dneh uporabi minimalno različico. Dve minuti še vedno štejeta.'};
-  return {h:'Težji čas je del poti',t:'Vsak teden ni enak in to je čisto v redu. Pomembno je, da se vrneš, ne da je bilo popolno.',tip:'Nasvet: pomanjšaj cilj na eno stvar na dan in mi piši. Skupaj poiščeva najmanjši korak.'};
+  const pc=P.mpct!==undefined?P.mpct:P.pct;
+  const tier=(pc==null||!P.target)?0:pc>=0.9?1:pc>=0.7?2:pc>=0.4?3:4;
+  const seed=P.seed||0;const pick=(a,n)=>a[((seed+(n||0))%a.length+a.length)%a.length];
+  const open=pick(REP_OPEN[P.rk][tier],0);
+  const blocks=[{t:open,sz:30,w:400,col:'#fff',gap:26}];
+  const heads={0:'Začetek poti',1:'Odlično!',2:'Trdna osnova',3:'Dober začetek',4:'Težji čas je del poti'};
+  if(P.kind==='month'&&P.wdBest!=null){
+    let d='Najmočnejši dan: '+WD_NAME[P.wdBest]+'.';if(P.wdWorst!=null&&P.wdWorst!==P.wdBest)d+=' Najtežji dan: '+WD_NAME[P.wdWorst]+'.';
+    blocks.push({t:d,sz:28,w:400,col:'#E4F7EC',gap:22});
+  }
+  const nTips=P.rk==='pmonth'?3:P.rk==='month'?2:1;
+  const tips=REP_TIPS[tier];
+  for(let i=0;i<Math.min(nTips,tips.length);i++)blocks.push({t:(nTips>1?'• ':'Nasvet: ')+pick(tips,i),sz:28,w:700,col:'#E4F7EC',gap:18});
+  if(P.kind==='month'){blocks.push({t:pick(REP_SCI[tier],1),sz:25,w:400,col:'#CFEFDC',gap:22,top:10});}
+  if(P.rk==='pmonth')blocks.push({t:pick(REP_NEXT.length?[REP_NEXT[tier]]:[''],0),sz:28,w:800,col:'#fff',gap:0,top:10});
+  return {h:heads[tier],blocks};
 }
 async function progressBlob(kind,today){
   const G=S;const p=G.profile;const P=repPeriod(kind,today);const mot=repMotivation(P);
@@ -1598,12 +1653,11 @@ async function progressBlob(kind,today){
   };
   const why=myWhy();
   meas.font=font(400,30);
-  const mLines=wrap(meas,mot.t,W-2*M-80,6);meas.font=font(700,28);
-  const tLines=wrap(meas,mot.tip,W-2*M-80,4);
-  const wLines=why?(meas.font=font(400,28),wrap(meas,why,W-2*M-80,3)):[];
+  meas.font=font(400,28);const wLines=why?wrap(meas,why,W-2*M-80,3):[];
+  const mb=mot.blocks.map(b=>{meas.font=font(b.w,b.sz);const lh=Math.round(b.sz*1.38);return {...b,lh,lines:wrap(meas,b.t,W-2*M-80,6)}});
+  const motH=92+mb.reduce((a,b)=>a+(b.top||0)+b.lines.length*b.lh+b.gap,0)+30;
   const rows=P.kind==='month'?Math.ceil((P.lead+P.cells.length)/7):1;
   const gridH=P.kind==='month'?rows*104+10:150;
-  const motH=70+mLines.length*42+30+tLines.length*38+40;
   const whyH=wLines.length?60+wLines.length*38+30:0;
   const H=250+330+gridH+60+200+motH+(whyH?whyH+24:0)+120;
   const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');
@@ -1658,9 +1712,9 @@ async function progressBlob(kind,today){
   c.textAlign='left';y+=150+36;
   /* motivacija */
   c.fillStyle='#177A4C';rr(M,y,W-2*M,motH,32);c.fill();
-  c.fillStyle='#fff';lab(mot.h,M+40,y+60,'#CFEFDC');
-  c.font=font(400,30);c.fillStyle='#fff';mLines.forEach((l,i)=>c.fillText(l,M+40,y+110+i*42));
-  c.font=font(700,28);c.fillStyle='#E4F7EC';tLines.forEach((l,i)=>c.fillText(l,M+40,y+110+mLines.length*42+34+i*38));
+  lab(mot.h,M+40,y+60,'#CFEFDC');
+  let ty=y+92;
+  mb.forEach(b=>{ty+=b.top||0;c.font=font(b.w,b.sz);c.fillStyle=b.col;b.lines.forEach((l,i)=>c.fillText(l,M+40,ty+b.lh*(i+1)-8));ty+=b.lines.length*b.lh+b.gap});
   y+=motH+24;
   if(wLines.length){
     c.fillStyle='#fff';rr(M,y,W-2*M,whyH,28);c.fill();
