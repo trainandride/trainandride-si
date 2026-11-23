@@ -1378,11 +1378,11 @@ function showSummary(p){
 /* ===== Nasvet za tvoj cilj (pregledan seznam, brez AI) ===== */
 const ADV=[
  {k:'move',n:'gibanje in moč',re:/\bmoc|\bmoč|vadb|trening|telovad|fitnes|gibanj|\btek\b|\btecem|\bteka|sprehod|plank|zgib|\bvaje|misic|mišic|\bjoga|raztez|utez|počep|pocep/i,tips:[
-  {t:'Vsaj 2× na teden vključi vaje za moč za vse večje mišične skupine.',z:'Smernice SZO o telesni dejavnosti (2020) priporočajo vaje za moč vsaj 2 dni na teden.'},
-  {t:'Tudi kratka vadba šteje. Ni minimalnega trajanja, ki bi ga morala doseči.',z:'Smernice SZO (2020) poudarjajo, da šteje vsaka gibalna aktivnost.'},
+  {t:'Vsaj 2× na teden vključi vaje za moč za vse večje mišične skupine.',z:'(SZO, 2020)'},
+  {t:'Tudi kratka vadba šteje. Ni minimalnega trajanja, ki bi ga morala doseči.',z:'(SZO, 2020)'},
   {t:'Vnaprej določi dan, uro in kraj vadbe in zapiši pravilo »če–potem«.',z:'Načrt »če–potem« po raziskavah bistveno poveča verjetnost, da vadbo tudi izvedeš (Milne in sod., 2002; Gollwitzer in Sheeran, 2006).'},
-  {t:'Obremenitev večaj postopoma, šele ko se tehnika utrdi.',z:'Postopno večanje obremenitve je temeljno načelo treninga moči (ACSM).'},
-  {t:'Počitek je del treninga. Načrtuj ga enako resno kot vadbo.',z:'Telo se na obremenitev prilagodi med okrevanjem (ACSM).'}]},
+  {t:'Obremenitev večaj postopoma, šele ko se tehnika utrdi.',z:'(ACSM)'},
+  {t:'Počitek je del treninga. Načrtuj ga enako resno kot vadbo.',z:'(ACSM)'}]},
  {k:'bike',n:'kolesarjenje',re:/kolo|kolesar|\bmtb|singl|skok|zavij|zavoj|zaviran|tehnik|bunny|ovink|spust|\bpump|wheel|\bpivot|manual|\bdrop|\bflow|\btrail|skills?\b|brzd|ravnote|\bbike/i,w:2,tips:[
   {t:'Wheelie: išči ravnotežno točko z nežnim potegom krmila in močnim potiskom pedala, prst pa naj ostane na zadnji zavori kot varnostna mreža.',z:'',m:/wheel|manual/i},
   {t:'Wheelie vadi najprej na ravnem in mehkem (trava), v kratkih serijah po 5 poskusov. Ustavi se, ko postaneš utrujena in nenatančna.',z:'',m:/wheel|manual/i},
@@ -1422,7 +1422,7 @@ const ADV=[
  {k:'gen',n:'navade na splošno',re:/$^/,tips:[
   {t:'Navado vežeš na nekaj, kar že počneš vsak dan, na primer kavo ali umivanje zob.',z:'Navade se oblikujejo ob stalnih znamenjih v okolju (Wood in sod., 2002).'},
   {t:'Naredi cilj tako majhen, da ga zmoreš tudi v slabem dnevu.',z:'En zamujen dan navade bistveno ne ovira (Lally in sod., 2010).'},
-  {t:'Po izvedbi si privošči majhno nagrado ali trenutek zadovoljstva.',z:'Takojšnja nagrada pomaga, da se navada zasidra.'}]}
+  {t:'Po izvedbi si privošči majhno nagrado ali trenutek zadovoljstva.',z:''}]}
 ];
 function advCatFor(g){
   let ov=null;try{ov=(JSON.parse(localStorage.getItem('tr-advcat')||'{}'))[g.id]}catch(e){}
@@ -1433,6 +1433,7 @@ function advCatFor(g){
   return best||ADV[ADV.length-1];
 }
 function setAdvCat(g,k){try{const o=JSON.parse(localStorage.getItem('tr-advcat')||'{}');o[g.id]=k;localStorage.setItem('tr-advcat',JSON.stringify(o))}catch(e){}}
+function srcOf(z){const m=String(z||'').match(/\(([^()]+)\)\.?\s*$/);return m?'('+m[1]+')':''}
 function adviceBlock(today){
   const g=ST.goals[ui.gi||0]||ST.goals[0];if(!g)return null;
   const cat=advCatFor(g);
@@ -1442,8 +1443,7 @@ function adviceBlock(today){
   const i=(base+(ui.advN||0))%tl.length;const tp=tl[i];
   return h('div',{class:'adv'},
     h('p',{class:'small muted',style:'margin:12px 0 6px;font-weight:800;letter-spacing:.09em;text-transform:uppercase',text:'Nasvet za tvoj cilj · '+cat.n}),
-    h('p',{class:'lead',style:'margin:0 0 8px',text:tp.t}),
-    tp.z?h('p',{class:'small muted',style:'border-left:3px solid var(--line);padding-left:10px;margin:0 0 10px',text:'Znanost: '+tp.z}):null,
+    h('p',{class:'lead',style:'margin:0 0 10px'},tp.t,srcOf(tp.z)?h('span',{class:'small muted',style:'font-weight:400;font-family:var(--font-body)',text:' '+srcOf(tp.z)}):null),
     h('div',{class:'row'},
       tl.length>1?h('button',{class:'btn alt sm',type:'button',onclick:()=>{ui.advN=(ui.advN||0)+1;render()}},'Še en nasvet'):null,
       h('button',{class:'btn ghost sm',type:'button',onclick:()=>{
@@ -1475,7 +1475,6 @@ function viewToday(today){
   }
   const marked=Object.keys(S.log).length;
   const ins=noteInsight(S,today);
-  if(ins.wins.length) qcard.append(h('p',{class:'small muted',text:'Tvoje besede: »'+ins.wins[((diffDays('2026-01-01',today)%ins.wins.length)+ins.wins.length)%ins.wins.length]+'«'}));
   const p=S.profile;
   const before=today<p.start;
   const st=dayState(S,today,today);
