@@ -439,17 +439,6 @@ textarea[hidden]{display:none}
 
 .goalname{font:800 22px/1.2 var(--font-head);text-transform:uppercase;letter-spacing:.04em;color:var(--primary);margin:0 0 8px}
 .pop-in h2.goalname{text-align:center}
-/* računalnik: širši, dvostolpčni pogled (telefon ostane nespremenjen) */
-@media (min-width:1000px) and (hover:hover) and (pointer:fine){
- body[data-tab="danes"] .shell,body[data-tab="napredek"] .shell{max-width:1120px}
- body[data-tab="cilj"] .shell,body[data-tab="znanje"] .shell,body[data-tab="trener"] .shell{max-width:800px}
- .shell{padding-top:32px}
- .top h1{font-size:40px}
- .tabs{max-width:680px;bottom:16px;border:2px solid var(--tabline);border-radius:22px;box-shadow:0 8px 28px rgba(0,0,0,.22)}
- #app[data-tab="danes"],#app[data-tab="napredek"]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 20px;align-items:start}
- #app[data-tab="danes"]>.banner,#app[data-tab="napredek"]>.banner,#app[data-tab="napredek"]>.seg,#app[data-tab="napredek"]>.stats,#app[data-tab="danes"]>.chips,#app[data-tab="napredek"]>.chips{grid-column:1/-1}
- .card:hover{box-shadow:0 6px 22px rgba(0,0,0,.14)}
-}
 </style>
 <style>html{-webkit-text-size-adjust:100%}body{margin:0}</style>
 </head>
@@ -2387,7 +2376,7 @@ function render(){
   const today=todayStr();
   useGoal();
   renderHead(today);renderTabs();
-  const app=document.getElementById('app');app.replaceChildren();app.dataset.tab=ui.tab;document.body.dataset.tab=ui.tab;
+  const app=document.getElementById('app');app.replaceChildren();
   const views={danes:viewToday,napredek:viewProgress,cilj:viewGoal,znanje:viewKnowledge,trener:viewCoach};
   (views[ui.tab]||viewToday)(today).forEach(n=>app.append(n));
   renderSheet();
