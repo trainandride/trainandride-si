@@ -974,7 +974,7 @@ function a2hsCard(dismiss){
     kids.push(h('div',{class:'chips',role:'group','aria-label':'Brskalnik'},A2BR.map(b=>h('button',{class:'chip',type:'button','aria-pressed':b.id===br.id?'true':'false',onclick:()=>{ui.a2Br=b.id;render()}},b.t))));
     kids.push(h('ol',{class:'steps'},br.steps.map(x=>h('li',{text:x}))));
     kids.push(h('p',{class:'small muted',text:'Se je povezava odprla v WhatsAppu? Tapni ikono kompasa ali tri pike in izberi »Odpri v brskalniku«, nato sledi korakom zgoraj.'}));
-    if(br.ios) kids.push(h('div',{class:'banner warn'},h('b',{text:'Pomembno za iPhone'}),h('span',{text:'Imaš že vnose? Najprej v Moj cilj ustvari varnostno kodo, dodaj ikono in kodo v aplikaciji obnovi (Obnovi iz kode). Ikona ima lahko ločen prostor za podatke od brskalnika. Če šele začenjaš, najprej dodaj ikono in šele nato vnašaj dneve.'})));
+    if(br.ios) kids.push(h('div',{class:'banner warn'},h('b',{text:'Pomembno za iPhone'}),h('span',{text:'Ikona ima lahko ločen prostor za podatke od brskalnika. Po dodajanju ikone se v aplikaciji prijavi z istim emailom in podatki se naložijo.'})));
     else kids.push(h('p',{class:'small muted',text:'Na računalniku povezavo shrani med zaznamke (Ctrl+D ali ⌘+D).'}));
   }
   const row=h('div',{class:'row'},h('button',{class:'btn',type:'button',onclick:()=>{ui.a2Open=!ui.a2Open;render()}},ui.a2Open?'Skrij navodila':'Pokaži kako'));
@@ -1226,7 +1226,7 @@ function emptyCard(){
     h('p',{class:'lead',text:'Danes z vpisom cilja narediš prvi korak k uresničitvi boljše verzije sebe.'}),
     h('p',{class:'muted',text:'Zapiši en cilj, njegovo minimalno različico in dneve, ko ga želiš izvajati. Cilj je lahko karkoli: gibanje, prehrana ali trenutek zase.'}),
     h('button',{class:'btn',type:'button',onclick:startGoalAnim},'Postavi cilj'),
-    h('p',{class:'small muted',text:'Aplikacijo uporabljaš že dlje in so podatki izginili? V razdelku Moj cilj jih obnoviš z varnostno kodo.'})
+    sb?null:h('p',{class:'small muted',text:'Aplikacijo uporabljaš že dlje in so podatki izginili? V razdelku Moj cilj jih obnoviš z varnostno kodo.'})
   );
 }
 function helpLink(){
@@ -1312,7 +1312,7 @@ function showSummary(p){
 }
 function viewToday(today){
   const out=[];
-  if(!storageOk) out.push(h('div',{class:'banner warn'},h('b',{text:'Shranjevanje v tem brskalniku ne deluje'}),h('span',{text:'Podatki bodo izginili, ko zapreš stran. Odpri povezavo v običajnem oknu ali shrani varnostno kodo v razdelku Moj cilj.'})));
+  if(!storageOk) out.push(h('div',{class:'banner warn'},h('b',{text:'Shranjevanje v tem brskalniku ne deluje'}),h('span',{text:'Podatki bodo izginili, ko zapreš stran. Odpri povezavo v običajnem oknu.'})));
   const qi=((diffDays('2026-01-01',today)%QUOTES.length)+QUOTES.length)%QUOTES.length;
   const qcard=h('section',{class:S.profile?'card plain':'card'},h('span',{class:'label',text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
   if(!S.profile){out.push(emptyCard());return out}
@@ -1384,7 +1384,7 @@ function viewToday(today){
     let at=0;while(at<out.length&&out[at]&&out[at].classList&&out[at].classList.contains('banner'))at++;
     out.splice(at,0,...mv);
   }
-  if(marked>=2&&(!ST.backupAt||diffDays(ST.backupAt,today)>=7)){
+  if(!sb&&marked>=2&&(!ST.backupAt||diffDays(ST.backupAt,today)>=7)){
     out.push(h('p',{class:'small muted',style:'text-align:center;margin:18px 0 4px'},'Podatki so samo v tem brskalniku. ',
       h('button',{class:'btn ghost sm',type:'button',onclick:async()=>{
         const c=btoa(unescape(encodeURIComponent(JSON.stringify(ST))));
@@ -1771,24 +1771,6 @@ function viewGoal(today){
       h('button',{class:'btn alt sm',type:'button',onclick:async()=>{try{await navigator.clipboard.writeText(REM_TITLE);toast('Naslov je kopiran')}catch(e){toast('Kopiranje ni uspelo')}}},'Kopiraj naslov opomnika')));
   }
   out.push(a2hsCard(false));
-  const ta=h('textarea',{id:'code',rows:'4','aria-label':'Varnostna koda',placeholder:'Tukaj se prikaže koda ali jo prilepi za obnovo.'});ta.value=ui.code;
-  ta.addEventListener('input',()=>{ui.code=ta.value});
-  const info=h('p',{class:'small muted',id:'code-msg'});
-  out.push(h('section',{class:'card'},h('h2',{text:'Varnostna koda'}),
-    h('p',{class:'small muted',text:'Podatki so shranjeni samo v tem brskalniku na tej napravi. Če zamenjaš telefon ali počistiš podatke brskalnika, jih lahko obnoviš s kodo. Kodo shrani v svoje zapiske.'}),
-    ta,info,
-    h('div',{class:'row'},
-      h('button',{class:'btn alt sm',type:'button',onclick:async()=>{
-        const c=btoa(unescape(encodeURIComponent(JSON.stringify(ST))));ta.value=c;ui.code=c;ST.backupAt=todayStr();save();
-        try{await navigator.clipboard.writeText(c);info.textContent='Koda je ustvarjena in kopirana.'}catch(e){ta.focus();ta.select();info.textContent='Koda je ustvarjena. Kopiraj jo ročno.'}
-      }},'Ustvari kodo'),
-      h('button',{class:'btn alt sm',type:'button',onclick:()=>{
-        try{
-          const raw=JSON.parse(decodeURIComponent(escape(atob(ta.value.trim()))));const nn=normalize(raw);
-          if(!nn.goals.length){info.textContent='Koda ne vsebuje cilja.';return}
-          ST=nn;save();ui.gi=0;ui.adding=false;ui.form=null;ui.code='';ui.tab='danes';render();toast('Podatki so obnovljeni');
-        }catch(e){info.textContent='Kode ni mogoče prebrati. Preveri, ali je prilepljena v celoti.'}
-      }},'Obnovi iz kode'))));
 
   if(n>0){
     const b=h('button',{class:'btn ghost sm',type:'button',onclick:()=>{
@@ -1897,8 +1879,8 @@ function viewKnowledge(){
     h('div',{class:'nsteps'},
       step(1,'Zapiši cilj.','V razdelku Moj cilj vpiši cilj, minimalno različico in dneve.'),
       step(2,'Označi dan.','Označi dneve, ko imaš cilj v načrtu ali ko ga narediš. Pri »dan izberem sproti« vneseš, ko ga izvedeš. Traja deset sekund.'),
-      step(3,'Ponedeljek.','V razdelku Napredek odgovori na razmislek, kopiraj check-in in ga pošlji v skupino.'),
-      step(4,'Varnostna koda.','Shrani jo, da ne izgubiš podatkov ob menjavi telefona.'))));
+      step(3,'Ponedeljek.','V razdelku Napredek odgovori na tri vprašanja in pošlji check-in.'),
+      step(4,sb?'Prijava z emailom.':'Varnostna koda.',sb?'Z istim emailom odpreš svoje podatke tudi na drugem telefonu.':'Shrani jo, da ne izgubiš podatkov ob menjavi telefona.'))));
   out.push(h('section',{class:'card'},h('h3',{text:'Zasebnost'}),h('p',{class:'small',text:sb?'Podatki se shranjujejo v zaščiteni bazi v EU, vezani na tvoj email, da jih odpreš tudi na drugem telefonu. Teja vidi samo tvoj cilj in tedenske check-ine, dnevnih opomb ne bere.':'Podatki ostanejo samo v tvojem brskalniku. Teja in skupina vidita samo to, kar sama pošlješ v check-inu.'}),sb&&sbUser?h('button',{class:'btn ghost sm',type:'button',onclick:()=>{if(confirm('Se želiš odjaviti?'))sbSignOut()}},'Odjava ('+(sbUser.email||'')+')'):null));
   const tkids=[h('h3',{text:'Za trenerko'}),h('p',{class:'small muted',text:'Pogled za Tejo: pregled poročil skupine. Deluje samo na tej napravi in je prazen, dokler ne prilepiš sporočil.'}),
     h('button',{class:'btn alt sm',type:'button',onclick:()=>{C.on=!C.on;saveC();if(!C.on&&ui.tab==='trener')ui.tab='danes';render()}},C.on?'Izklopi pogled za trenerko':'Vklopi pogled za trenerko')];
