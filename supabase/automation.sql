@@ -66,7 +66,7 @@ begin
   if not p_force and (current_date < date '2026-12-07' or current_date > date '2027-03-29') then return; end if;
   select jsonb_agg(jsonb_build_object(
       'from','Train & Ride <app@trainandride.si>','to',jsonb_build_array(email),
-      'subject','Ponedeljkov check-in - Train & Ride',
+      'subject','Ponedeljkov check-in',
       'html','<p>Hej!</p><p>Nov teden se začenja. Vzemi 3 minute in oddaj svoj tedenski check-in: poglej, kaj je delovalo, in izberi eno majhno spremembo.</p>'
            ||'<p><a href="https://trainandride.si/app/#checkin" style="background:#177A4C;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold">Odpri check-in</a></p>'
            ||'<p>Sharing is caring. Tvoja iskrenost pomaga tebi in drugim.</p><p>Train &amp; Ride</p>'))
