@@ -1568,14 +1568,14 @@ function repPeriod(kind,today){
   const cws=weekStart(today);const t=parse(today);
   if(kind==='week'||kind==='pweek'){
     const ws=kind==='week'?cws:addDays(cws,-7);const sm=weekSummary(S,ws,today);
-    return {kind:'week',label:fmtRange(ws),title:kind==='week'?'Ta teden':'Prejšnji teden',days:sm.days,good:sm.good,target:sm.target,pct:sm.pct,word:'teden',ws};
+    return {kind:'week',label:fmtRange(ws),title:kind==='week'?'Ta teden':'Prejšnji teden',days:sm.days,good:sm.good,target:sm.target,pct:sm.pct,mpct:kind==='week'?sm.rate:sm.pct,word:'teden',ws};
   }
   let y=t.getFullYear(),m=t.getMonth();if(kind==='pmonth'){m--;if(m<0){m=11;y--}}
   const ms=monthSummary(S,y,m,today);const den=ms.good+ms.bad;
   return {kind:'month',label:MONTHS[m].charAt(0).toUpperCase()+MONTHS[m].slice(1)+' '+y,title:kind==='month'?'Ta mesec':'Prejšnji mesec',cells:ms.cells,lead:ms.lead,good:ms.good,target:den,pct:ms.pct,word:'mesec'};
 }
 function repMotivation(P){
-  const w=P.word,pc=P.pct;
+  const w=P.word,pc=P.mpct!==undefined?P.mpct:P.pct;
   if(pc==null||!P.target)return {h:'Začetek poti',t:'Tukaj se zgodba šele začenja. Izberi en majhen dan in ga izvedi. Prvi korak šteje več, kot misliš.',tip:'Nasvet: cilj naj bo tako majhen, da ga lahko narediš tudi v slabem dnevu.'};
   if(pc>=0.9)return {h:'Odlično!',t:'Ta '+w+' si bila zelo dosledna. To ni sreča, to je sistem, ki ti deluje. Ponosna sem nate.',tip:'Nasvet: ne dvigaj cilja prehitro. Ohrani ritem še dva tedna, nato dodaj eno majhno stopnjo.'};
   if(pc>=0.7)return {h:'Trdna osnova',t:'Večino dni si izpolnila svoj cilj. Navada se že vidi in to je veliko več, kot se zdi.',tip:'Nasvet: poglej, kateri dan se ti najpogosteje zalomi, in mu določi fiksno uro ali kraj.'};
@@ -1602,7 +1602,7 @@ async function progressBlob(kind,today){
   const tLines=wrap(meas,mot.tip,W-2*M-80,4);
   const wLines=why?(meas.font=font(400,28),wrap(meas,why,W-2*M-80,3)):[];
   const rows=P.kind==='month'?Math.ceil((P.lead+P.cells.length)/7):1;
-  const gridH=P.kind==='month'?rows*92+10:150;
+  const gridH=P.kind==='month'?rows*104+10:150;
   const motH=70+mLines.length*42+30+tLines.length*38+40;
   const whyH=wLines.length?60+wLines.length*38+30:0;
   const H=250+330+gridH+60+200+motH+(whyH?whyH+24:0)+120;
@@ -1647,7 +1647,7 @@ async function progressBlob(kind,today){
   }else{
     DAYS.forEach((d,i)=>{c.textAlign='center';c.font=font(700,22);c.fillStyle='#636366';c.fillText(d,M+i*(cw+12)+cw/2,y+8)});
     P.cells.forEach((cell,k)=>{const idx=P.lead+k;const r=Math.floor(idx/7),cI=idx%7;
-      tile(M+cI*(cw+12),y+24+r*92,80,cell.state,String(cell.n),'');});
+      tile(M+cI*(cw+12),y+24+r*104,92,cell.state,String(cell.n),'');});
   }
   c.textAlign='left';y+=gridH+30;
   /* statistika */
