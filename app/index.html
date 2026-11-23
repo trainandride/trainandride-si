@@ -1562,6 +1562,144 @@ async function reportBlob(ws,today){
   c.fillStyle='#177A4C';c.textAlign='right';c.fillText('✓ MAŠ TO',W-M,H-44);if(c.letterSpacing!==undefined)c.letterSpacing='0px';
   return await new Promise(res=>cv.toBlob(res,'image/png'));
 }
+
+/* ===== Kako mi gre: poročilo (PNG) ===== */
+function repPeriod(kind,today){
+  const cws=weekStart(today);const t=parse(today);
+  if(kind==='week'||kind==='pweek'){
+    const ws=kind==='week'?cws:addDays(cws,-7);const sm=weekSummary(S,ws,today);
+    return {kind:'week',label:fmtRange(ws),title:kind==='week'?'Ta teden':'Prejšnji teden',days:sm.days,good:sm.good,target:sm.target,pct:sm.pct,word:'teden',ws};
+  }
+  let y=t.getFullYear(),m=t.getMonth();if(kind==='pmonth'){m--;if(m<0){m=11;y--}}
+  const ms=monthSummary(S,y,m,today);const den=ms.good+ms.bad;
+  return {kind:'month',label:MONTHS[m].charAt(0).toUpperCase()+MONTHS[m].slice(1)+' '+y,title:kind==='month'?'Ta mesec':'Prejšnji mesec',cells:ms.cells,lead:ms.lead,good:ms.good,target:den,pct:ms.pct,word:'mesec'};
+}
+function repMotivation(P){
+  const w=P.word,pc=P.pct;
+  if(pc==null||!P.target)return {h:'Začetek poti',t:'Tukaj se zgodba šele začenja. Izberi en majhen dan in ga izvedi. Prvi korak šteje več, kot misliš.',tip:'Nasvet: cilj naj bo tako majhen, da ga lahko narediš tudi v slabem dnevu.'};
+  if(pc>=0.9)return {h:'Odlično!',t:'Ta '+w+' si bila zelo dosledna. To ni sreča, to je sistem, ki ti deluje. Ponosna sem nate.',tip:'Nasvet: ne dvigaj cilja prehitro. Ohrani ritem še dva tedna, nato dodaj eno majhno stopnjo.'};
+  if(pc>=0.7)return {h:'Trdna osnova',t:'Večino dni si izpolnila svoj cilj. Navada se že vidi in to je veliko več, kot se zdi.',tip:'Nasvet: poglej, kateri dan se ti najpogosteje zalomi, in mu določi fiksno uro ali kraj.'};
+  if(pc>=0.4)return {h:'Dober začetek',t:'Navade se ne gradijo s popolnostjo, ampak z vračanjem. Ti se vračaš in to je bistvo.',tip:'Nasvet: na slabših dneh uporabi minimalno različico. Dve minuti še vedno štejeta.'};
+  return {h:'Težji čas je del poti',t:'Vsak teden ni enak in to je čisto v redu. Pomembno je, da se vrneš, ne da je bilo popolno.',tip:'Nasvet: pomanjšaj cilj na eno stvar na dan in mi piši. Skupaj poiščeva najmanjši korak.'};
+}
+async function progressBlob(kind,today){
+  const G=S;const p=G.profile;const P=repPeriod(kind,today);const mot=repMotivation(P);
+  try{await document.fonts.ready}catch(e){}
+  const FF=(getComputedStyle(document.body).fontFamily||'Arial, sans-serif');
+  const W=1080,M=56;
+  const font=(w,sz)=>w+' '+sz+'px '+FF;
+  const meas=document.createElement('canvas').getContext('2d');
+  const wrap=(ctx,text,maxW,maxLines)=>{
+    const words=String(text||'').trim().split(/\s+/).filter(Boolean);const lines=[];let cur='';
+    for(const w of words){const t=cur?cur+' '+w:w;if(ctx.measureText(t).width>maxW&&cur){lines.push(cur);cur=w}else cur=t}
+    if(cur)lines.push(cur);
+    if(lines.length>maxLines){lines.length=maxLines;let l=lines[maxLines-1];while(l.length&&ctx.measureText(l+'…').width>maxW)l=l.slice(0,-1);lines[maxLines-1]=l.replace(/[\s.,;:]+$/,'')+'…'}
+    return lines;
+  };
+  const why=myWhy();
+  meas.font=font(400,30);
+  const mLines=wrap(meas,mot.t,W-2*M-80,6);meas.font=font(700,28);
+  const tLines=wrap(meas,mot.tip,W-2*M-80,4);
+  const wLines=why?(meas.font=font(400,28),wrap(meas,why,W-2*M-80,3)):[];
+  const rows=P.kind==='month'?Math.ceil((P.lead+P.cells.length)/7):1;
+  const gridH=P.kind==='month'?rows*92+10:150;
+  const motH=70+mLines.length*42+30+tLines.length*38+40;
+  const whyH=wLines.length?60+wLines.length*38+30:0;
+  const H=250+330+gridH+60+200+motH+(whyH?whyH+24:0)+120;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');
+  const rr=(x,y,w,h,r)=>{c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()};
+  c.fillStyle='#F2F2F7';c.fillRect(0,0,W,H);c.textBaseline='alphabetic';
+  const lab=(t,x,y,col,al)=>{c.font=font(700,24);c.fillStyle=col||'#636366';c.textAlign=al||'left';if(c.letterSpacing!==undefined)c.letterSpacing='3px';c.fillText(t.toUpperCase(),x,y);if(c.letterSpacing!==undefined)c.letterSpacing='0px'};
+  lab('Kako mi gre · '+P.title,M,86);
+  c.font=font(800,64);c.fillStyle='#1C1C1E';c.textAlign='left';c.fillText(p.name||'Moj napredek',M,156);
+  c.font=font(400,30);c.fillStyle='#636366';c.fillText(P.label,M,204);
+  /* kartica z rezultatom */
+  let y=240;const ch=300;
+  c.fillStyle='#fff';rr(M,y,W-2*M,ch,32);c.fill();
+  const rx=M+40+100,ry=y+ch/2;
+  c.lineWidth=22;c.lineCap='round';c.strokeStyle='#D8F0E2';c.beginPath();c.arc(rx,ry,82,0,Math.PI*2);c.stroke();
+  const frac=P.pct||0;
+  if(frac>0){c.strokeStyle='#1E8E5A';c.beginPath();c.arc(rx,ry,82,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,frac));c.stroke()}
+  c.font=font(800,48);c.fillStyle='#1C1C1E';c.textAlign='center';c.fillText(P.pct==null?'–':Math.round(P.pct*100)+' %',rx,ry+16);c.textAlign='left';
+  const tx=M+40+200+40;
+  lab('Moj cilj',tx,y+80,'#177A4C');
+  c.font=font(800,40);c.fillStyle='#1C1C1E';
+  wrap(c,p.cilj||p.kaj||'',W-M-40-tx,2).forEach((l,i)=>c.fillText(l,tx,y+130+i*46));
+  c.font=font(700,30);c.fillStyle='#177A4C';
+  c.fillText(P.good+' od '+P.target+(P.kind==='week'?' načrtovanih dni':' dni z vnosom'),tx,y+ch-62);
+  y+=ch+24;
+  /* dnevi */
+  const col={done:['#DDF2E5','#0F5E39'],min:['#FBEBC8','#7A4F00'],rest:['#DFE8F4','#2F4F78'],miss:['#F8E0D9','#8E2E19'],missed:['#F8E0D9','#8E2E19']};
+  const mark=(st,ix,iy,cc)=>{c.lineWidth=6;c.lineCap='round';c.lineJoin='round';c.strokeStyle=cc;
+    if(st==='done'){c.beginPath();c.moveTo(ix-11,iy);c.lineTo(ix-3,iy+9);c.lineTo(ix+12,iy-9);c.stroke()}
+    else if(st==='min'){c.lineWidth=5;c.beginPath();c.arc(ix,iy,13,0,Math.PI*2);c.stroke();c.fillStyle=cc;c.beginPath();c.moveTo(ix,iy-13);c.arc(ix,iy,13,-Math.PI/2,Math.PI/2);c.closePath();c.fill()}
+    else if(st==='rest'){c.beginPath();c.moveTo(ix-5,iy-10);c.lineTo(ix-5,iy+10);c.moveTo(ix+5,iy-10);c.lineTo(ix+5,iy+10);c.stroke()}
+    else{c.beginPath();c.moveTo(ix-9,iy-9);c.lineTo(ix+9,iy+9);c.moveTo(ix+9,iy-9);c.lineTo(ix-9,iy+9);c.stroke()}};
+  const cw=(W-2*M-6*12)/7;
+  const tile=(x,yy,h,st,topTxt,sub)=>{
+    const cc=col[st];
+    if(cc){c.fillStyle=cc[0];rr(x,yy,cw,h,20);c.fill()}else{c.fillStyle='#fff';rr(x,yy,cw,h,20);c.fill();c.setLineDash([8,8]);c.lineWidth=3;c.strokeStyle='#C7C7CC';c.stroke();c.setLineDash([])}
+    c.textAlign='center';c.font=font(700,sub?22:24);c.fillStyle=cc?cc[1]:'#636366';c.fillText(topTxt,x+cw/2,yy+(sub?32:34));
+    if(cc&&sub!==null)mark(st,x+cw/2,yy+h-(sub?30:36),cc[1]);else if(sub!==null){c.fillStyle='#C7C7CC';c.beginPath();c.arc(x+cw/2,yy+h-34,6,0,Math.PI*2);c.fill()}
+  };
+  if(P.kind==='week'){
+    P.days.forEach((d,i)=>tile(M+i*(cw+12),y,130,d.state,DAYS[i],''));
+  }else{
+    DAYS.forEach((d,i)=>{c.textAlign='center';c.font=font(700,22);c.fillStyle='#636366';c.fillText(d,M+i*(cw+12)+cw/2,y+8)});
+    P.cells.forEach((cell,k)=>{const idx=P.lead+k;const r=Math.floor(idx/7),cI=idx%7;
+      tile(M+cI*(cw+12),y+24+r*92,80,cell.state,String(cell.n),'');});
+  }
+  c.textAlign='left';y+=gridH+30;
+  /* statistika */
+  const sts=[[String(streak(G,today)),'dni v seriji'],[String(longestStreak(G,today)),'najdaljša serija'],[String(totalDone(G,today)),'dni skupaj']];
+  const sw=(W-2*M-2*18)/3;
+  sts.forEach(([n,l],i)=>{const x=M+i*(sw+18);c.fillStyle='#fff';rr(x,y,sw,150,24);c.fill();
+    c.textAlign='center';c.font=font(800,56);c.fillStyle='#177A4C';c.fillText(n,x+sw/2,y+80);c.font=font(400,24);c.fillStyle='#636366';c.fillText(l,x+sw/2,y+120)});
+  c.textAlign='left';y+=150+36;
+  /* motivacija */
+  c.fillStyle='#177A4C';rr(M,y,W-2*M,motH,32);c.fill();
+  c.fillStyle='#fff';lab(mot.h,M+40,y+60,'#CFEFDC');
+  c.font=font(400,30);c.fillStyle='#fff';mLines.forEach((l,i)=>c.fillText(l,M+40,y+110+i*42));
+  c.font=font(700,28);c.fillStyle='#E4F7EC';tLines.forEach((l,i)=>c.fillText(l,M+40,y+110+mLines.length*42+34+i*38));
+  y+=motH+24;
+  if(wLines.length){
+    c.fillStyle='#fff';rr(M,y,W-2*M,whyH,28);c.fill();
+    lab('Zakaj sem začela',M+40,y+46,'#177A4C');
+    c.font=font(400,28);c.fillStyle='#1C1C1E';wLines.forEach((l,i)=>c.fillText(l,M+40,y+90+i*38));
+  }
+  c.font=font(700,24);c.fillStyle='#636366';if(c.letterSpacing!==undefined)c.letterSpacing='2px';c.fillText('TRAIN & RIDE · ACCOUNTABILITY CLUB',M,H-44);
+  c.fillStyle='#177A4C';c.textAlign='right';c.fillText('✓ MAŠ TO',W-M,H-44);if(c.letterSpacing!==undefined)c.letterSpacing='0px';
+  return await new Promise(res=>cv.toBlob(res,'image/png'));
+}
+function openProgressReport(today){
+  let kind=ui.repKind||'week';let blob=null,url=null,seq=0;
+  const img=h('img',{alt:'Poročilo',style:'min-height:120px'});
+  const seg=h('div',{class:'seg',role:'group','aria-label':'Obdobje'});
+  const opts=[['week','Ta teden'],['pweek','Prejšnji teden'],['month','Ta mesec'],['pmonth','Prejšnji mesec']];
+  const nm=()=>'napredek-'+kind+'-'+today+'.png';
+  const share=h('button',{class:'btn',type:'button'},'Deli');
+  const dl=h('a',{class:'btn alt',download:'napredek.png'},'Prenesi sliko');
+  const gen=async()=>{
+    const my=++seq;img.removeAttribute('src');share.disabled=true;
+    let b=null;try{b=await progressBlob(kind,today)}catch(e){}
+    if(my!==seq)return;
+    if(!b){toast('Slike ni bilo mogoče narediti.');return}
+    if(url)URL.revokeObjectURL(url);blob=b;url=URL.createObjectURL(b);img.src=url;dl.href=url;dl.download=nm();share.disabled=false;
+  };
+  const drawSeg=()=>{seg.replaceChildren(...opts.map(([k,l])=>h('button',{class:'btn sm '+(kind===k?'':'alt'),type:'button','aria-pressed':kind===k?'true':'false',onclick:()=>{kind=k;ui.repKind=k;drawSeg();gen()}},l)))};
+  share.onclick=async()=>{
+    if(!blob)return;
+    let file=null;try{file=new File([blob],nm(),{type:'image/png'})}catch(e){}
+    try{if(file&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Kako mi gre'});return}}
+    catch(e){if(e&&e.name==='AbortError')return}
+    toast('Deljenje ni podprto. Uporabi Prenesi sliko.');
+  };
+  const ov=h('div',{class:'rp-ov',role:'dialog','aria-label':'Kako mi gre',onclick:e=>{if(e.target===ov)close()}},
+    h('div',{class:'rp-in'},h('h2',{text:'Kako mi gre'}),seg,img,share,dl,
+      h('button',{class:'btn alt',type:'button',onclick:()=>close()},'Zapri')));
+  const close=()=>{seq++;ov.remove();if(url)URL.revokeObjectURL(url)};
+  document.body.append(ov);drawSeg();gen();
+}
 async function shareReport(ws,today){
   pushCheckin(ws,today);
   toast('Pripravljam sliko …');
@@ -1618,14 +1756,15 @@ function viewProgress(today){
       rvField('o','Kaj te je oviralo?','Katera ovira se je ponovila?','var(--min)'),
       rvField('c','Kaj spremenim naslednji teden?','Ena majhna sprememba v času, prostoru ali velikosti cilja.','var(--accent)'),savedEl];
   }
+  const ciDone=!!(ST.reviews[rws]&&ST.reviews[rws].sentAt)&&ui.ciEditWs!==rws;
   const ctext=build();
   const ta=h('textarea',{id:'ci-text',readonly:true,hidden:true,rows:'12','aria-label':'Besedilo za skupino'});ta.value=ctext;
   if(pv==='week'){
     if(wd(today)===0) out.push(h('section',{class:'card',style:'border-left:5px solid var(--accent);border-right:5px solid var(--accent)'},h('h2',{text:'Ponedeljkov check-in'}),
       h('p',{class:'small muted',text:'Teden '+fmtRange(rws)}),
       h('p',{text:'Sharing is caring. Samo s pomočjo skupnosti lažje rastemo. Odgovori na tri vprašanja in pošlji check-in. Tvoja iskrenost pomaga tebi in drugim, tudi če teden ni bil popoln.'}),
-      ...(isMon?rvFields:[]),
-      sb?sendBlock(rws,today):h('div',{},
+      ...(isMon&&!ciDone?rvFields:[]),
+      sb?(ciDone?sentCollapsed(rws):sendBlock(rws,today)):h('div',{},
       h('p',{class:'small muted',text:'Izberi, kako želiš deliti s skupino.'}),
       h('button',{class:'btn',type:'button',onclick:()=>shareReport(rws,today)},'Deli sliko'),
       h('button',{class:'btn alt',type:'button',onclick:async e=>{
@@ -1661,6 +1800,9 @@ function viewProgress(today){
         h('button',{class:'iconbtn',type:'button','aria-label':'Naslednji mesec',onclick:()=>{ui.month=vm.m===11?{y:vm.y+1,m:0}:{y:vm.y,m:vm.m+1};render()}},'›'))),
     cal,legend,h('p',{text:'Uspešnost meseca: '+pct(ms.pct)+(ms.good+ms.bad?' ('+ms.good+' od '+(ms.good+ms.bad)+' dni)':'')})));
 
+  out.push(h('section',{class:'card'},h('h2',{text:'Kako mi gre'}),
+    h('p',{class:'small muted',text:'Hiter pregled tedna ali meseca s pohvalo in nasvetom. Shrani ga kot sliko ali deli.'}),
+    h('button',{class:'btn',type:'button',onclick:()=>openProgressReport(today)},'Moje poročilo')));
   out.push(h('div',{class:'stats'},
     h('div',{class:'stat'},h('b',{text:String(totalDone(S,today))}),h('span',{text:'izvedenih dni skupaj'})),
     h('div',{class:'stat'},h('b',{text:String(longestStreak(S,today))}),h('span',{text:'najdaljša serija'})),
@@ -2096,15 +2238,22 @@ function sendBlock(ws,today){
     const btn=h('button',{class:'btn',type:'button'},sent?'Posodobi check-in':'Pošlji check-in');
     btn.onclick=async()=>{
       if(inTest()){toast('Testni način: check-in se ne pošilja.');return}
-      if(!(rv.w||rv.o||rv.c)&&!confirm('Odgovori so prazni. Vseeno pošljem check-in?'))return;
+      const cur=ST.reviews[ws]||{};if(!(cur.w||cur.o||cur.c)&&!confirm('Odgovori so prazni. Vseeno pošljem check-in?'))return;
       btn.disabled=true;btn.textContent='Pošiljam …';
       const ok=await pushCheckin(ws,today,true);
-      if(ok){const r=ST.reviews[ws]||(ST.reviews[ws]={});r.sentAt=new Date().toISOString();save();toast('Check-in je oddan. Hvala!');draw()}
+      if(ok){const r=ST.reviews[ws]||(ST.reviews[ws]={});r.sentAt=new Date().toISOString();save();ui.ciEditWs=null;toast('Check-in je oddan. Hvala!');render()}
       else{btn.disabled=false;btn.textContent=sent?'Posodobi check-in':'Pošlji check-in';toast('Pošiljanje ni uspelo. Preveri povezavo in poskusi znova.')}
     };
     wrap.replaceChildren(btn,msg);
   };
   draw();return wrap;
+}
+function sentCollapsed(ws){
+  const rv=ST.reviews[ws]||{};const d=new Date(rv.sentAt);
+  return h('div',{class:'ci-done'},
+    h('p',{class:'small',style:'color:var(--primary);font-weight:700;margin:0'},'Oddano ✓ '+d.getDate()+'. '+(d.getMonth()+1)+'. ob '+pad(d.getHours())+':'+pad(d.getMinutes())),
+    h('p',{class:'small muted',text:'Hvala, da deliš. Odgovori so shranjeni.'}),
+    h('button',{class:'btn alt',type:'button',onclick:()=>{ui.ciEditWs=ws;render()}},'Posodobi check-in'));
 }
 function schedCheckin(ws,today){clearTimeout(ciT);ciT=setTimeout(()=>pushCheckin(ws,today),2500)}
 async function syncDown(){
