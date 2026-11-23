@@ -1256,8 +1256,8 @@ function playBadge(b){
 }
 function emptyCard(){
   return h('section',{class:'card empty'},
-    h('span',{class:'label',text:'Prvi korak'}),
-    h('h2',{text:'Bravo!'}),
+    h('h2',{text:'Prvi korak'}),
+    h('p',{style:'font-size:44px;line-height:1;margin:4px 0 8px','aria-label':'Pozdrav'},'👋'),
     h('p',{class:'lead',text:'Danes z vpisom cilja narediš prvi korak k uresničitvi boljše verzije sebe.'}),
     h('p',{class:'muted',text:'Zapiši en cilj, njegovo minimalno različico in dneve, ko ga želiš izvajati. Cilj je lahko karkoli: gibanje, prehrana ali trenutek zase.'}),
     h('button',{class:'btn',type:'button',onclick:startGoalAnim},'Postavi cilj'),
@@ -2017,7 +2017,7 @@ function viewGoal(today){
       Object.assign(ST.goals[idx],fields);
       if(idx===0){ST.name=(f.name||'').trim();ST.goals[0].start=f.start}
     }
-    save();ui.form=null;ui.tab='danes';render();toast('Cilj je shranjen');window.scrollTo({top:0});
+    save();ui.form=null;ui.editGoal=null;ui.tab='danes';render();toast('Cilj je shranjen');window.scrollTo({top:0});
   }},adding?'Dodaj cilj':p?'Shrani spremembe':'Shrani cilj'));
   if(!isFirst&&!adding){
     const rb=h('button',{class:'btn ghost sm',type:'button',onclick:()=>{
@@ -2028,7 +2028,22 @@ function viewGoal(today){
   }
   const title=adding?'Dodatni cilj':!n?'Postavi svoj cilj':(n>1?'Cilj '+(idx+1):'Moj cilj');
   const sub=!n?'Prvi mesec gradiš eno navado, saj imaš tako največ možnosti, da se res vzpostavi. Cilj je lahko karkoli: gibanje, prehrana, trenutek zase brez hitenja, itd.':adding?'Dodatni cilj naj bo majhen in jasen. Začne se danes.':'Tapni cilj zgoraj, če jih imaš več.';
-  out.push(h('section',{class:'card'},h('h2',{text:title}),h('p',{class:'muted small',text:sub}),form));
+  if(n>0&&!adding&&ui.editGoal!==idx){
+    ui.form=null;const g=ST.goals[idx];
+    const row=(lb,tx,c)=>tx?h('div',{class:'field qrow',style:'--rc:var('+c+')'},h('span',{class:'lb',text:lb}),h('span',{text:tx})):null;
+    const dni=g.perWeek?g.perWeek+'× na teden':g.planned.map(i=>DAYS_LONG[i]).join(', ');
+    out.push(h('section',{class:'card'},h('h2',{text:title}),
+      h('p',{class:'lead',style:'margin:0 0 6px',text:g.cilj||goalSentence(g)}),
+      h('p',{class:'small muted',text:goalSentence(g)}),
+      row('Dnevi',dni,'--primary'),row('Minimalna različica',g.min,'--min'),row('Pripeto na',g.anchor,'--rest'),
+      row('Če se pojavi ovira, potem',g.ifthen,'--miss'),row('Nagrada',g.reward,'--accent'),
+      row('Sem oseba, ki',(g.identity||'').replace(/^\s*sem\s+oseba,?\s+ki\s+/i,'').replace(/\.+\s*$/,''),'--primary'),
+      row('Zakaj mi je to pomembno',g.why,'--accent'),
+      h('button',{class:'btn',type:'button',onclick:()=>{ui.form=null;ui.editGoal=idx;render();window.scrollTo({top:0})}},'Uredi cilj')));
+  }else{
+    if(n>0&&!adding)form.append(h('button',{class:'btn alt',type:'button',onclick:()=>{ui.form=null;ui.editGoal=null;render()}},'Prekliči'));
+    out.push(h('section',{class:'card'},h('h2',{text:title}),h('p',{class:'muted small',text:sub}),form));
+  }
 
   out.push(a2hsCard(false));
 
