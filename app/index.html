@@ -1471,7 +1471,7 @@ function viewToday(today){
   const out=[];
   if(!storageOk) out.push(h('div',{class:'banner warn'},h('b',{text:'Shranjevanje v tem brskalniku ne deluje'}),h('span',{text:'Podatki bodo izginili, ko zapreš stran. Odpri povezavo v običajnem oknu.'})));
   const qi=((diffDays('2026-01-01',today)%QUOTES.length)+QUOTES.length)%QUOTES.length;
-  const qcard=h('section',{class:S.profile?'card plain':'card'},h('h2',{text:S.profile?'Misel in nasvet dneva':'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}),S.profile?adviceBlock(today):null);
+  const qcard=h('section',{class:S.profile?'card plain':'card'},h('h2',{text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
   if(!S.profile){out.push(emptyCard());return out}
   setTimeout(()=>{if(ui.tab==='danes'&&!document.querySelector('.pop-ov'))maybeWeekMiss(today)},500);
   out.push(qcard);
