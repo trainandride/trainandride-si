@@ -437,6 +437,8 @@ textarea[hidden]{display:none}
 .empty{align-items:flex-start}
 @media (prefers-reduced-motion:no-preference){.bar i,.wk .tr i{transition:height .3s,width .3s}}
 
+.goalname{font:800 22px/1.2 var(--font-head);text-transform:uppercase;letter-spacing:.04em;color:var(--primary);margin:0 0 8px}
+.pop-in h2.goalname{text-align:center}
 /* računalnik: širši, dvostolpčni pogled (telefon ostane nespremenjen) */
 @media (min-width:1000px) and (hover:hover) and (pointer:fine){
  body[data-tab="danes"] .shell,body[data-tab="napredek"] .shell{max-width:1120px}
@@ -1397,7 +1399,7 @@ function showMotivation(){
 function showSummary(p){
   const rows=[['Minimalna različica',p.min,'--min'],['Sem oseba, ki',p.identity?p.identity.replace(/^\s*sem\s+oseba,?\s+ki\s+/i,'').replace(/\.+\s*$/,''):'','--primary'],['Zakaj mi je pomembno',p.why,'--accent'],['Pripeto na',p.anchor,'--rest'],['Ovira',p.ifthen,'--miss']].filter(r=>r[1]);
   const ov=popOverlay(h('div',{class:'pop-in sum',onclick:()=>ov.remove()},
-    h('span',{class:'label',text:'Moj cilj'}),h('h2',{text:p.cilj||goalSentence(p)}),
+    h('span',{class:'label',text:'Moj cilj'}),h('h2',{class:'goalname',text:p.cilj||goalSentence(p)}),
     p.kaj?h('p',{class:'sm-sentence',text:goalSentence(p)}):null,
     rows.map((r,n)=>h('div',{class:'sm-row',style:'--rc:var('+r[2]+');animation-delay:'+(.25+n*.35)+'s'},h('b',{text:r[0]}),h('span',{text:r[1]}))),
     h('p',{class:'small muted',style:'text-align:center',text:'Tapni za zapiranje'})));
@@ -2138,7 +2140,7 @@ function viewGoal(today){
     const row=(lb,tx,c)=>tx?h('div',{class:'field qrow',style:'--rc:var('+c+')'},h('span',{class:'lb',text:lb}),h('span',{text:tx})):null;
     const dni=g.perWeek?g.perWeek+'× na teden':g.planned.map(i=>DAYS_LONG[i]).join(', ');
     out.push(h('section',{class:'card'},h('h2',{text:title}),
-      h('p',{class:'lead',style:'margin:0 0 6px',text:g.cilj||goalSentence(g)}),
+      h('p',{class:'goalname',text:g.cilj||goalSentence(g)}),
       h('p',{class:'small muted',text:goalSentence(g)}),
       row('Dnevi',dni,'--primary'),row('Minimalna različica',g.min,'--min'),row('Pripeto na',g.anchor,'--rest'),
       row('Če se pojavi ovira, potem',g.ifthen,'--miss'),row('Nagrada',g.reward,'--accent'),
