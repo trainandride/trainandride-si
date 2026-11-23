@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Accountability Club</title>
-<meta name="theme-color" content="#EADFCF">
+<meta name="theme-color" content="#E2E9DD">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -20,10 +20,10 @@
 <style>
 /* Koncept: ena kolona, zavihki zgoraj, velike tipke za dnevni vnos. Gozdno zelena + korala iz podobe skupine. */
 :root{
-  --bg:#EADFCF; --surface:#ffffff; --surface-2:#F5EEE2; --fg:#1C1C1E; --muted:#665E54; --line:#D4C7B2;
+  --bg:#E2E9DD; --surface:#ffffff; --surface-2:#F1F5EE; --fg:#1C1C1E; --muted:#586456; --line:#C5D2BE;
   --primary:#177A4C; --on-primary:#ffffff; --ring:#1E8E5A; --accent:#B5532F; --accent-t:#FBE6DC;
   --done:#177A4C; --done-t:#DDF2E5; --min:#8A5A00; --min-t:#FBEBC8; --rest:#3F6590; --rest-t:#DFE8F4; --miss:#B13E2A; --miss-t:#F8E0D9;
-  --on-status:#ffffff; --ring-track:#D8F0E2; --tabbg:rgba(252,247,240,.95); --tabline:#D9CCB8; color-scheme:light;
+  --on-status:#ffffff; --ring-track:#D8F0E2; --tabbg:rgba(241,245,238,.95); --tabline:#C5D2BE; color-scheme:light;
   --font-head:Inter,-apple-system,'Segoe UI',system-ui,sans-serif;
   --font-body:Inter,-apple-system,'Segoe UI',system-ui,sans-serif;
 }
@@ -320,8 +320,8 @@ textarea{resize:vertical;min-height:84px}
 
 #testbar{position:fixed;top:0;left:0;right:0;z-index:70;display:flex;gap:10px;align-items:center;justify-content:space-between;background:#B3261E;color:#fff;font-size:13px;font-weight:700;padding:calc(6px + env(safe-area-inset-top,0px)) 12px 6px}
 #testbar button{border:0;border-radius:999px;background:#fff;color:#B3261E;font:inherit;font-weight:800;padding:5px 12px;cursor:pointer;white-space:nowrap}
-:root:not([data-theme="dark"]) .card{border:1px solid #CDBFA8;box-shadow:0 2px 8px rgba(90,60,25,.15)}
-:root:not([data-theme="dark"]) .card.fp{background:#fff;border:1px solid #CDBFA8;border-left:6px solid var(--sc,var(--primary));border-right:6px solid var(--sc,var(--primary));box-shadow:0 2px 8px rgba(90,60,25,.15)}
+:root:not([data-theme="dark"]) .card{border:1px solid #B7C6AF;box-shadow:0 2px 8px rgba(40,60,35,.15)}
+:root:not([data-theme="dark"]) .card.fp{background:#fff;border:1px solid #B7C6AF;border-left:6px solid var(--sc,var(--primary));border-right:6px solid var(--sc,var(--primary));box-shadow:0 2px 8px rgba(40,60,35,.15)}
 :root:not([data-theme="dark"]) .card.fp .bar,:root:not([data-theme="dark"]) .card.fp .wk .tr,:root:not([data-theme="dark"]) .card.fp textarea,:root:not([data-theme="dark"]) .card.fp .iconbtn,:root:not([data-theme="dark"]) .card.fp .badge:not(.on) .c{background:var(--surface-2)}
 :root:not([data-theme="dark"]) .card.fp.goalcard{--ring-track:var(--surface-2)}
 :root:not([data-theme="dark"]) .lawt,:root:not([data-theme="dark"]) .nstep{background:var(--surface-2)}
@@ -1094,7 +1094,7 @@ const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wi
 function themeNow(){try{return localStorage.getItem('tr-theme')==='dark'?'dark':'light'}catch(e){return 'light'}}
 function applyTheme(t){
   if(t==='dark')document.documentElement.setAttribute('data-theme','dark');else document.documentElement.removeAttribute('data-theme');
-  const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',t==='dark'?'#0E1512':'#EADFCF');
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',t==='dark'?'#0E1512':'#E2E9DD');
   const c=document.querySelector('meta[name=color-scheme]');if(c)c.setAttribute('content',t==='dark'?'dark':'light');
   const b=document.getElementById('themebtn');
   if(b){b.innerHTML=t==='dark'?SUN:MOON;b.setAttribute('aria-label',t==='dark'?'Preklopi na svetel videz':'Preklopi na temen videz')}
