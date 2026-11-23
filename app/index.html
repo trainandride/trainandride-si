@@ -123,7 +123,10 @@ button.cell:hover{border-color:var(--primary)}
 .badges{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 8px}
 .badge{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:12px;line-height:1.25;color:var(--muted);min-width:0}
 .badge .c{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-family:var(--font-head);font-weight:700;font-size:22px;border:2px dashed var(--line);color:var(--muted)}
-.badge.on{color:var(--fg);font-weight:700}
+.badge.on{color:var(--fg)}
+.badge .bl{font:800 11px/1.2 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--fg)}
+.badge .bs{font:700 11px/1.2 var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.badge.on .bs{color:var(--primary)}
 .badge.on .c{background:var(--accent);border:0;color:var(--on-status)}
 .burst{position:relative;overflow:hidden}
 .card.burst{background:transparent;padding:0 3px}
@@ -209,7 +212,7 @@ form{display:flex;flex-direction:column;gap:14px}
 .field label,.field .lb{font-weight:700;font-size:15px}
 .hint{font-size:15px;color:var(--muted)}
 .field .hint{font-size:15px;color:var(--muted)}
-.idrow{display:flex;flex-direction:column;gap:6px}.idpre{font-weight:700;color:var(--sc,var(--accent));font-size:1.05rem}
+.idrow{display:flex;flex-direction:column;gap:6px}.idpre,.sech{font:800 14px/1.2 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--sc,var(--accent))}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .fsec{border:1px solid var(--line);border-left:5px solid var(--sc,var(--primary));border-radius:14px;padding:14px 14px 16px;background:var(--surface-2);display:flex;flex-direction:column;gap:10px;margin:14px 0}
 .fsec-h{margin:0;font:800 14px/1.2 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--sc,var(--primary));display:flex;align-items:center;gap:10px}
@@ -1410,7 +1413,7 @@ function viewToday(today){
   const tgE=smE.target||0,fr=tgE?Math.min(1,smE.good/tgE):0;
   const ringEl=h('div',{html:'<svg width="86" height="86" viewBox="0 0 86 86" role="img" aria-label="Tedenski cilj: '+smE.good+' od '+tgE+'"><circle cx="43" cy="43" r="34" fill="none" style="stroke:var(--ring-track)" stroke-width="9"/><circle cx="43" cy="43" r="34" fill="none" style="stroke:var(--ring)" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+(fr*213.6).toFixed(1)+' 213.6" transform="rotate(-90 43 43)"/><text x="43" y="49" text-anchor="middle" font-family="Inter,sans-serif" font-weight="800" font-size="20" fill="currentColor">'+smE.good+'/'+tgE+'</text></svg>',style:'display:contents'});
   out.push(h('section',{class:'card goalcard'},h('div',{class:'goalhead'},ringEl,h('div',{style:'min-width:0'},h('span',{class:'label',text:(ST.goals.length>1?'Cilj '+(ui.gi+1):'Moj cilj')+' · ta teden'}),h('h2',{text:p.cilj||goalSentence(p)}))),
-    h('button',{class:'btn alt',type:'button',onclick:()=>showSummary(p)},'Povzemi cilj')));
+    h('button',{class:'btn',type:'button',onclick:()=>showSummary(p)},'Povzemi cilj')));
 
   const planned=!p.perWeek&&p.planned.includes(wd(today));
   const choices=h('div',{class:'choices'});
@@ -1676,7 +1679,7 @@ function viewProgress(today){
   const views=ST.goals.map((g,i)=>gv(i));const bs=badgeStats(views,today);
   const tiles=BADGES.map(b=>{
     const v=b.kind==='streak'?bs.streak:bs.total;const on=ST.earned.includes(b.id);
-    const kids=[h('span',{class:'c',text:String(b.n)}),h('span',{text:b.t}),h('span',{text:on?'pridobljena':Math.min(v,b.n)+'/'+b.n})];
+    const kids=[h('span',{class:'c',text:String(b.n)}),h('span',{class:'bl',text:b.kind==='streak'?'Zaporednih dni':'Izvedenih dni'}),h('span',{class:'bs',text:on?'Pridobljena':Math.min(v,b.n)+' / '+b.n})];
     if(on) return h('button',{class:'badge on btn-b',type:'button','aria-label':b.t+', pridobljena. Tapni za animacijo',onclick:()=>playBadge(b)},kids);
     return h('div',{class:'badge',role:'img','aria-label':b.t+', '+Math.min(v,b.n)+' od '+b.n},kids);
   });
@@ -1739,7 +1742,7 @@ function viewGoal(today){
   function whyField(){
     const el=h('textarea',{id:'f-why',rows:'2',maxlength:'300','aria-label':'Zakaj mi je to pomembno',placeholder:'npr. Rada bi imela energijo za sezono in se v svojem telesu dobro počutila.'});
     el.value=f.why||'';el.addEventListener('input',()=>{f.why=el.value});
-    return h('div',{class:'field'},h('span',{class:'lb',text:'Zakaj mi je to pomembno?'}),
+    return h('div',{class:'field'},h('span',{class:'sech',text:'Zakaj mi je to pomembno?'}),
       h('span',{class:'hint',text:'Teorija samoodločanja kaže, da ljudje dlje vztrajajo pri ciljih, ki so jim osebno pomembni in jih izberejo sami, kot pri ciljih iz občutka dolžnosti ali pritiska.'}),
       h('span',{class:'hint'},h('b',{text:'Kaj narediš: '}),'vprašaj se, zakaj je to pomembno meni. Napiši en stavek in ga preberi, ko ne gre.'),el);
   }
@@ -1816,15 +1819,6 @@ function viewGoal(today){
   const sub=!n?'Prvi mesec gradiš eno navado, saj imaš tako največ možnosti, da se res vzpostavi. Cilj je lahko karkoli: gibanje, prehrana, trenutek zase brez hitenja, itd.':adding?'Dodatni cilj naj bo majhen in jasen. Začne se danes.':'Tapni cilj zgoraj, če jih imaš več.';
   out.push(h('section',{class:'card'},h('h2',{text:title}),h('p',{class:'muted small',text:sub}),form));
 
-  if(n>0){
-    const hr=ui.remHour||8;
-    out.push(h('section',{class:'card'},h('h2',{text:'Ponedeljkov opomnik v koledarju'}),
-      h('p',{class:'small muted',text:'Vsak ponedeljek te telefon vpraša: Je v tvojem tednu že načrtovan čas za Accountability Club? Izberi uro in dodaj opomnik v koledar.'}),
-      h('div',{class:'chips',role:'group','aria-label':'Ura opomnika'},[6,7,8,9,10,12,18,19,20].map(x=>h('button',{class:'chip',type:'button','aria-pressed':hr===x?'true':'false',onclick:()=>{ui.remHour=x;render()}},x+':00'))),
-      h('a',{class:'btn',href:reminderUrl(todayStr(),hr),target:'_blank',rel:'noopener noreferrer'},'Dodaj v Google Koledar'),
-      h('p',{class:'small muted',text:'Imaš iPhone ali drug koledar? Ustvari dogodek ob ponedeljkih, ki se ponavlja vsak teden, z naslovom spodaj.'}),
-      h('button',{class:'btn alt sm',type:'button',onclick:async()=>{try{await navigator.clipboard.writeText(REM_TITLE);toast('Naslov je kopiran')}catch(e){toast('Kopiranje ni uspelo')}}},'Kopiraj naslov opomnika')));
-  }
   out.push(a2hsCard(false));
 
   if(n>0){
