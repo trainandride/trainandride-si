@@ -80,7 +80,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .choice{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;text-align:left;padding:13px 14px;border-radius:16px;border:0;background:var(--surface);font-weight:600;font-size:13.5px;line-height:1.2;min-height:78px}
 .choice svg{width:22px;height:22px;flex:none}
 .choice.c-done{color:var(--done)} .choice.c-min{color:var(--min)} .choice.c-rest{color:var(--rest)} .choice.c-miss{color:var(--miss)}
-.choice span{color:var(--fg)}
+.choice span{color:inherit;text-transform:uppercase;letter-spacing:.07em;font-weight:800;font-size:12px;line-height:1.25}
 .choice[aria-pressed="true"]{box-shadow:inset 0 0 0 2px currentColor}
 .choice{transition:background .2s}
 .choice.c-done[aria-pressed="true"]{background:var(--done-t)} .choice.c-min[aria-pressed="true"]{background:var(--min-t)}
@@ -1359,11 +1359,11 @@ function viewToday(today){
   const out=[];
   if(!storageOk) out.push(h('div',{class:'banner warn'},h('b',{text:'Shranjevanje v tem brskalniku ne deluje'}),h('span',{text:'Podatki bodo izginili, ko zapreš stran. Odpri povezavo v običajnem oknu.'})));
   const qi=((diffDays('2026-01-01',today)%QUOTES.length)+QUOTES.length)%QUOTES.length;
-  const qcard=h('section',{class:S.profile?'card plain':'card'},h('span',{class:'label',text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
+  const qcard=h('section',{class:S.profile?'card plain':'card'},h('h2',{text:'Misel dneva'}),h('p',{class:'quote',text:QUOTES[qi]}));
   if(!S.profile){out.push(emptyCard());return out}
   setTimeout(()=>{if(ui.tab==='danes'&&!document.querySelector('.pop-ov'))maybeWeekMiss(today)},500);
   out.push(qcard);
-  out.push(h('section',{class:'card obveza'},h('span',{class:'label',text:'Obveza skupine'}),
+  out.push(h('section',{class:'card obveza'},h('h2',{text:'Obveza skupine'}),
     h('p',{text:'Če začutiš, da zmanjkuje zagona, to napiši v WhatsApp skupino, še preden zgrešiš.'}),
     h('div',{class:'row'},
       h('button',{class:'btn alt',type:'button',onclick:showMotivation},'Rabim motivacijo'),
