@@ -1417,7 +1417,7 @@ function viewToday(today){
   const wsE=weekStart(today),smE=weekSummary(S,wsE,today);
   const tgE=smE.target||0,fr=tgE?Math.min(1,smE.good/tgE):0;
   const ringEl=h('div',{html:'<svg width="86" height="86" viewBox="0 0 86 86" role="img" aria-label="Tedenski cilj: '+smE.good+' od '+tgE+'"><circle cx="43" cy="43" r="34" fill="none" style="stroke:var(--ring-track)" stroke-width="9"/><circle cx="43" cy="43" r="34" fill="none" style="stroke:var(--ring)" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+(fr*213.6).toFixed(1)+' 213.6" transform="rotate(-90 43 43)"/><text x="43" y="49" text-anchor="middle" font-family="Inter,sans-serif" font-weight="800" font-size="20" fill="currentColor">'+smE.good+'/'+tgE+'</text></svg>',style:'display:contents'});
-  out.push(h('section',{class:'card goalcard'},h('div',{class:'goalhead'},ringEl,h('div',{style:'min-width:0'},h('span',{class:'label',text:(ST.goals.length>1?'Cilj '+(ui.gi+1):'Moj cilj')+' · ta teden'}),h('h2',{text:p.cilj||goalSentence(p)}))),
+  out.push(h('section',{class:'card goalcard'},h('div',{class:'goalhead'},ringEl,h('div',{style:'min-width:0'},h('span',{class:'label',text:ST.goals.length>1?'Moji cilji':'Moj cilj'}),h('h2',{text:p.cilj||goalSentence(p)}))),
     h('button',{class:'btn',type:'button',onclick:()=>showSummary(p)},'Povzemi cilj')));
 
   const planned=!p.perWeek&&p.planned.includes(wd(today));
