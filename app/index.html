@@ -1095,8 +1095,8 @@ const CAT_SVG='<svg viewBox="0 0 340 200" preserveAspectRatio="xMidYMax meet" fo
 function riderEl(kind){
   const k=kind==='badge'?'trio':kind==='chick'?'chick':kind==='sloth'?'sloth':kind==='cat'?'cat':'ring';
   if(k==='ring') return h('div',{class:'rider-ov ov-ring','aria-hidden':'true'},h('div',{class:'hf-ring-w',html:RING_SVG}));
-  if(k==='trio') return h('div',{class:'rider-ov ov-trio','aria-hidden':'true'},h('div',{class:'trio-row'},['sloth','cat','chick'].map((n,i)=>h('img',{class:'ri tri',style:'animation-delay:'+(i*.14)+'s',src:'img/'+n+(themeNow()==='dark'?'-dark':'')+'.png?v=5',alt:'',draggable:'false'}))),[[8,18],[22,60],[38,8],[52,70],[66,14],[80,62],[92,22],[14,40],[74,40],[46,36]].map(([x,y],i)=>h('span',{class:'tsp',style:'left:'+x+'%;top:'+y+'%;animation-delay:'+(2.0+(i%5)*.12)+'s;color:var('+['--primary','--accent','--min','--rest','--primary'][i%5]+')',text:'✦'})));
-  const kids=[h('img',{class:'ri',src:'img/'+k+(themeNow()==='dark'?'-dark':'')+'.png?v=5',alt:'',draggable:'false'})];
+  if(k==='trio') return h('div',{class:'rider-ov ov-trio','aria-hidden':'true'},h('div',{class:'trio-row'},['sloth','cat','chick'].map((n,i)=>h('img',{class:'ri tri',style:'animation-delay:'+(i*.14)+'s',src:'img/'+n+(themeNow()==='dark'?'-dark':'')+'.png?v=6',alt:'',draggable:'false'}))),[[8,18],[22,60],[38,8],[52,70],[66,14],[80,62],[92,22],[14,40],[74,40],[46,36]].map(([x,y],i)=>h('span',{class:'tsp',style:'left:'+x+'%;top:'+y+'%;animation-delay:'+(2.0+(i%5)*.12)+'s;color:var('+['--primary','--accent','--min','--rest','--primary'][i%5]+')',text:'✦'})));
+  const kids=[h('img',{class:'ri',src:'img/'+k+(themeNow()==='dark'?'-dark':'')+'.png?v=6',alt:'',draggable:'false'})];
   if(k==='sloth') for(let n=0;n<4;n++) kids.push(h('span',{class:'ri-z',style:'animation-delay:'+(.3+n*.6)+'s',text:'z'+(n%2?' z':' z z')}));
   if(k==='cat') kids.push(h('span',{class:'ri-z ri-meh',text:'meh…'}));
   return h('div',{class:'rider-ov ov-'+k,'aria-hidden':'true'},kids);
