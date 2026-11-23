@@ -1347,10 +1347,10 @@ function viewToday(today){
   }
   if(wd(today)===0){
     const rws=addDays(mws,-7);const rv=ST.reviews[rws];
-    if(!before&&!(rv&&(rv.w||rv.o||rv.c))) out.push(h('section',{class:'card'},h('span',{class:'label',text:'Tedenski razmislek'}),
-      h('h2',{text:'Dve minuti za razmislek o tednu'}),
-      h('p',{text:'Kaj je delovalo, kaj te je oviralo in kaj spremeniš? Odgovori se samodejno vpišejo v tvoj check-in.'}),
-      h('button',{class:'btn alt',type:'button',onclick:()=>{ui.ciUser='prev';ui.tab='napredek';render();window.scrollTo({top:0})}},'Odgovori')));
+    if(!before&&!(rv&&(rv.sentAt||rv.w||rv.o||rv.c))) out.push(h('section',{class:'card'},h('span',{class:'label',text:'Ponedeljkov check-in'}),
+      h('h2',{text:'Dve minuti za check-in'}),
+      h('p',{text:'Kaj je delovalo, kaj te je oviralo in kaj spremeniš? Odgovori in pošlji check-in.'}),
+      h('button',{class:'btn alt',type:'button',onclick:()=>{ui.ciUser='prev';ui.tab='napredek';render();window.scrollTo({top:0})}},'Odpri check-in')));
   }
   if(before) out.push(h('div',{class:'banner info'},h('b',{text:'Skupina začne '+fmtDate(p.start)}),h('span',{text:'Do takrat vnos še ni mogoč. Če želiš aplikacijo preizkusiti, v razdelku Moj cilj nastavi začetek na današnji datum.'})));
 
@@ -1533,12 +1533,9 @@ function viewProgress(today){
   const mode=(ui.ciUser&&ui.ciUser!=='fri'?ui.ciUser:'prev');
   const rws=mode==='prev'?addDays(cws,-7):cws;
   const build=()=>mode==='fri'?fridayText(cws,today):checkinText(rws,today);
-  if(pv==='week'&&mode!=='fri'&&wd(today)!==0){
-    out.push(h('section',{class:'card'},h('h2',{text:'Tedenski razmislek'}),
-      h('p',{class:'small muted',text:'Odpre se v ponedeljek, skupaj s check-inom. Takrat odgovoriš na tri kratka vprašanja:'}),
-      h('ol',{class:'steps small'},h('li',{text:'Kaj je delovalo?'}),h('li',{text:'Kaj te je oviralo?'}),h('li',{text:'Kaj spremenim naslednji teden?'}))));
-  }
-  if(pv==='week'&&mode!=='fri'&&wd(today)===0){
+  const isMon=pv==='week'&&mode!=='fri'&&wd(today)===0;
+  let rvFields=[];
+  if(isMon){
     const rv=ST.reviews[rws]||{};
     const savedEl=h('p',{class:'small','aria-live':'polite',style:'color:var(--primary);font-weight:700;min-height:1.3em;margin:0'});
     const rvField=(key,label,hint)=>{
@@ -1546,17 +1543,18 @@ function viewProgress(today){
       el.addEventListener('input',()=>{const r=ST.reviews[rws]||(ST.reviews[rws]={});r[key]=el.value;save();ta.value=build();savedEl.textContent='Shranjeno ✓';schedCheckin(rws,today)});
       return h('div',{class:'field'},h('span',{class:'lb',text:label}),h('span',{class:'hint',text:hint}),el);
     };
-    out.push(h('section',{class:'card'},h('h2',{text:'Tedenski razmislek'}),
-      h('p',{class:'small muted',text:'Teden '+fmtRange(rws)+'. Tri kratka vprašanja. Odgovori se vpišejo v sporočilo spodaj.'}),
+    rvFields=[
       rvField('w','Kaj je delovalo?','Zakaj ti je uspelo izvesti cilj? Kaj ti je pomagalo, da si ga naredil, in kaj ti je bilo lažje (ura, kraj, oseba, razpoloženje)?'),
       rvField('o','Kaj te je oviralo?','Katera ovira se je ponovila?'),
-      rvField('c','Kaj spremenim naslednji teden?','Ena majhna sprememba v času, prostoru ali velikosti cilja.'),savedEl));
+      rvField('c','Kaj spremenim naslednji teden?','Ena majhna sprememba v času, prostoru ali velikosti cilja.'),savedEl];
   }
   const ctext=build();
   const ta=h('textarea',{id:'ci-text',readonly:true,hidden:true,rows:'12','aria-label':'Besedilo za skupino'});ta.value=ctext;
   if(pv==='week'){
     if(wd(today)===0) out.push(h('section',{class:'card',style:'border-left:5px solid var(--accent);border-right:5px solid var(--accent)'},h('span',{class:'label',text:'Ponedeljek je dan za check-in'}),h('h2',{text:'Ponedeljkov check-in'}),
-      h('p',{text:'Sharing is caring. Samo s pomočjo skupnosti lažje rastemo. Odgovori na tri vprašanja spodaj in pošlji check-in. Tvoja iskrenost pomaga tebi in drugim, tudi če teden ni bil popoln.'}),
+      h('p',{class:'small muted',text:'Teden '+fmtRange(rws)+'.'}),
+      h('p',{text:'Sharing is caring. Samo s pomočjo skupnosti lažje rastemo. Odgovori na tri vprašanja in pošlji check-in. Tvoja iskrenost pomaga tebi in drugim, tudi če teden ni bil popoln.'}),
+      ...(isMon?rvFields:[]),
       sb?sendBlock(rws,today):h('div',{},
       h('p',{class:'small muted',text:'Izberi, kako želiš deliti s skupino.'}),
       h('button',{class:'btn',type:'button',onclick:()=>shareReport(rws,today)},'Deli sliko'),
@@ -1567,7 +1565,8 @@ function viewProgress(today){
         try{await navigator.clipboard.writeText(ta.value);toast('Besedilo kopirano. Prilepi v skupino.')}catch(err){ta.removeAttribute('readonly');ta.focus();ta.select();toast('Označeno. Kopiraj ročno.')}
       }},'Deli besedilo'),ta)));
     else out.push(h('section',{class:'card'},h('h2',{text:'Ponedeljkov check-in'}),
-      h('p',{class:'small muted',text:'Check-in se odpre vsak ponedeljek. Takrat deliš svoj teden s skupino, tudi če ni bil popoln.'})));
+      h('p',{class:'small muted',text:'Check-in se odpre vsak ponedeljek. Takrat odgovoriš na tri kratka vprašanja in ga pošlješ, tudi če teden ni bil popoln.'}),
+      ...(mode!=='fri'?[h('ol',{class:'steps small'},h('li',{text:'Kaj je delovalo?'}),h('li',{text:'Kaj te je oviralo?'}),h('li',{text:'Kaj spremenim naslednji teden?'}))]:[])));
   }
 
   const vm=ui.month||{y:parse(today).getFullYear(),m:parse(today).getMonth()};
