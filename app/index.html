@@ -1333,8 +1333,15 @@ function emptyCard(){
 }
 function helpLink(){
   const g=(ST.goals&&ST.goals[0])||{};
-  const t='Hej, rabim pomoč pri Accountability Club.'+(ST.name?' ('+ST.name+')':'')+(g.cilj?'\nMoj cilj: '+g.cilj:'')+(g.min?'\nMinimalna različica: '+g.min:'')+'\nTežko mi gre, ker: ';
-  return 'https://wa.me/?text='+encodeURIComponent(t);
+  const L=['Hej, rabim pomoč pri mojem cilju.','Težko mi gre, ker: '];
+  if(g.cilj||g.min){L.push('');if(g.cilj)L.push('Moj cilj: '+g.cilj);if(g.min)L.push('Minimalna različica: '+g.min)}
+  return 'https://wa.me/?text='+encodeURIComponent(L.join('\n'));
+}
+function showHelp(){
+  const ov=showInfo('Pomoč','Najprej napiši, zakaj ti gre težko',
+    h('p',{text:'V sporočilu bo vrstica »Težko mi gre, ker:«. Dopiši, kaj te ovira, in sporočilo pošlji Teji ali v skupino.'}),
+    h('a',{class:'btn',target:'_blank',rel:'noopener',href:helpLink(),onclick:()=>setTimeout(()=>ov.remove(),200)},'Odpri WhatsApp'));
+  return ov;
 }
 const MOTIV=[
  {t:'Samo 2 minuti',x:'Začni z najmanjšim možnim korakom in po dveh minutah se odloči, ali nadaljuješ. Začetek je običajno najtežji del.',p:'Odpreš zvezek in napišeš eno vrstico. Obuješ tekaške copate. Skuhaš samo zelenjavo za prilogo.',z:'Vedenjska aktivacija: zagon pride po dejanju, ne pred njim.'},
@@ -1445,7 +1452,7 @@ function maybeWeekMiss(today){
       g.min?h('p',{class:'small'},h('b',{text:'Ta teden začni z minimalno različico: '}),g.min):h('p',{class:'small',text:'Ta teden začni z minimalno različico cilja.'}),
       h('button',{class:'btn',type:'button',onclick:()=>ov.remove()},'Začnem znova'),
       h('button',{class:'btn alt',type:'button',onclick:()=>{ov.remove();showMotivation()}},'Rabim motivacijo'),
-      h('a',{class:'btn alt',target:'_blank',rel:'noopener',href:helpLink()},'Napiši skupini')));
+      h('button',{class:'btn alt',type:'button',onclick:()=>{ov.remove();showHelp()}},'Napiši skupini')));
   }catch(e){}
 }
 function showMotivation(){
@@ -1455,7 +1462,7 @@ function showMotivation(){
   if(st.n>=MOTIV_CAP){
     const ov=popOverlay(h('div',{class:'pop-in'},h('span',{class:'label',text:'Hitra motivacija'}),whyBox(),h('h2',{text:'Za danes je dovolj idej'}),
       h('p',{text:'Izberi eno, ki ti je bila všeč, in jo preizkusi. Več idej ne pomeni več motivacije. Jutri pridejo nove. Če še vedno ne gre, napiši skupini.'}),
-      h('a',{class:'btn',target:'_blank',rel:'noopener',href:helpLink()},'Rabim pomoč'),
+      h('button',{class:'btn',type:'button',onclick:showHelp},'Rabim pomoč'),
       h('button',{class:'btn alt',type:'button',onclick:()=>ov.remove()},'Zapri')));
     return;
   }
@@ -1577,7 +1584,7 @@ function viewToday(today){
     h('p',{text:'Če začutiš, da ti zmanjkuje zagona, deli to s Tejo ali v skupino, še preden obupaš.'}),
     h('div',{class:'row'},
       h('button',{class:'btn alt',type:'button',onclick:showMotivation},'Rabim motivacijo'),
-      h('a',{class:'btn',target:'_blank',rel:'noopener',href:helpLink()},'Rabim pomoč'))));
+      h('button',{class:'btn',type:'button',onclick:showHelp},'Rabim pomoč'))));
   if(ST.goals.length>1) out.push(goalChips(today));
   if(ST.fresh.length){
     const nb=ST.fresh.map(id=>BADGES.find(b=>b.id===id)).filter(Boolean);
@@ -2696,7 +2703,7 @@ function openSettings(){
       row('Prenesi moje podatke','Datoteka JSON s tvojimi cilji in vnosi',exportData),
       row('Začni znova','Izbriše vse cilje in vnose',()=>confirmPop('Začni znova','Izbrišem vse podatke?','Izbrisani bodo vsi cilji, vnosi in opombe na tej napravi. Tega ni mogoče razveljaviti.','Izbriši vse podatke',()=>{close();ST=emptyState();save();ui.gi=0;ui.adding=false;ui.form=null;ui.tab='cilj';render();toast('Podatki so izbrisani')},true)),
       sb&&sbUser?row('Odjava',sbUser.email||'',()=>confirmPop('Odjava','Se želiš odjaviti?','Podatki ostanejo shranjeni v tvojem računu. Ob naslednji prijavi z istim emailom se naložijo.','Odjava',()=>sbSignOut())):null,
-      row('O aplikaciji','Različica in stik',()=>showInfo('Train & Ride','O aplikaciji',h('p',{text:'Različica: '+APP_VER}),h('p',{class:'small muted',text:'Vprašanje ali težava? Piši Teji.'}),h('a',{class:'btn',target:'_blank',rel:'noopener',href:helpLink()},'Piši Teji na WhatsApp'))),
+      row('O aplikaciji','Različica in stik',()=>showInfo('Train & Ride','O aplikaciji',h('p',{text:'Različica: '+APP_VER}),h('p',{class:'small muted',text:'Vprašanje ali težava? Piši Teji.'}),h('a',{class:'btn',target:'_blank',rel:'noopener',href:'https://wa.me/?text='+encodeURIComponent('Hej Teja, ')},'Piši Teji na WhatsApp'))),
       h('button',{class:'btn alt',type:'button',onclick:close},'Zapri')));
   document.body.append(ov);histOverlay(ov,false);swipeClose(ov,ov.firstChild,close);drawTheme();drawRem();
 }
