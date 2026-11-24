@@ -258,7 +258,12 @@ textarea{resize:vertical;min-height:84px}
 .twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .twocol>div{display:flex;flex-direction:column;gap:6px}
 .twocol .small{margin:0}
-.card .stat{background:var(--surface-2)}
+.card .stat{background:var(--surface-2);align-items:center;text-align:center;padding:14px 6px;gap:6px}
+.card .stat b{font-size:24px;white-space:nowrap}
+.card .stat span{line-height:1.25}
+.card .stats+h2{border-top:1px solid var(--line);padding-top:16px;margin-top:4px}
+.card .wk span{font-size:10.5px;white-space:nowrap}
+.card .wk .tr{height:96px}
 .popx{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:0;background:var(--surface-2);color:var(--fg);display:grid;place-items:center}
 .popx svg{width:18px;height:18px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;z-index:60}
@@ -2179,7 +2184,7 @@ function viewProgress(today){
     const w=addDays(cws,-7*i);const s=weekSummary(S,w,today);
     const r=addDays(w,6)<p.start?null:s.rate;
     weeks.append(h('div',{class:'wk'+(i===0?' cur':''),role:'img','aria-label':'Teden '+fmtRange(w)+', '+pct(r)},
-      h('b',{text:r==null?'–':Math.round(r*100)+''}),h('div',{class:'tr'},h('i',{style:'height:'+Math.round((r||0)*100)+'%'})),h('span',{text:fmtDate(w)})));
+      h('b',{text:r==null?'–':Math.round(r*100)+''}),h('div',{class:'tr'},h('i',{style:'height:'+Math.round((r||0)*100)+'%'})),h('span',{text:fmtDate(w).replace(/\s+/g,'')})));
   }
   if(pv==='week') out.push(h('section',{class:'card'},statsEl,h('h2',{text:'Zadnjih 8 tednov'}),weeks,h('p',{class:'small muted',text:'Odstotek izvedenih dni od vseh, ki so šteli (počitek se ne šteje).'})));
   else out.push(statsEl);
