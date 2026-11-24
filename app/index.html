@@ -1156,11 +1156,12 @@ function showNote(day){
   const cur=S.notes[day]||'';
   const nt=h('textarea',{rows:'3',maxlength:'140','aria-label':'Opomba (ni obvezno)',placeholder:'Neobvezno'});
   nt.value=cur;
-  nt.addEventListener('input',()=>setNote(day,nt.value));
+  const sv=h('button',{class:'btn',type:'button',disabled:true,onclick:()=>{setNote(day,nt.value);ov.remove();toast('Opomba je shranjena.')}},'Shrani');
+  nt.addEventListener('input',()=>{sv.disabled=nt.value.trim()===cur.trim()});
   const ov=popOverlay(h('div',{class:'pop-in sci',style:'position:relative'},
     h('button',{class:'popx',type:'button','aria-label':'Zapri',html:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',onclick:()=>ov.remove()}),
     h('span',{class:'label',text:'Opomba'}),h('h2',{style:'padding-right:44px',text:'Kaj ti je pomagalo?'}),
-    h('p',{class:'small muted',style:'margin:0',text:'Kako se počutiš po izvedbi? Shrani se samo.'}),nt));
+    h('p',{class:'small muted',style:'margin:0',text:'Kako se počutiš po izvedbi?'}),nt,sv));
   const rm=ov.remove.bind(ov);ov.remove=()=>{rm();if(ui.tab==='danes')render()};
   return ov;
 }
