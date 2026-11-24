@@ -1859,43 +1859,50 @@ async function stickerBlob(type,kind,today){
   const txt=(t,x,y,sz,w,col,al,sh)=>{c.font=font(w,sz);c.fillStyle=col||'#fff';c.textAlign=al||'center';if(sh!==false)shadowOn();c.fillText(t,x,y);shadowOff()};
   const GREEN='#2FB67C',LIGHT='#8FD9B6',BLUE='#9BB8D9',FAINT='rgba(255,255,255,.28)';
   const col=st=>st==='done'?GREEN:st==='min'?LIGHT:st==='rest'?BLUE:FAINT;
-  const tick=(x,y,r,st)=>{if(st!=='done'&&st!=='min')return;c.lineWidth=r*.16;c.lineCap='round';c.lineJoin='round';c.strokeStyle='#fff';c.beginPath();c.moveTo(x-r*.32,y);c.lineTo(x-r*.08,y+r*.26);c.lineTo(x+r*.36,y-r*.26);c.stroke()};
-  const dot=(x,y,r,st)=>{c.fillStyle=col(st);shadowOn();c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();shadowOff();tick(x,y,r,st)};
-  const tile=(x,y,sz,st)=>{c.fillStyle=col(st);shadowOn();rr(x,y,sz,sz,sz*.23);c.fill();shadowOff();tick(x+sz/2,y+sz/2,sz*.5,st)};
-  const logo=()=>{c.textAlign='center';if(c.letterSpacing!==undefined)c.letterSpacing='8px';txt('TRAIN & RIDE',CX,1768,34,800,'#fff');if(c.letterSpacing!==undefined)c.letterSpacing='3px';txt('with Teja Cerar',CX,1816,28,600,'rgba(255,255,255,.92)');if(c.letterSpacing!==undefined)c.letterSpacing='0px'};
+  const A=0.96875,D=0.2412;
+  const base=(top,F,L)=>top+((L==null?(A+D)*F:L)-(A+D)*F)/2+A*F;
+  const ls=px=>{if(c.letterSpacing!==undefined)c.letterSpacing=px+'px'};
+  const logo=()=>{ls(8);txt('TRAIN & RIDE',CX,1761.8,34,800,'#fff');ls(3);txt('with Teja Cerar',CX,1806,28,600,'rgba(255,255,255,.92)');ls(0)};
   const st0=streak(G,today);
   if(type==='streak'){
     const tot=totalDone(G,today);const big=st0>=1?st0:tot;
     const lab=st0>=1?dniF(big)+' zapored':dniF(big)+' skupaj';
-    txt(String(big),CX,1230,340,900,'#fff');
-    txt(lab,CX,1320,64,700,'#fff');
-    const t='vztrajam pri svojem cilju';c.font=font(800,38);const w=c.measureText(t).width+68;
-    c.fillStyle='rgba(15,40,28,.78)';rr(CX-w/2,1372,w,76,38);c.fill();txt(t,CX,1425,38,800,'#8FE3B5','center',false);
+    txt(String(big),CX,base(1040,340,340),340,900,'#fff');
+    txt(lab,CX,base(1374,64),64,700,'#fff');
+    const t='vztrajam pri svojem cilju';c.font=font(800,38);const w=c.measureText(t).width+68,top=1374+77.44+34;
+    c.fillStyle='rgba(15,40,28,.78)';rr(CX-w/2,top,w,74,37);c.fill();txt(t,CX,top+14+A*38,38,800,'#8FE3B5','center',false);
   }else if(type==='week'){
     const P=repPeriod(kind==='pweek'?'pweek':'week',today);
-    txt(kind==='pweek'?'Moj prejšnji teden':'Moj teden',CX,1150,56,800,'#fff');
-    const r=55,gap=26,tot=7*2*r+6*gap,x0=CX-tot/2+r;
-    P.days.forEach((d,i)=>{const x=x0+i*(2*r+gap);dot(x,1260,r,d.state);txt(DAYS[i],x,1370,34,700,'#fff')});
-    txt(String(P.good),CX-90,1500,110,900,'#fff','right');
-    txt('od '+P.target+' '+dniF(P.target),CX-70,1500,56,700,'#fff','left');
+    txt(kind==='pweek'?'Moj prejšnji teden':'Moj teden',CX,base(1090,56),56,800,'#fff');
+    const r=55,gap=26,tot=7*2*r+6*gap,x0=CX-tot/2+r,rowTop=1197.8;
+    P.days.forEach((d,i)=>{
+      const x=x0+i*(2*r+gap),cy=rowTop+r;
+      c.fillStyle=col(d.state);c.shadowColor='rgba(0,0,0,.35)';c.shadowBlur=18;c.shadowOffsetY=4;c.beginPath();c.arc(x,cy,r,0,Math.PI*2);c.fill();shadowOff();
+      const mk=(d.state==='done'||d.state==='min')?'✓':d.state==='rest'?'·':'';
+      if(mk)txt(mk,x,base(rowTop,60,110),60,900,'#fff','center',false);
+      txt(DAYS[i],x,base(rowTop+122,34),34,700,'#fff');
+    });
+    const n1='5 ',n2='od '+P.target+' '+dniF(P.target);
+    c.font=font(900,110);const w1=c.measureText(String(P.good)+' ').width;c.font=font(700,56);const w2=c.measureText(n2).width;
+    const sx=CX-(w1+w2)/2,by=base(1407,110);
+    txt(String(P.good)+' ',sx,by,110,900,'#fff','left');txt(n2,sx+w1,by,56,700,'#fff','left');
   }else if(type==='month'){
     const P=repPeriod(kind==='pmonth'?'pmonth':'month',today);
-    const rows=Math.ceil((P.lead+P.cells.length)/7);
-    const sz=84,g=14,cols=7;const tw=cols*sz+(cols-1)*g;const x0=CX-tw/2;
-    const T=1690-(94+rows*(sz+g)+56);
+    const n=P.cells.length,rows=Math.ceil(n/6);
+    const T=900-(rows-5)*114;
     const mi=(parse(today).getMonth()+(kind==='pmonth'?11:0))%12;
-    txt('Moj '+MONTHS[mi],CX,T,70,900,'#fff');
-    DAYS.forEach((d,i)=>txt(d,x0+i*(sz+g)+sz/2,T+60,28,700,'#fff'));
-    P.cells.forEach((cell,k)=>{const idx=P.lead+k;tile(x0+(idx%7)*(sz+g),T+84+Math.floor(idx/7)*(sz+g),sz,cell.state)});
-    txt(P.good+' '+dniF(P.good)+' od '+P.target+(P.pct==null?'':' · '+Math.round(P.pct*100)+' %'),CX,T+84+rows*(sz+g)+40,44,700,'#fff');
+    txt('Moj '+MONTHS[mi],CX,base(T,70),70,900,'#fff');
+    const sz=96,g=18,x0=CX-(6*sz+5*g)/2,gy=T+84.7+44;
+    P.cells.forEach((cell,k)=>{c.fillStyle=col(cell.state);c.shadowColor='rgba(0,0,0,.3)';c.shadowBlur=12;c.shadowOffsetY=3;rr(x0+(k%6)*(sz+g),gy+Math.floor(k/6)*(sz+g),sz,sz,22);c.fill();shadowOff()});
+    txt(P.good+' '+dniF(P.good)+' od '+P.target+(P.pct==null?'':' · '+Math.round(P.pct*100)+' %'),CX,base(gy+rows*(sz+g)-g+44,44),44,700,'#fff');
   }else{
     const n=Math.max(1,diffDays(p.start,today)+1);
-    c.fillStyle='rgba(10,24,18,.82)';rr(150,1010,780,560,56);c.fill();
-    c.textAlign='center';if(c.letterSpacing!==undefined)c.letterSpacing='6px';txt('ZIMSKI IZZIV',CX,1100,34,800,'#8FE3B5','center',false);if(c.letterSpacing!==undefined)c.letterSpacing='0px';
-    txt('Vztrajam',CX,1230,100,900,'#fff','center',false);
-    txt('že '+n+' '+dniF(n),CX,1340,100,900,'#fff','center',false);
-    txt('Enkrat zgrešiš, ni panike.',CX,1440,44,500,'#cfe8da','center',false);
-    txt('Dvakrat zaporedoma ne.',CX,1496,44,500,'#cfe8da','center',false);
+    c.fillStyle='rgba(10,24,18,.82)';rr(150,980,780,516.8,56);c.fill();
+    ls(6);txt('ZIMSKI IZZIV',CX,base(1044,34),34,800,'#8FE3B5','center',false);ls(0);
+    txt('Vztrajam',CX,base(1107.1,92,96.6),92,900,'#fff','center',false);
+    txt('že '+n+' '+dniF(n),CX,base(1107.1+96.6,92,96.6),92,900,'#fff','center',false);
+    txt('Enkrat zgrešiš, ni panike.',CX,base(1326.3,44),44,400,'#cfe8da','center',false);
+    txt('Dvakrat zaporedoma ne.',CX,base(1326.3+53.24,44),44,400,'#cfe8da','center',false);
   }
   logo();
   return await new Promise(res=>cv.toBlob(res,'image/png'));
