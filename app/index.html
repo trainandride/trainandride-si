@@ -1880,7 +1880,7 @@ async function stickerBlob(type,kind,today,bg){
     txt(String(big),CX,base(1040,340,340),340,900,'#fff');
     txt(lab,CX,base(1374,64),64,700,'#fff');
     const t='vztrajam pri svojem cilju';c.font=font(800,38);const w=c.measureText(t).width+68,top=1374+77.44+34;
-    c.fillStyle='rgba(15,40,28,.78)';rr(CX-w/2,top,w,74,37);c.fill();txt(t,CX,top+14+A*38,38,800,'#8FE3B5','center',false);
+    c.fillStyle=bg?'#235641':'rgba(15,40,28,.78)';rr(CX-w/2,top,w,74,37);c.fill();if(bg){c.lineWidth=3;c.strokeStyle='#3E8F69';c.stroke()}txt(t,CX,top+14+A*38,38,800,'#8FE3B5','center',false);
   }else if(type==='week'){
     const P=repPeriod(kind==='pweek'?'pweek':'week',today);
     txt(kind==='pweek'?'Moj prejšnji teden':'Moj teden',CX,base(1090,56),56,800,'#fff');
@@ -1907,7 +1907,7 @@ async function stickerBlob(type,kind,today,bg){
     txt(P.good+' '+dniF(P.good)+' od '+P.target+(P.pct==null?'':' · '+Math.round(P.pct*100)+' %'),CX,base(gy+rows*(sz+g)-g+44,44),44,700,'#fff');
   }else{
     const n=Math.max(1,diffDays(p.start,today)+1);
-    c.fillStyle='rgba(10,24,18,.82)';rr(150,980,780,516.8,56);c.fill();
+    c.fillStyle=bg?'#1D4333':'rgba(10,24,18,.82)';rr(150,980,780,516.8,56);c.fill();if(bg){c.lineWidth=4;c.strokeStyle='#3E8F69';c.stroke()}
     ls(6);txt('ZIMSKI IZZIV',CX,base(1044,34),34,800,'#8FE3B5','center',false);ls(0);
     txt('Vztrajam',CX,base(1107.1,92,96.6),92,900,'#fff','center',false);
     txt('že '+n+' '+dniF(n),CX,base(1107.1+96.6,92,96.6),92,900,'#fff','center',false);
