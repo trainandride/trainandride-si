@@ -68,7 +68,7 @@ begin
       'from','Train & Ride <app@trainandride.si>','to',jsonb_build_array(email),
       'subject','Ponedeljkov check-in',
       'html','<p>Hej!</p><p>Nov teden se začenja. Vzemi 3 minute in oddaj svoj tedenski check-in: poglej, kaj je delovalo, in izberi eno majhno spremembo.</p>'
-           ||'<p><b>Odpri aplikacijo na začetnem zaslonu</b> (ikona Accountability Club na telefonu) in v zavihku Napredek oddaj check-in.</p>'
+           ||'<p><b>Odpri aplikacijo na začetnem zaslonu</b> (ikona Level up ❄️ na telefonu) in v zavihku Napredek oddaj check-in.</p>'
            ||'<p>Aplikacije nimaš na začetnem zaslonu? Odpri jo v brskalniku:</p>'
            ||'<p><a href="https://trainandride.si/app/#checkin" style="background:#177A4C;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold">Odpri check-in v brskalniku</a></p>'
            ||'<p><b>Nimaš ikone na začetnem zaslonu? Tako si jo dodaš:</b></p>'
@@ -102,7 +102,7 @@ begin
       'subject','Vnesi svoje dneve',
       'html','<p>Hej!</p><p>V koledarju za ta teden še ni nobenega vnosa. Odpri aplikacijo in označi, kako ti je šlo. Zadostuje minuta.</p>'
            ||'<p>Tudi dan z minimalno različico ali počitkom šteje. Če ti ni šlo, ni nič hudega: pomembno je, da ostaneš v igri.</p>'
-           ||'<p><b>Odpri aplikacijo na začetnem zaslonu</b> (ikona Accountability Club na telefonu).</p>'
+           ||'<p><b>Odpri aplikacijo na začetnem zaslonu</b> (ikona Level up ❄️ na telefonu).</p>'
            ||'<p>Aplikacije nimaš na začetnem zaslonu? Odpri jo v brskalniku:</p>'
            ||'<p><a href="https://trainandride.si/app/" style="background:#177A4C;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold">Odpri aplikacijo v brskalniku</a></p>'
            ||'<p>Train &amp; Ride</p>'))

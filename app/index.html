@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Accountability Club</title>
+<title>Level up ❄️</title>
 <meta name="theme-color" content="#FFFFFF">
 <meta name="color-scheme" content="light dark">
 <meta name="darkreader-lock">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Accountability Club">
+<meta name="apple-mobile-web-app-title" content="Level up ❄️">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="config.js?v=2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.80.0/dist/umd/supabase.min.js"></script>
@@ -481,7 +481,7 @@ textarea[hidden]{display:none}
 
 <div class="shell">
   <header class="top">
-    <div class="brandrow"><span class="brand">Train &amp; Ride · Accountability Club</span><button type="button" class="profbtn" id="profbtn" aria-label="Profil in nastavitve"></button></div>
+    <div class="brandrow"><span class="brand">Train &amp; Ride · Level up ❄️</span><button type="button" class="profbtn" id="profbtn" aria-label="Profil in nastavitve"></button></div>
     <div class="toprow">
       <div><h1 id="title">Danes</h1><span class="datelab" id="datelab"></span></div>
       <div class="streakbox" id="streakbox" hidden></div>
@@ -1011,12 +1011,12 @@ function fridayText(ws,today){
 const MKEY='train-ride-zimske-navade-mon';
 function monDone(ws){try{return localStorage.getItem(MKEY)===ws}catch(e){return ui.monSeen===ws}}
 function monSet(ws){ui.monSeen=ws;try{localStorage.setItem(MKEY,ws)}catch(e){}}
-const REM_TITLE='Je v tvojem tednu že načrtovan čas za Accountability Club? 💚';
+const REM_TITLE='Je v tvojem tednu že načrtovan čas za Level up ❄️? 💚';
 function reminderUrl(today,hour){
   const p=gv(0).profile;let d=today>p.start?today:p.start;d=addDays(d,(7-wd(d))%7);
   const c=d.replace(/-/g,'');const hh=pad(hour);
   const text=REM_TITLE;
-  const det='Train & Ride · Accountability Club: izberi dneve in uro za svoj cilj in ne pozabi na minimalno različico. Cilj: '+goalSentence(p);
+  const det='Train & Ride · Level up ❄️: izberi dneve in uro za svoj cilj in ne pozabi na minimalno različico. Cilj: '+goalSentence(p);
   return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(text)+'&details='+encodeURIComponent(det)+'&dates='+c+'T'+hh+'0000/'+c+'T'+hh+'1500&ctz=Europe/Ljubljana&recur='+encodeURIComponent('RRULE:FREQ=WEEKLY;BYDAY=MO');
 }
 const FEEDBACK={
@@ -1612,7 +1612,7 @@ function viewToday(today){
   const mws=weekStart(today);
   if(wd(today)===0&&!before&&!monDone(mws)){
     out.push(h('section',{class:'card'},h('span',{class:'label',text:'Ponedeljkov opomnik'}),
-      h('h2',{text:'Dobro jutro! Je v tvojem tednu že načrtovan čas za Accountability Club?'}),
+      h('h2',{text:'Dobro jutro! Je v tvojem tednu že načrtovan čas za Level up ❄️?'}),
       h('p',{text:'Izberi, kdaj in kje bo ta teden tvoj čas za cilj. '+(p.perWeek?'Tvoj cilj: '+p.perWeek+'× na teden, dan izbereš sproti.':'Tvoji dnevi: '+(p.planned.map(i=>DAYS_LONG[i]).join(', ')||'še ni izbranih')+'.')}),
       h('div',{class:'row'},
         h('button',{class:'btn',type:'button',onclick:()=>{monSet(mws);render();toast('Odlično. Uspešen teden!')}},'Da, imam načrt'),
@@ -2749,7 +2749,7 @@ function showLogin(){
       if(r.error){msg.textContent=/rate|seconds|many/i.test(r.error.message)?'Prehitro. Počakaj minuto in poskusi znova.':'Pošiljanje ni uspelo. Preveri email in poskusi znova.';return}
       step2();
     };
-    box.replaceChildren(h('span',{class:'label',text:'Train & Ride'}),h('h1',{text:'Accountability Club',style:'margin:6px 0 10px'}),
+    box.replaceChildren(h('span',{class:'label',text:'Train & Ride'}),h('h1',{text:'Level up ❄️',style:'margin:6px 0 10px'}),
       h('p',{text:'Vpiši kodo skupine in svoj email. Na email ti pošljemo 6-mestno kodo za prijavo.'}),
       code,em,
       h('label',{style:'display:flex;gap:10px;text-align:left;margin-top:12px;font-size:14px;align-items:flex-start'},cb,h('span',{text:'Soglašam, da Teja vidi moj cilj in tedenske check-ine. Dnevnih opomb ne bere.'})),
@@ -2805,7 +2805,7 @@ function showGate(){
   inp.addEventListener('keydown',e=>{if(e.key==='Enter')go()});
   const gate=h('div',{style:'min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)'},
     h('div',{class:'card',style:'max-width:380px;width:100%;text-align:center'},
-      h('span',{class:'label',text:'Train & Ride'}),h('h1',{text:'Accountability Club',style:'margin:6px 0 10px'}),
+      h('span',{class:'label',text:'Train & Ride'}),h('h1',{text:'Level up ❄️',style:'margin:6px 0 10px'}),
       h('p',{text:'Aplikacija je namenjena članom skupine. Vpiši kodo, ki jo je poslala Teja.'}),
       inp,msg,h('button',{class:'btn',type:'button',style:'margin-top:12px;width:100%',onclick:go},'Vstopi')));
   document.body.append(gate);inp.focus();

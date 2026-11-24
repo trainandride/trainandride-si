@@ -1,7 +1,7 @@
 {
- "name": "Accountability Club",
- "short_name": "Accountability Club",
- "description": "Train & Ride Accountability Club: dnevno sledenje navadam.",
+ "name": "Level up ❄️",
+ "short_name": "Level up ❄️",
+ "description": "Train & Ride Level up: dnevno sledenje navadam.",
  "id": "/app/",
  "start_url": "/app/",
  "launch_handler": {"client_mode": "navigate-existing"},

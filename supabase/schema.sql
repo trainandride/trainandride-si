@@ -1,4 +1,4 @@
--- Train & Ride · Accountability Club: shema za Supabase.
+-- Train & Ride · Level up: shema za Supabase.
 -- Zalepi v Supabase > SQL Editor > Run. Prej zamenjaj TEJA_EMAIL s svojim emailom (isti, s katerim se prijavljaš v aplikacijo).
 
 create table if not exists public.profiles (
