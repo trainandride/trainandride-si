@@ -89,3 +89,36 @@ revoke all on function public.send_monday_reminders(text, boolean) from public, 
 
 -- vsak ponedeljek ob 06:00 UTC (07:00 po slovenskem zimskem času)
 select cron.schedule('ponedeljek-check-in','0 6 * * 1','select public.send_monday_reminders()');
+
+-- Petkov opomnik ob 16:00 (CET): tistim brez vnosa v tem tednu
+create or replace function public.send_friday_reminders(p_only text default null, p_force boolean default false)
+returns void language plpgsql security definer set search_path = public, extensions as $$
+declare payload jsonb; wk text;
+begin
+  if not p_force and (current_date < date '2026-11-27' or current_date > date '2027-03-26') then return; end if;
+  wk := to_char(current_date - (extract(isodow from current_date)::int - 1), 'YYYY-MM-DD');
+  select jsonb_agg(jsonb_build_object(
+      'from','Train & Ride <app@trainandride.si>','to',jsonb_build_array(p.email),
+      'subject','Vnesi svoje dneve',
+      'html','<p>Hej!</p><p>V koledarju za ta teden še ni nobenega vnosa. Odpri aplikacijo in označi, kako ti je šlo. Zadostuje minuta.</p>'
+           ||'<p>Tudi dan z minimalno različico ali počitkom šteje. Če ti ni šlo, ni nič hudega: pomembno je, da ostaneš v igri.</p>'
+           ||'<p><b>Odpri aplikacijo na začetnem zaslonu</b> (ikona Accountability Club na telefonu).</p>'
+           ||'<p>Aplikacije nimaš na začetnem zaslonu? Odpri jo v brskalniku:</p>'
+           ||'<p><a href="https://trainandride.si/app/" style="background:#177A4C;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold">Odpri aplikacijo v brskalniku</a></p>'
+           ||'<p>Train &amp; Ride</p>'))
+    into payload
+  from public.profiles p
+  left join public.app_state a on a.user_id = p.user_id
+  where p.email is not null and p.consent_checkins and (p_only is null or p.email = p_only)
+    and not exists (
+      select 1 from jsonb_array_elements(coalesce(a.data->'goals','[]'::jsonb)) g,
+                    jsonb_each_text(coalesce(g->'log','{}'::jsonb)) l
+      where l.key >= wk);
+  if payload is not null then
+    perform net.http_post(url := 'https://api.resend.com/emails/batch',
+      headers := jsonb_build_object('Authorization','Bearer '||public.resend_key(),'Content-Type','application/json'),
+      body := payload);
+  end if;
+end $$;
+revoke all on function public.send_friday_reminders(text, boolean) from public, anon, authenticated;
+select cron.schedule('petek-opomnik','0 15 * * 5','select public.send_friday_reminders()');

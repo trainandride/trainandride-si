@@ -775,7 +775,7 @@ const TIPS=[
  {l:4,t:'Praznuj majhno',x:'Možgani se učijo iz občutka uspeha. Po izvedbi si reci »bravo« in občuti, da držiš besedo sebi.',a:'Po današnji izvedbi si zavestno privošči pol minute ponosa.'},
  {l:4,t:'Poglej nazaj',x:'Napredek je pogosto težko opaziti sproti. V pregledu tednov in meseca je viden.',a:'Odpri Napredek in preglej zadnja dva tedna.'},
  {l:0,t:'Glasuj za identiteto',x:'Vsaka izvedba je glas za osebo, ki jo gradiš. Pomembneje od cilja je, kdo postajaš.',a:'Dopolni stavek: »Sem oseba, ki …« in ga vpiši v Moj cilj.'},
- {l:0,t:'Nikoli dvakrat zapored',x:'Enkrat zgrešiti je človeško. Dvakrat zapored je začetek nove navade. Po zgrešenem dnevu je naslednji dan najpomembnejši.',a:'Če je včeraj zmanjkalo, naredi danes vsaj minimalno različico.'},
+ {l:0,t:'Nikoli dvakrat zapored',x:'Enkrat zgrešiti je človeško. Dvakrat zaporedoma je začetek nove navade. Po zgrešenem dnevu je naslednji dan najpomembnejši.',a:'Če je včeraj zmanjkalo, naredi danes vsaj minimalno različico.'},
  {l:1,t:'Če–potem načrt',x:'Vnaprej odloči, kaj narediš, ko se pojavi ovira: »Če dežuje, potem naredim deset minut doma.«',a:'Zapiši eno pogosto oviro in rešitev v Moj cilj.'},
  {l:1,t:'Prostor odloča',x:'Okolje je močnejše od volje. Majhna sprememba v prostoru pogosto naredi več kot nova odločnost.',a:'Spremeni eno stvar v prostoru, da bo tvoja navada lažja.'},
  {l:3,t:'Ne povečuj prehitro',x:'Ko gre navada lahkotno, jo počasi povečaj. Če je težko, jo zmanjšaj.',a:'Če je teden potekal brez težav, ostani še en teden pri istem obsegu.'},
@@ -1520,7 +1520,7 @@ function viewToday(today){
   const cur=S.log[today]||null;
   const lr=lastResult(S,today);
   const cm=consecutiveMisses(S,today);
-  if(cm>=2) out.push(h('div',{class:'banner alert'},h('b',{text:'Dvakrat zapored je zmanjkalo'}),h('span',{text:'To je znak, da je cilj trenutno prevelik. Danes naredi minimalno različico ali piši Teji in skupaj poiščeta najmanjši korak.'})));
+  if(cm>=2) out.push(h('div',{class:'banner alert'},h('b',{text:'Dvakrat zaporedoma ti cilja ni uspelo izvesti'}),h('span',{text:'To je znak, da je cilj trenutno prevelik. Danes naredi minimalno različico ali piši Teji in skupaj poiščeta najmanjši korak.'})));
   else if(lr&&isBad(lr)&&st==='pending') out.push(h('div',{class:'banner warn'},h('b',{text:'Nikoli dvakrat zapored'}),h('span',{text:'Zadnjič ni šlo. Danes je dovolj minimalna različica: '+p.min+'.'})));
   const mws=weekStart(today);
   if(wd(today)===0&&!before&&!monDone(mws)){
@@ -1894,7 +1894,7 @@ function viewProgress(today){
   const p=S.profile;const out=[];
   if(ST.goals.length>1) out.push(goalChips(today));
   const cm=consecutiveMisses(S,today);
-  if(cm>=2) out.push(h('div',{class:'banner alert'},h('b',{text:'Dvakrat zapored je zmanjkalo'}),h('span',{text:'Pomanjšaj cilj na minimalno različico in piši Teji. Skupaj poiščeta najmanjši korak.'})));
+  if(cm>=2) out.push(h('div',{class:'banner alert'},h('b',{text:'Dvakrat zaporedoma ti cilja ni uspelo izvesti'}),h('span',{text:'Pomanjšaj cilj na minimalno različico in piši Teji. Skupaj poiščeta najmanjši korak.'})));
   const pv=ui.pv||'week';
   out.push(h('div',{class:'seg',role:'group','aria-label':'Pogled'},[['week','Teden'],['month','Mesec']].map(([k,l])=>h('button',{class:'btn sm '+(pv===k?'':'alt'),type:'button','aria-pressed':pv===k?'true':'false',onclick:()=>{ui.pv=k;render();window.scrollTo({top:0})}},l))));
   const cws=weekStart(today);const ws=addDays(cws,ui.weekOff*7);const sm=weekSummary(S,ws,today);
