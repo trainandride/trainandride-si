@@ -258,6 +258,9 @@ textarea{resize:vertical;min-height:84px}
 .twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .twocol>div{display:flex;flex-direction:column;gap:6px}
 .twocol .small{margin:0}
+.card .stat{background:var(--surface-2)}
+.popx{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:0;background:var(--surface-2);color:var(--fg);display:grid;place-items:center}
+.popx svg{width:18px;height:18px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;z-index:60}
 .card.empty .lead{font-size:18px;font-weight:700;line-height:1.3;font-family:var(--font-head)}
 .hf-ov{position:fixed;inset:0;z-index:60;background:var(--bg);display:grid;place-items:center;padding:24px;cursor:pointer}
@@ -1149,10 +1152,24 @@ function riderEl(kind){
   if(k==='cat') kids.push(h('span',{class:'ri-z ri-meh',text:'meh…'}));
   return h('div',{class:'rider-ov ov-'+k,'aria-hidden':'true'},kids);
 }
+function showNote(day){
+  const cur=S.notes[day]||'';
+  const nt=h('textarea',{rows:'3',maxlength:'140','aria-label':'Opomba (ni obvezno)',placeholder:'Neobvezno'});
+  nt.value=cur;
+  nt.addEventListener('input',()=>setNote(day,nt.value));
+  const ov=popOverlay(h('div',{class:'pop-in sci',style:'position:relative'},
+    h('button',{class:'popx',type:'button','aria-label':'Zapri',html:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',onclick:()=>ov.remove()}),
+    h('span',{class:'label',text:'Opomba'}),h('h2',{style:'padding-right:44px',text:'Kaj ti je pomagalo?'}),
+    h('p',{class:'small muted',style:'margin:0',text:'Kako se počutiš po izvedbi? Shrani se samo.'}),nt));
+  const rm=ov.remove.bind(ov);ov.remove=()=>{rm();if(ui.tab==='danes')render()};
+  return ov;
+}
 function setDay(day,state){
   if(state==null) delete S.log[day]; else S.log[day]=state;
-  if((state==='done'||state==='min'||state==='rest'||state==='miss')&&day===todayStr()) ui.cel=state;
+  const cel=(state==='done'||state==='min'||state==='rest'||state==='miss')&&day===todayStr();
+  if(cel) ui.cel=state;
   save();ui.sheetDay=null;render();ui.cel=false;
+  if(cel&&!(S.notes[day]||'').trim()){const d0=day;setTimeout(()=>{if(ui.tab==='danes'&&todayStr()===d0&&!document.querySelector('.pop-ov,.rp-ov')&&S.log[d0])showNote(d0)},2700)}
 }
 
 /* ---------- zgornji del in zavihki ---------- */
@@ -1557,7 +1574,7 @@ function viewToday(today){
     h('div',{class:'row'},h('button',{class:'btn',type:'button',onclick:()=>{ST.unlockSeen=true;save();ui.tab='cilj';ui.adding=true;ui.form=null;render();window.scrollTo({top:0})}},'Dodaj cilj'),
       h('button',{class:'btn alt',type:'button',onclick:()=>{ST.unlockSeen=true;save();render()}},'Kasneje'))));
   out.push(h('section',{class:'card obveza'},h('h2',{text:'Obveza skupine'}),
-    h('p',{text:'Če začutiš, da zmanjkuje zagona, to napiši v WhatsApp skupino, še preden zgrešiš.'}),
+    h('p',{text:'Če začutiš, da ti zmanjkuje zagona, deli to s Tejo ali v skupino, še preden obupaš.'}),
     h('div',{class:'row'},
       h('button',{class:'btn alt',type:'button',onclick:showMotivation},'Rabim motivacijo'),
       h('a',{class:'btn',target:'_blank',rel:'noopener',href:helpLink()},'Rabim pomoč'))));
@@ -1592,7 +1609,7 @@ function viewToday(today){
     const rws=addDays(mws,-7);const rv=ST.reviews[rws];
     if(!before&&!(rv&&(rv.sentAt||rv.w||rv.o||rv.c))) out.push(h('section',{class:'card'},h('span',{class:'label',text:'Ponedeljkov check-in'}),
       h('h2',{text:'Dve minuti za check-in'}),
-      h('p',{text:'Kaj je delovalo, kaj te je oviralo in kaj spremeniš? Odgovori in pošlji check-in.'}),
+      h('p',{text:'Odgovori na tri vprašanja in pošlji check-in.'}),
       h('button',{class:'btn alt',type:'button',onclick:()=>{ui.ciUser='prev';ui.tab='napredek';render();window.scrollTo({top:0})}},'Odpri check-in')));
   }
   if(before) out.push(h('div',{class:'banner info'},h('b',{text:'Skupina začne '+fmtDate(p.start)}),h('span',{text:'Do takrat vnos še ni mogoč. Če želiš aplikacijo preizkusiti, v razdelku Moj cilj nastavi začetek na današnji datum.'})));
@@ -1612,7 +1629,11 @@ function viewToday(today){
   if(cur) vn.push(h('p',{class:'feedback',text:FEEDBACK[cur]}));
   else if(!before&&p.perWeek){const w0=weekSummary(S,weekStart(today),today);vn.push(h('p',{class:'small muted',text:'Ta teden: '+w0.good+' od '+p.perWeek+'. Dan ni vnaprej določen, vnesi, ko cilj narediš.'}))}
   else if(!before&&!planned) vn.push(h('p',{class:'small muted',text:'Danes ni v tvojem načrtu. Vnos je bonus in ne vpliva negativno na tvoj odstotek.'}));
-  if(!before) vn.push(noteField(today));
+  if(!before&&cur){
+    const nn=(S.notes[today]||'').trim();
+    vn.push(nn?h('div',{class:'field'},h('span',{class:'lb',text:'Opomba'}),h('p',{class:'small',style:'margin:0;border-left:3px solid var(--primary);padding-left:10px',text:nn}),h('button',{class:'btn ghost sm',type:'button',onclick:()=>showNote(today)},'Uredi opombo'))
+      :h('button',{class:'btn ghost sm',type:'button',onclick:()=>showNote(today)},'Dodaj opombo'));
+  }
   out.push(h('section',{class:'card burst'},ui.cel?riderEl(ui.cel==='min'?'chick':ui.cel==='rest'?'sloth':ui.cel==='miss'?'cat':null):null,vn));
 
   { // vrstni red: izbira cilja, kartica z obročem, misel dneva, Kako je šlo danes, nato ostalo
@@ -2051,9 +2072,9 @@ async function shareReport(ws,today){
 }
 function showCheckinInfo(){
   showInfo('Vsak ponedeljek','Ponedeljkov check-in',
-    h('p',{text:'Sharing is caring. Samo s pomočjo skupnosti lažje rastemo. Check-in se odpre vsak ponedeljek: odgovoriš na tri kratka vprašanja in ga pošlješ, tudi če teden ni bil popoln.'}),
+    h('p',{text:'Vsak ponedeljek odgovoriš na tri kratka vprašanja in pošlješ check-in, tudi če teden ni bil popoln.'}),
     h('ol',{class:'steps'},h('li',{text:'Kaj je delovalo?'}),h('li',{text:'Kaj te je oviralo?'}),h('li',{text:'Kaj spremenim naslednji teden?'})),
-    h('p',{class:'small muted',text:'Tvoja iskrenost pomaga tebi in drugim.'}));
+    h('p',{class:'small muted',text:'S pomočjo skupnosti lažje rastemo.'}));
 }
 function viewProgress(today){
   if(!S.profile) return [emptyCard()];
@@ -2140,10 +2161,10 @@ function viewProgress(today){
       h('div',{},h('button',{class:'btn',type:'button',onclick:()=>openProgressReport(today,'report')},'Moje poročilo'),h('p',{class:'small muted',text:'Hiter pregled tedna/meseca'})),
       h('div',{},h('button',{class:'btn alt',type:'button',onclick:()=>openProgressReport(today,'share')},'Deli v svet'),h('p',{class:'small muted',text:'S prosojno nalepko'})))));
   if(ciCard) out.push(ciCard);
-  out.push(h('div',{class:'stats'},
+  const statsEl=h('div',{class:'stats'},
     h('div',{class:'stat'},h('b',{text:String(totalDone(S,today))}),h('span',{text:'izvedenih dni skupaj'})),
     h('div',{class:'stat'},h('b',{text:String(longestStreak(S,today))}),h('span',{text:'najdaljša serija'})),
-    h('div',{class:'stat'},h('b',{text:pct(ms.pct)}),h('span',{text:'uspešnost meseca'}))));
+    h('div',{class:'stat'},h('b',{text:pct(ms.pct)}),h('span',{text:'uspešnost meseca'})));
 
   const weeks=h('div',{class:'weeks'});
   for(let i=7;i>=0;i--){
@@ -2152,7 +2173,8 @@ function viewProgress(today){
     weeks.append(h('div',{class:'wk'+(i===0?' cur':''),role:'img','aria-label':'Teden '+fmtRange(w)+', '+pct(r)},
       h('b',{text:r==null?'–':Math.round(r*100)+''}),h('div',{class:'tr'},h('i',{style:'height:'+Math.round((r||0)*100)+'%'})),h('span',{text:fmtDate(w)})));
   }
-  if(pv==='week') out.push(h('section',{class:'card'},h('h2',{text:'Zadnjih 8 tednov'}),weeks,h('p',{class:'small muted',text:'Odstotek izvedenih dni od vseh, ki so šteli (počitek se ne šteje).'})));
+  if(pv==='week') out.push(h('section',{class:'card'},statsEl,h('h2',{text:'Zadnjih 8 tednov'}),weeks,h('p',{class:'small muted',text:'Odstotek izvedenih dni od vseh, ki so šteli (počitek se ne šteje).'})));
+  else out.push(statsEl);
 
   if(pv==='month'){
     const mfirst=vm.y+'-'+pad(vm.m+1)+'-01';
