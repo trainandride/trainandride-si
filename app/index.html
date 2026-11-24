@@ -1154,7 +1154,7 @@ function renderHead(today){
   } else {if(tb)tb.remove();document.body.style.paddingTop=''}
   const ph=document.getElementById('phase');
   const t=parse(today);
-  const TT={danes:'Danes',napredek:'Napredek',cilj:'Moj cilj',znanje:'Znanje',trener:'Trener'};
+  const TT={danes:'Danes',napredek:'Napredek',cilj:'Moj cilj',znanje:'Nasveti',trener:'Trener'};
   document.getElementById('title').textContent=TT[ui.tab]||'Danes';
   document.getElementById('datelab').textContent=DAYS_LONG[wd(today)].charAt(0).toUpperCase()+DAYS_LONG[wd(today)].slice(1)+' · '+t.getDate()+'. '+MONTHS[t.getMonth()];
   const sb=document.getElementById('streakbox');
@@ -1176,7 +1176,7 @@ const TABICON={
 };
 function renderTabs(){
   const box=document.getElementById('tabs');box.replaceChildren();
-  const list=[['danes','Danes'],['napredek','Napredek'],['cilj','Moj cilj'],['znanje','Znanje']];
+  const list=[['danes','Danes'],['napredek','Napredek'],['znanje','Nasveti'],['cilj','Moj cilj']];
   if(C.on&&isCoach) list.splice(3,0,['trener','Trener']);
   box.className='tabs';
   list.forEach(([id,label])=>{
