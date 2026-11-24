@@ -1859,8 +1859,8 @@ async function stickerBlob(type,kind,today,bg){
   const txt=(t,x,y,sz,w,col,al,sh)=>{c.font=font(w,sz);c.fillStyle=col||'#fff';c.textAlign=al||'center';if(sh!==false)shadowOn();c.fillText(t,x,y);shadowOff()};
   if(bg){
     const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#16291F');g.addColorStop(1,'#0A110E');c.fillStyle=g;c.fillRect(0,0,W,H);
-    c.fillStyle='#13221B';c.beginPath();c.moveTo(0,1560);c.lineTo(180,1300);c.lineTo(330,1420);c.lineTo(560,1050);c.lineTo(760,1340);c.lineTo(900,1160);c.lineTo(1080,1400);c.lineTo(1080,H);c.lineTo(0,H);c.closePath();c.fill();
-    c.fillStyle='#0F1B15';c.beginPath();c.moveTo(0,1700);c.lineTo(220,1470);c.lineTo(420,1620);c.lineTo(640,1300);c.lineTo(860,1560);c.lineTo(1080,1420);c.lineTo(1080,H);c.lineTo(0,H);c.closePath();c.fill();
+    c.fillStyle='#1A3126';c.beginPath();c.moveTo(0,1560);c.lineTo(180,1300);c.lineTo(330,1420);c.lineTo(560,1050);c.lineTo(760,1340);c.lineTo(900,1160);c.lineTo(1080,1400);c.lineTo(1080,H);c.lineTo(0,H);c.closePath();c.fill();
+    c.fillStyle='#142619';c.beginPath();c.moveTo(0,1700);c.lineTo(220,1470);c.lineTo(420,1620);c.lineTo(640,1300);c.lineTo(860,1560);c.lineTo(1080,1420);c.lineTo(1080,H);c.lineTo(0,H);c.closePath();c.fill();
     const trail=()=>{c.beginPath();c.moveTo(130,880);c.bezierCurveTo(330,840,190,700,400,660);c.bezierCurveTo(610,620,700,560,560,450);c.bezierCurveTo(430,350,610,290,860,200)};
     c.lineCap='round';c.lineWidth=24;c.strokeStyle='#1E3A2D';trail();c.stroke();
     c.lineWidth=10;c.strokeStyle='#46B886';c.setLineDash([1,26]);trail();c.stroke();c.setLineDash([]);
