@@ -407,6 +407,7 @@ textarea[hidden]{display:none}
 .rp-ov{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.6);overflow:auto;display:flex;justify-content:center;padding:16px}
 .rp-in{background:var(--surface);border-radius:18px;padding:16px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px;align-self:flex-start}
 .rp-in img{width:100%;height:auto;border-radius:12px;display:block}
+.rp-in img.chk{background:linear-gradient(180deg,#8fb7d9 0%,#d9c7a7 40%,#6b8f5e 65%,#2f4a33 100%)}
 
 .qrow{border-left:5px solid var(--rc);border-right:5px solid var(--rc);border:1px solid var(--line);border-left:5px solid var(--rc);border-right:5px solid var(--rc);border-radius:14px;padding:10px 12px}
 .field.qrow .lb{font:800 12px/1.2 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--rc)}
@@ -1674,7 +1675,7 @@ async function reportBlob(ws,today){
     c.font=font(400,30);c.fillStyle='#1C1C1E';q.lines.forEach((l,i)=>c.fillText(l,M+40,y+46+14+34+i*41-8));
     y+=bh+20;
   });
-  c.font=font(700,24);c.fillStyle='#636366';if(c.letterSpacing!==undefined)c.letterSpacing='2px';c.fillText('TRAIN & RIDE · ACCOUNTABILITY CLUB',M,H-44);
+  c.font=font(700,24);c.fillStyle='#636366';if(c.letterSpacing!==undefined)c.letterSpacing='2px';c.fillText('TRAIN & RIDE · WITH TEJA CERAR',M,H-44);
   c.fillStyle='#177A4C';c.textAlign='right';c.fillText('✓ MAŠ TO',W-M,H-44);if(c.letterSpacing!==undefined)c.letterSpacing='0px';
   return await new Promise(res=>cv.toBlob(res,'image/png'));
 }
@@ -1837,26 +1838,86 @@ async function progressBlob(kind,today){
     lab('Zakaj sem začela',M+40,y+46,'#177A4C');
     c.font=font(400,28);c.fillStyle='#1C1C1E';wLines.forEach((l,i)=>c.fillText(l,M+40,y+90+i*38));
   }
-  c.font=font(700,24);c.fillStyle='#636366';if(c.letterSpacing!==undefined)c.letterSpacing='2px';c.fillText('TRAIN & RIDE · ACCOUNTABILITY CLUB',M,H-44);
+  c.font=font(700,24);c.fillStyle='#636366';if(c.letterSpacing!==undefined)c.letterSpacing='2px';c.fillText('TRAIN & RIDE · WITH TEJA CERAR',M,H-44);
   c.fillStyle='#177A4C';c.textAlign='right';c.fillText('✓ MAŠ TO',W-M,H-44);if(c.letterSpacing!==undefined)c.letterSpacing='0px';
   return await new Promise(res=>cv.toBlob(res,'image/png'));
 }
+
+/* ---------- Nalepke za Instagram (prosojen PNG) ---------- */
+const STICKERS=[['report','Poročilo'],['streak','Serija'],['week','Teden'],['month','Mesec'],['badge','Značka']];
+function dniF(n){const a=n%100;return a===1?'dan':a===2?'dneva':(a===3||a===4)?'dni':'dni'}
+async function stickerBlob(type,kind,today){
+  const G=S;const p=G.profile;
+  try{await document.fonts.ready}catch(e){}
+  const FF=(getComputedStyle(document.body).fontFamily||'Arial, sans-serif');
+  const W=1080,H=1920,CX=W/2;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');
+  const font=(w,sz)=>w+' '+sz+'px '+FF;
+  const rr=(x,y,w,h,r)=>{c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()};
+  const shadowOn=()=>{c.shadowColor='rgba(0,0,0,.55)';c.shadowBlur=14;c.shadowOffsetY=2};
+  const shadowOff=()=>{c.shadowColor='transparent';c.shadowBlur=0;c.shadowOffsetY=0};
+  const txt=(t,x,y,sz,w,col,al,sh)=>{c.font=font(w,sz);c.fillStyle=col||'#fff';c.textAlign=al||'center';if(sh!==false)shadowOn();c.fillText(t,x,y);shadowOff()};
+  const GREEN='#2FB67C',LIGHT='#8FD9B6',BLUE='#9BB8D9',FAINT='rgba(255,255,255,.28)';
+  const col=st=>st==='done'?GREEN:st==='min'?LIGHT:st==='rest'?BLUE:FAINT;
+  const tick=(x,y,r,st)=>{if(st!=='done'&&st!=='min')return;c.lineWidth=r*.16;c.lineCap='round';c.lineJoin='round';c.strokeStyle='#fff';c.beginPath();c.moveTo(x-r*.32,y);c.lineTo(x-r*.08,y+r*.26);c.lineTo(x+r*.36,y-r*.26);c.stroke()};
+  const dot=(x,y,r,st)=>{c.fillStyle=col(st);shadowOn();c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();shadowOff();tick(x,y,r,st)};
+  const tile=(x,y,sz,st)=>{c.fillStyle=col(st);shadowOn();rr(x,y,sz,sz,sz*.23);c.fill();shadowOff();tick(x+sz/2,y+sz/2,sz*.5,st)};
+  const logo=()=>{c.textAlign='center';if(c.letterSpacing!==undefined)c.letterSpacing='8px';txt('TRAIN & RIDE',CX,1768,34,800,'#fff');if(c.letterSpacing!==undefined)c.letterSpacing='3px';txt('with Teja Cerar',CX,1816,28,600,'rgba(255,255,255,.92)');if(c.letterSpacing!==undefined)c.letterSpacing='0px'};
+  const st0=streak(G,today);
+  if(type==='streak'){
+    const tot=totalDone(G,today);const big=st0>=1?st0:tot;
+    const lab=st0>=1?dniF(big)+' zapored':dniF(big)+' skupaj';
+    txt(String(big),CX,1230,340,900,'#fff');
+    txt(lab,CX,1320,64,700,'#fff');
+    const t='vztrajam pri svojem cilju';c.font=font(800,38);const w=c.measureText(t).width+68;
+    c.fillStyle='rgba(15,40,28,.78)';rr(CX-w/2,1372,w,76,38);c.fill();txt(t,CX,1425,38,800,'#8FE3B5','center',false);
+  }else if(type==='week'){
+    const P=repPeriod(kind==='pweek'?'pweek':'week',today);
+    txt(kind==='pweek'?'Moj prejšnji teden':'Moj teden',CX,1150,56,800,'#fff');
+    const r=55,gap=26,tot=7*2*r+6*gap,x0=CX-tot/2+r;
+    P.days.forEach((d,i)=>{const x=x0+i*(2*r+gap);dot(x,1260,r,d.state);txt(DAYS[i],x,1370,34,700,'#fff')});
+    txt(String(P.good),CX-90,1500,110,900,'#fff','right');
+    txt('od '+P.target+' '+dniF(P.target),CX-70,1500,56,700,'#fff','left');
+  }else if(type==='month'){
+    const P=repPeriod(kind==='pmonth'?'pmonth':'month',today);
+    const rows=Math.ceil((P.lead+P.cells.length)/7);
+    const sz=84,g=14,cols=7;const tw=cols*sz+(cols-1)*g;const x0=CX-tw/2;
+    const T=1690-(94+rows*(sz+g)+56);
+    const mi=(parse(today).getMonth()+(kind==='pmonth'?11:0))%12;
+    txt('Moj '+MONTHS[mi],CX,T,70,900,'#fff');
+    DAYS.forEach((d,i)=>txt(d,x0+i*(sz+g)+sz/2,T+60,28,700,'#fff'));
+    P.cells.forEach((cell,k)=>{const idx=P.lead+k;tile(x0+(idx%7)*(sz+g),T+84+Math.floor(idx/7)*(sz+g),sz,cell.state)});
+    txt(P.good+' '+dniF(P.good)+' od '+P.target+(P.pct==null?'':' · '+Math.round(P.pct*100)+' %'),CX,T+84+rows*(sz+g)+40,44,700,'#fff');
+  }else{
+    const n=Math.max(1,diffDays(p.start,today)+1);
+    c.fillStyle='rgba(10,24,18,.82)';rr(150,1010,780,560,56);c.fill();
+    c.textAlign='center';if(c.letterSpacing!==undefined)c.letterSpacing='6px';txt('ZIMSKI IZZIV',CX,1100,34,800,'#8FE3B5','center',false);if(c.letterSpacing!==undefined)c.letterSpacing='0px';
+    txt('Vztrajam',CX,1230,100,900,'#fff','center',false);
+    txt('že '+n+' '+dniF(n),CX,1340,100,900,'#fff','center',false);
+    txt('Enkrat zgrešiš, ni panike.',CX,1440,44,500,'#cfe8da','center',false);
+    txt('Dvakrat zaporedoma ne.',CX,1496,44,500,'#cfe8da','center',false);
+  }
+  logo();
+  return await new Promise(res=>cv.toBlob(res,'image/png'));
+}
 function openProgressReport(today){
-  let kind=ui.repKind||'week';let blob=null,url=null,seq=0;
+  let kind=ui.repKind||'week';let style=ui.repStyle||'report';let blob=null,url=null,seq=0;
   const img=h('img',{alt:'Poročilo',style:'min-height:120px'});
   const seg=h('div',{class:'seg',role:'group','aria-label':'Obdobje'});
   const opts=[['week','Ta teden'],['pweek','Prejšnji teden'],['month','Ta mesec'],['pmonth','Prejšnji mesec']];
-  const nm=()=>'napredek-'+kind+'-'+today+'.png';
+  const nm=()=>(style==='report'?'napredek-'+kind:'nalepka-'+style)+'-'+today+'.png';
+  const sseg=h('div',{class:'seg',role:'group','aria-label':'Oblika'});
+  const noteEl=h('p',{class:'small',style:'margin:6px 0',hidden:true,text:'Prosojna nalepka: v Instagramu izberi svojo fotografijo in dodaj to sliko čez.'});
   const share=h('button',{class:'btn',type:'button'},'Deli');
   const dl=h('a',{class:'btn alt',download:'napredek.png'},'Prenesi sliko');
   const gen=async()=>{
     const my=++seq;img.removeAttribute('src');share.disabled=true;
-    let b=null;try{b=await progressBlob(kind,today)}catch(e){}
+    let b=null;try{b=style==='report'?await progressBlob(kind,today):await stickerBlob(style,kind,today)}catch(e){}
     if(my!==seq)return;
     if(!b){toast('Slike ni bilo mogoče narediti.');return}
-    if(url)URL.revokeObjectURL(url);blob=b;url=URL.createObjectURL(b);img.src=url;dl.href=url;dl.download=nm();share.disabled=false;
+    if(url)URL.revokeObjectURL(url);blob=b;url=URL.createObjectURL(b);img.src=url;dl.href=url;dl.download=nm();share.disabled=false;img.classList.toggle('chk',style!=='report');
   };
-  const drawSeg=()=>{seg.replaceChildren(...opts.map(([k,l])=>h('button',{class:'btn sm '+(kind===k?'':'alt'),type:'button','aria-pressed':kind===k?'true':'false',onclick:()=>{kind=k;ui.repKind=k;drawSeg();gen()}},l)))};
+  const drawSeg=()=>{seg.hidden=(style==='streak'||style==='badge');noteEl.hidden=style==='report';sseg.replaceChildren(...STICKERS.map(([k,l])=>h('button',{class:'btn sm '+(style===k?'':'alt'),type:'button','aria-pressed':style===k?'true':'false',onclick:()=>{style=k;ui.repStyle=k;drawSeg();gen()}},l)));seg.replaceChildren(...opts.map(([k,l])=>h('button',{class:'btn sm '+(kind===k?'':'alt'),type:'button','aria-pressed':kind===k?'true':'false',onclick:()=>{kind=k;ui.repKind=k;drawSeg();gen()}},l)))};
   share.onclick=async()=>{
     if(!blob)return;
     let file=null;try{file=new File([blob],nm(),{type:'image/png'})}catch(e){}
@@ -1865,7 +1926,7 @@ function openProgressReport(today){
     toast('Deljenje ni podprto. Uporabi Prenesi sliko.');
   };
   const ov=h('div',{class:'rp-ov',role:'dialog','aria-label':'Kako mi gre',onclick:e=>{if(e.target===ov)close()}},
-    h('div',{class:'rp-in'},h('h2',{text:'Kako mi gre'}),seg,img,share,dl,
+    h('div',{class:'rp-in'},h('h2',{text:'Kako mi gre'}),sseg,seg,noteEl,img,share,dl,
       h('button',{class:'btn alt',type:'button',onclick:()=>close()},'Zapri')));
   const close=()=>{seq++;ov.remove();if(url)URL.revokeObjectURL(url)};
   document.body.append(ov);histOverlay(ov,false);drawSeg();gen();
