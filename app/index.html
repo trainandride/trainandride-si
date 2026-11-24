@@ -2634,24 +2634,49 @@ function confirmPop(label,title,text,okLabel,onOk,danger){
   const ok=h('button',{class:danger?'btn danger':'btn',type:'button',onclick:()=>{ov.remove();onOk()}},okLabel);
   card.insertBefore(ok,close);close.textContent='Prekliči';
 }
+const APP_VER='24. 11. 2026';
+function exportData(){
+  try{
+    const blob=new Blob([JSON.stringify({izvoz:new Date().toISOString(),aplikacija:'Train & Ride',podatki:ST},null,2)],{type:'application/json'});
+    const u=URL.createObjectURL(blob);const a=h('a',{href:u,download:'train-ride-podatki-'+todayStr()+'.json'});
+    document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('Datoteka je prenesena.');
+  }catch(e){toast('Izvoz ni uspel.')}
+}
 function openSettings(){
   const old=document.querySelector('.set-ov');if(old)old.remove();
   const themeSeg=h('div',{class:'seg',role:'group','aria-label':'Videz'});
   const drawTheme=()=>{const t=themeNow();themeSeg.replaceChildren(...[['dark','Temen'],['light','Svetel']].map(([k,l])=>h('button',{class:'btn sm '+(t===k?'':'alt'),type:'button','aria-pressed':t===k?'true':'false',onclick:()=>{setTheme(k);drawTheme()}},l)))};
   const row=(t,sub,fn)=>h('button',{class:'set-row',type:'button',onclick:fn},h('span',{},h('b',{text:t}),sub?h('small',{text:sub}):null),h('span',{class:'popico',html:ICO_POP,'aria-hidden':'true'}));
-  const who=[ST.name,sbUser&&sbUser.email].filter(Boolean).join(' · ');
+  const who=sbUser&&sbUser.email||'';
+  const nameIn=h('input',{type:'text',maxlength:'60',value:ST.name||'','aria-label':'Ime',placeholder:'Ime'});
+  const nameBtn=h('button',{class:'btn sm',type:'button',onclick:()=>{ST.name=nameIn.value.trim().slice(0,60);save();render();toast('Ime je shranjeno.')}},'Shrani');
+  const remBtn=h('button',{class:'btn sm alt',type:'button',disabled:true},'…');
+  let remOn=null;
+  const drawRem=()=>{remBtn.disabled=remOn===null;remBtn.textContent=remOn===null?'…':remOn?'Vklopljeno':'Izklopljeno';remBtn.className='btn sm '+(remOn?'':'alt');remBtn.setAttribute('aria-pressed',remOn?'true':'false')};
+  if(sb&&sbUser){
+    (async()=>{try{const r=await sb.from('profiles').select('consent_checkins').eq('user_id',sbUser.id).maybeSingle();remOn=!!(r&&r.data&&r.data.consent_checkins)}catch(e){remOn=null}drawRem()})();
+    remBtn.onclick=async()=>{
+      if(remOn===null)return;const nv=!remOn;remBtn.disabled=true;
+      try{const patch={consent_checkins:nv};if(nv)patch.consent_at=new Date().toISOString();const r=await sb.from('profiles').update(patch).eq('user_id',sbUser.id);if(r&&r.error)throw r.error;remOn=nv;toast(nv?'Opomniki so vklopljeni.':'Opomniki so izklopljeni.')}catch(e){toast('Spremembe ni bilo mogoče shraniti.')}
+      drawRem();
+    };
+  }
   const close=()=>ov.remove();
   const ov=h('div',{class:'rp-ov set-ov',role:'dialog','aria-label':'Profil in nastavitve',onclick:e=>{if(e.target===ov)close()}},
     h('div',{class:'rp-in'},h('h2',{text:'Profil'}),who?h('p',{class:'small muted',style:'margin:0',text:who}):null,
+      h('div',{class:'set-sec',text:'Ime'}),h('div',{class:'row',style:'gap:8px;flex-wrap:nowrap'},nameIn,nameBtn),
       h('div',{class:'set-sec',text:'Videz'}),themeSeg,
       h('div',{class:'set-sec',text:'Aplikacija'}),
+      sb&&sbUser?h('div',{class:'set-row'},h('span',{},h('b',{text:'E-poštni opomniki'}),h('small',{text:'Ponedeljek zjutraj in petek ob 16:00, če še nimaš vnosa'})),remBtn):null,
       row('Bližnjica na začetni zaslon','Ikona odpre aplikacijo z enim tapom',showShortcut),
       row('Zasebnost','Kje so tvoji podatki in kdo jih vidi',()=>showInfo('Zasebnost','Tvoji podatki',h('p',{text:sb?'Podatki se shranjujejo v zaščiteni bazi v EU, vezani na tvoj email, da jih odpreš tudi na drugem telefonu. Teja vidi samo tvoj cilj in tedenske check-ine, dnevnih opomb ne bere.':'Podatki ostanejo samo v tvojem brskalniku. Teja in skupina vidita samo to, kar sama pošlješ v check-inu.'}))),
       h('div',{class:'set-sec',text:'Podatki'}),
+      row('Prenesi moje podatke','Datoteka JSON s tvojimi cilji in vnosi',exportData),
       row('Začni znova','Izbriše vse cilje in vnose',()=>confirmPop('Začni znova','Izbrišem vse podatke?','Izbrisani bodo vsi cilji, vnosi in opombe na tej napravi. Tega ni mogoče razveljaviti.','Izbriši vse podatke',()=>{close();ST=emptyState();save();ui.gi=0;ui.adding=false;ui.form=null;ui.tab='cilj';render();toast('Podatki so izbrisani')},true)),
       sb&&sbUser?row('Odjava',sbUser.email||'',()=>confirmPop('Odjava','Se želiš odjaviti?','Podatki ostanejo shranjeni v tvojem računu. Ob naslednji prijavi z istim emailom se naložijo.','Odjava',()=>sbSignOut())):null,
+      row('O aplikaciji','Različica in stik',()=>showInfo('Train & Ride','O aplikaciji',h('p',{text:'Različica: '+APP_VER}),h('p',{class:'small muted',text:'Vprašanje ali težava? Piši Teji.'}),h('a',{class:'btn',target:'_blank',rel:'noopener',href:helpLink()},'Piši Teji na WhatsApp'))),
       h('button',{class:'btn alt',type:'button',onclick:close},'Zapri')));
-  document.body.append(ov);histOverlay(ov,false);swipeClose(ov,ov.firstChild,close);drawTheme();
+  document.body.append(ov);histOverlay(ov,false);swipeClose(ov,ov.firstChild,close);drawTheme();drawRem();
 }
 async function sbSignOut(){
   clearTimeout(pushT);await pushNow();
